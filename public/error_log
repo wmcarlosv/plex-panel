@@ -1,0 +1,71 @@
+[30-Jul-2023 20:45:17 UTC] PHP Fatal error:  Cannot use Auth as Auth because the name is already in use in /home/devecksh/plex.devcav.xyz/app/Http/Controllers/Voyager/CustomerController.php on line 18
+[07-Aug-2023 11:49:27 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:97
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.dev in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 11:49:27 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:97
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.dev in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 11:49:52 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:97
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.dev in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 11:54:33 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:97
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.dev in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 11:58:41 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:97
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.dev in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 12:02:11 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexHttpClient.php:235
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Services/Plex.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex.de in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php on line 8
+[07-Aug-2023 12:02:47 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected '|', expecting ';' or '{' in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexAPI/Servers.php:16
+Stack trace:
+#0 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#2 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexAPI.php(21): spl_autoload_call('Havenstd06\\Lara...')
+#3 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(571): include('/home/devecksh/...')
+#4 /home/devecksh/plex.devcav.xyz/vendor/composer/ClassLoader.php(428): Composer\Autoload\includeFile('/home/devecksh/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('Havenstd06\\Lara...')
+#6 /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexRequest.php(8): spl_autoload_call('Havenstd06\\Lara...')
+#7 /home/devecksh/plex. in /home/devecksh/plex.devcav.xyz/vendor/havenstd06/laravel-plex/src/Traits/PlexAPI.php on line 21
