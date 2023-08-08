@@ -75,7 +75,7 @@ class CustomerController extends VoyagerBaseController
 
             $query = $model::select($dataType->name.'.*');
 
-            if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4){
+            if(Auth::user()->role_id == 3){
                 $query->where('user_id',Auth::user()->id);
             }
 
@@ -215,7 +215,6 @@ class CustomerController extends VoyagerBaseController
             'showCheckboxColumn'
         ));
     }
-
     //***************************************
     //                _____
     //               |  __ \
