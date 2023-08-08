@@ -15,10 +15,15 @@ use TCG\Voyager\Events\BreadDataUpdated;
 use TCG\Voyager\Events\BreadImagesDeleted;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
+use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
+use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
+use App\Models\Customer;
 
 class CustomerController extends VoyagerBaseController
 {
     use BreadRelationshipParser;
+
+    private $provider;
 
     //***************************************
     //               ____
@@ -31,6 +36,10 @@ class CustomerController extends VoyagerBaseController
     //      Browse our Data Type (B)READ
     //
     //****************************************
+
+    public function __construct(){
+        $this->provider = new PlexClient;
+    }
 
     public function index(Request $request)
     {
@@ -445,6 +454,37 @@ class CustomerController extends VoyagerBaseController
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
+        if($data){
+            $customer = Customer::findorfail($data->id);
+            $response = $this->provider->validateUser($request->email);
+
+            $librarySectionIds = [];
+
+            $settings = new FriendRestrictionsSettings(
+                allowChannels: '1',
+                allowSubtitleAdmin: '1',
+                allowSync: '0',
+                allowTuners: '0',
+                filterMovies: '',
+                filterMusic: '',
+                filterTelevision: '',
+            );
+
+            if($response['response']['status'] == "Valid user"){
+                $invited = $this->provider->inviteFriend($request->email, $librarySectionIds, $settings);
+                $customer->plex_user_name = $invited['invited']['username'];
+                $customer->invited_id = $invited['invited']['id'];
+            }else{
+                $plex_user = simplexml_load_string($this->createPlexUser($request->email, $request->password));
+                $customer->plex_user_name = $plex_user->attributes()->{'username'};
+                $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
+                $invited = $this->provider->inviteFriend($customer->email, $librarySectionIds, $settings);
+                $customer->invited_id = $invited['invited']['id'];
+            }
+
+            $customer->update();
+        }
+
         event(new BreadDataAdded($dataType, $data));
 
         if (!$request->has('_tagging')) {
@@ -496,6 +536,10 @@ class CustomerController extends VoyagerBaseController
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
+            if(isset($data->invited_id) and !empty($data->invited_id)){
+                $this->provider->removeFriend($data->invited_id);
+            }
+
             // Check permission
             $this->authorize('delete', $data);
 
@@ -504,9 +548,7 @@ class CustomerController extends VoyagerBaseController
                 $this->cleanup($dataType, $data);
             }
 
-            $res = $data->delete();
-
-            if ($res) {
+            if ($data->delete()) {
                 $affected++;
 
                 event(new BreadDataDeleted($dataType, $data));
@@ -524,7 +566,6 @@ class CustomerController extends VoyagerBaseController
                 'message'    => __('voyager::generic.error_deleting')." {$displayName}",
                 'alert-type' => 'error',
             ];
-
         return redirect()->route("voyager.{$dataType->slug}.index")->with($data);
     }
 
@@ -1003,5 +1044,26 @@ class CustomerController extends VoyagerBaseController
     protected function relationIsUsingAccessorAsLabel($details)
     {
         return in_array($details->label, app($details->model)->additional_attributes ?? []);
+    }
+
+    public function createPlexUser($email, $password) {
+        $apiUrl = 'https://plex.tv/api/v2/users';
+        
+        $data = array(
+            'email' => $email,
+            'password' => $password
+        );
+        
+        return $this->curlPost($apiUrl, $data);
+    }
+
+    public function verifyUser($email, $password){
+        $apiUrl = "https://plex.tv/api/v2/users/signin";
+        $data = array(
+            'login'=>$email,
+            'password'=>$password
+        );
+
+        return $this->curlPost($apiUrl, $data);
     }
 }

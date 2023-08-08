@@ -1,0 +1,45 @@
+{
+    "name": "havenstd06/laravel-plex",
+    "type": "library",
+    "description": "A Laravel package that allows access to the API of your Plex server.",
+    "keywords": ["http", "rest", "web service", "plex", "laravel plex"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas",
+            "email": "me@hvs.cx"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Havenstd06\\LaravelPlex\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.2|^8.0",
+        "ext-curl": "*",
+        "guzzlehttp/guzzle": "~7.0",
+        "illuminate/support": "~6.0|~7.0|~8.0|~9.0",
+        "nesbot/carbon": "~2.0",
+        "ext-simplexml": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0|^9.0",
+        "symfony/var-dumper": "~5.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Havenstd06\\LaravelPlex\\Providers\\PlexServiceProvider"
+            ],
+            "aliases": {
+                "Plex": "Havenstd06\\LaravelPlex\\Facades\\Plex"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

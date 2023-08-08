@@ -17,8 +17,4 @@ class Customer extends Model
         $this->user_id = Auth::user()->id;
         parent::save();
     }
-
-    public function scopeCustomer($query){
-        return $query->where('user_id',Auth::user()->id)->where('status','active');
-    }
 }
