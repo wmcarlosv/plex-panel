@@ -1111,4 +1111,26 @@ class CustomerController extends VoyagerBaseController
 
         return $this->curlPost($apiUrl, $data);
     }
+
+    public function curlPost($url, $params){
+        $plexToken = setting('admin.plex_token');
+
+        $headers = array(
+            'X-Plex-Client-Identifier: '.$plexToken,
+            'Content-Type: application/json'
+        );
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        curl_close($ch);
+
+        return $response;
+    }
 }
