@@ -18,6 +18,7 @@ use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
 use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
 use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
 use App\Models\Customer;
+use App\Models\User;
 
 class CustomerController extends VoyagerBaseController
 {
@@ -73,6 +74,10 @@ class CustomerController extends VoyagerBaseController
             $model = app($dataType->model_name);
 
             $query = $model::select($dataType->name.'.*');
+
+            if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4){
+                $query->where('user_id',Auth::user()->id);
+            }
 
             if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
                 $query->{$dataType->scope}();
@@ -342,6 +347,20 @@ class CustomerController extends VoyagerBaseController
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
+        $current_date = strtotime(date('Y-m-d'));
+        $date_to = strtotime($request->date_to);
+
+        if($request->status == 'active'){
+            if($current_date > $date_to){
+                $redirect = redirect()->back();
+
+                return $redirect->with([
+                    'message'    => __('Para activar un usuario asegurate que la fecha hasta sea mayor a la fecha actual!!'),
+                    'alert-type' => 'error',
+                ]);
+            }
+        }
+
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
@@ -356,6 +375,7 @@ class CustomerController extends VoyagerBaseController
 
         $data = $query->findOrFail($id);
 
+
         // Check permission
         $this->authorize('edit', $data);
 
@@ -369,7 +389,9 @@ class CustomerController extends VoyagerBaseController
             });
         $original_data = clone($data);
 
-        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+        if($this->insertUpdateData($request, $slug, $dataType->editRows, $data)){
+            $this->createPlexAccount($request->email, $request->password, $data);
+        }
 
         // Delete Images
         $this->deleteBreadImages($original_data, $to_remove);
@@ -449,40 +471,24 @@ class CustomerController extends VoyagerBaseController
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
+        if(Auth::user()->role_id == 3){
+           if(Auth::user()->total_credits == 0){
+            $redirect = redirect()->back();
+
+            return $redirect->with([
+                'message'    => __('No tienes creditos, para seguir creando clientes por favor recarga tus creditos!!')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                'alert-type' => 'error',
+            ]);
+           }
+        }
+
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
         if($data){
-            $customer = Customer::findorfail($data->id);
-            $response = $this->provider->validateUser($request->email);
-
-            $librarySectionIds = [];
-
-            $settings = new FriendRestrictionsSettings(
-                allowChannels: '1',
-                allowSubtitleAdmin: '1',
-                allowSync: '0',
-                allowTuners: '0',
-                filterMovies: '',
-                filterMusic: '',
-                filterTelevision: '',
-            );
-
-            if($response['response']['status'] == "Valid user"){
-                $invited = $this->provider->inviteFriend($request->email, $librarySectionIds, $settings);
-                $customer->plex_user_name = $invited['invited']['username'];
-                $customer->invited_id = $invited['invited']['id'];
-            }else{
-                $plex_user = simplexml_load_string($this->createPlexUser($request->email, $request->password));
-                $customer->plex_user_name = $plex_user->attributes()->{'username'};
-                $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
-                $invited = $this->provider->inviteFriend($customer->email, $librarySectionIds, $settings);
-                $customer->invited_id = $invited['invited']['id'];
-            }
-
-            $customer->update();
+            $this->createPlexAccount($request->email, $request->password, $data);
         }
 
         event(new BreadDataAdded($dataType, $data));
@@ -500,6 +506,46 @@ class CustomerController extends VoyagerBaseController
             ]);
         } else {
             return response()->json(['success' => true, 'data' => $data]);
+        }
+    }
+
+
+    public function createPlexAccount($email, $password, $data){
+        $customer = Customer::findorfail($data->id);
+
+        $response = $this->provider->validateUser($email);
+
+        $librarySectionIds = [];
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        if($response['response']['status'] == "Valid user"){
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            $customer->plex_user_name = $invited['invited']['username'];
+            $customer->invited_id = $invited['invited']['id'];
+        }else{
+            $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
+            $customer->plex_user_name = $plex_user->attributes()->{'username'};
+            $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            $customer->invited_id = $invited['invited']['id'];
+        }
+
+        $customer->update();
+
+        if(Auth::user()->role_id == 3){
+           $user = User::findorfail(Auth::user()->id);
+           $current_credit = $user->total_credits;
+           $user->total_credits = ($current_credit - 1);
+           $user->update(); 
         }
     }
 
