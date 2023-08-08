@@ -17,6 +17,10 @@ Route::get('/', function () {
     return redirect('admin/login');
 });
 
+Route::get('/foo', function () {
+    Artisan::call('storage:link');
+});
+
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
