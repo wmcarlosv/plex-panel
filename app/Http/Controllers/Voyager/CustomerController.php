@@ -27,6 +27,7 @@ class CustomerController extends VoyagerBaseController
     use BreadRelationshipParser;
 
     private $provider;
+    private $token;
 
     //***************************************
     //               ____
@@ -488,6 +489,7 @@ class CustomerController extends VoyagerBaseController
         $duration = Duration::findorfail($request->duration_id);
 
         $server = Server::findorfail($request->server_id);
+
         $this->setServerCredentials($server->url, $server->token);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -560,6 +562,7 @@ class CustomerController extends VoyagerBaseController
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             $customer->invited_id = $invited['invited']['id'];
         }
+
 
 
 
@@ -1142,7 +1145,7 @@ class CustomerController extends VoyagerBaseController
     }
 
     public function curlPost($url, $params){
-        $plexToken = setting('admin.plex_token');
+        $plexToken = $this->token;
 
         $headers = array(
             'X-Plex-Client-Identifier: '.$plexToken,
@@ -1225,14 +1228,13 @@ class CustomerController extends VoyagerBaseController
         $config = [
             'server_url'        => $server_url,
             'token'             => $token,
-            
             'client_identifier' => $token,
-            'product'           => '',
-            'version'           => '',
-            
-            'validate_ssl'      => true,
+            'product'           => 'havenstd06/laravel-plex',
+            'version'           => '1.0.0',
+            'validate_ssl'      => false,
         ];
 
+        $this->token = $token;
         $this->provider->setApiCredentials($config);
     }
 }
