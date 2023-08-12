@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Voyager\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,5 +24,6 @@ Route::get('/foo', function () {
 
 
 Route::group(['prefix' => 'admin'], function () {
+    Route::post('users/store',[UserController::class, 'custom_store'])->name('user_custom_store');
     Voyager::routes();
 });

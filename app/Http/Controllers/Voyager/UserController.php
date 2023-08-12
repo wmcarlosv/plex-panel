@@ -21,6 +21,7 @@ use App\Models\Customer;
 use App\Models\Credit;
 use App\Models\Server;
 
+
 class UserController extends VoyagerBaseController
 {
     use BreadRelationshipParser;
@@ -446,7 +447,7 @@ class UserController extends VoyagerBaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function custom_store(Request $request)
     {
         $slug = $this->getSlug($request);
 
@@ -1055,5 +1056,18 @@ class UserController extends VoyagerBaseController
         ];
 
         $this->provider->setApiCredentials($config);
+    }
+
+    public function profile(Request $request)
+    {
+        $route = '';
+        $dataType = Voyager::model('DataType')->where('model_name', Auth::guard(app('VoyagerGuard'))->getProvider()->getModel())->first();
+        if (!$dataType && app('VoyagerGuard') == 'web') {
+            $route = route('voyager.users.edit', Auth::user()->getKey());
+        } elseif ($dataType) {
+            $route = route('voyager.'.$dataType->slug.'.edit', Auth::user()->getKey());
+        }
+
+        return Voyager::view('voyager::profile', compact('route'));
     }
 }
