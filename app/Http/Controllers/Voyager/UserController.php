@@ -15,14 +15,13 @@ use TCG\Voyager\Events\BreadDataUpdated;
 use TCG\Voyager\Events\BreadImagesDeleted;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
-use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
-use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
-use App\Models\Customer;
 use App\Models\User;
+use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
+use App\Models\Customer;
+use App\Models\Credit;
 use App\Models\Server;
-use App\Models\Duration;
 
-class CustomerController extends VoyagerBaseController
+class UserController extends VoyagerBaseController
 {
     use BreadRelationshipParser;
 
@@ -39,6 +38,7 @@ class CustomerController extends VoyagerBaseController
     //      Browse our Data Type (B)READ
     //
     //****************************************
+
 
     public function __construct(){
         $this->provider = new PlexClient;
@@ -76,10 +76,6 @@ class CustomerController extends VoyagerBaseController
             $model = app($dataType->model_name);
 
             $query = $model::select($dataType->name.'.*');
-
-            if(Auth::user()->role_id == 3){
-                $query->where('user_id',Auth::user()->id);
-            }
 
             if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
                 $query->{$dataType->scope}();
@@ -217,6 +213,7 @@ class CustomerController extends VoyagerBaseController
             'showCheckboxColumn'
         ));
     }
+
     //***************************************
     //                _____
     //               |  __ \
@@ -346,37 +343,7 @@ class CustomerController extends VoyagerBaseController
     {
         $slug = $this->getSlug($request);
 
-        $duration = Duration::findorfail($request->duration_id);
-
-        $server = Server::findorfail($request->server_id);
-        $this->setServerCredentials($server->url, $server->token);
-
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        $current_date = strtotime(date('Y-m-d'));
-        $date_to = strtotime($request->date_to);
-
-        if($request->status == 'active'){
-            if($current_date > $date_to){
-                $redirect = redirect()->back();
-
-                return $redirect->with([
-                    'message'    => __('Para activar un usuario asegurate que la fecha hasta sea mayor a la fecha actual!!'),
-                    'alert-type' => 'error',
-                ]);
-            }
-        }
-
-        if(Auth::user()->role_id == 3){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
-            $redirect = redirect()->back();
-
-            return $redirect->with([
-                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                'alert-type' => 'error',
-            ]);
-           }
-        }
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
@@ -392,7 +359,6 @@ class CustomerController extends VoyagerBaseController
 
         $data = $query->findOrFail($id);
 
-
         // Check permission
         $this->authorize('edit', $data);
 
@@ -406,9 +372,7 @@ class CustomerController extends VoyagerBaseController
             });
         $original_data = clone($data);
 
-        if($this->insertUpdateData($request, $slug, $dataType->editRows, $data)){
-            $this->createPlexAccount($request->email, $request->password, $data);
-        }
+        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
 
         // Delete Images
         $this->deleteBreadImages($original_data, $to_remove);
@@ -485,32 +449,18 @@ class CustomerController extends VoyagerBaseController
     public function store(Request $request)
     {
         $slug = $this->getSlug($request);
-        $duration = Duration::findorfail($request->duration_id);
 
-        $server = Server::findorfail($request->server_id);
-        $this->setServerCredentials($server->url, $server->token);
+        $user = User::findorfail($request->user_id);
+        $current_credit = intval($user->total_credits);
+        $user->total_credits = ($current_credit+intval($request->qty));
+        $user->update();
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        if(Auth::user()->role_id == 3){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
-            $redirect = redirect()->back();
-
-            return $redirect->with([
-                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                'alert-type' => 'error',
-            ]);
-           }
-        }
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-
-        if($data){
-            $this->createPlexAccount($request->email, $request->password, $data);
-        }
 
         event(new BreadDataAdded($dataType, $data));
 
@@ -528,51 +478,6 @@ class CustomerController extends VoyagerBaseController
         } else {
             return response()->json(['success' => true, 'data' => $data]);
         }
-    }
-
-
-    public function createPlexAccount($email, $password, $data){
-        $customer = Customer::findorfail($data->id);
-        $duration = Duration::findorfail($data->duration_id);
-
-        $response = $this->provider->validateUser($email);
-
-        $librarySectionIds = [];
-
-        $settings = new FriendRestrictionsSettings(
-            allowChannels: '1',
-            allowSubtitleAdmin: '1',
-            allowSync: '0',
-            allowTuners: '0',
-            filterMovies: '',
-            filterMusic: '',
-            filterTelevision: '',
-        );
-
-        if($response['response']['status'] == "Valid user"){
-            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
-            $customer->plex_user_name = $invited['invited']['username'];
-            $customer->invited_id = $invited['invited']['id'];
-        }else{
-            $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
-            $customer->plex_user_name = $plex_user->attributes()->{'username'};
-            $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
-            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
-            $customer->invited_id = $invited['invited']['id'];
-        }
-
-
-
-        $customer->update();
-
-        if(Auth::user()->role_id == 3){
-           $user = User::findorfail(Auth::user()->id);
-           $current_credit = $user->total_credits;
-           $user->total_credits = ($current_credit - intval($duration->months));
-           $user->update(); 
-        }
-
-        $this->getDataInvitation($email, $password, $invited['ownerId']);
     }
 
     //***************************************
@@ -608,11 +513,7 @@ class CustomerController extends VoyagerBaseController
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
-            if(isset($data->invited_id) and !empty($data->invited_id)){
-                $server = Server::findorfail($data->server_id);
-                $this->setServerCredentials($server->url, $server->token);
-                $this->provider->removeFriend($data->invited_id);
-            }
+            $this->deleteAllRegister($data->id);
 
             // Check permission
             $this->authorize('delete', $data);
@@ -622,7 +523,9 @@ class CustomerController extends VoyagerBaseController
                 $this->cleanup($dataType, $data);
             }
 
-            if ($data->delete()) {
+            $res = $data->delete();
+
+            if ($res) {
                 $affected++;
 
                 event(new BreadDataDeleted($dataType, $data));
@@ -640,6 +543,7 @@ class CustomerController extends VoyagerBaseController
                 'message'    => __('voyager::generic.error_deleting')." {$displayName}",
                 'alert-type' => 'error',
             ];
+
         return redirect()->route("voyager.{$dataType->slug}.index")->with($data);
     }
 
@@ -1120,106 +1024,23 @@ class CustomerController extends VoyagerBaseController
         return in_array($details->label, app($details->model)->additional_attributes ?? []);
     }
 
-    public function createPlexUser($email, $password) {
-        $apiUrl = 'https://plex.tv/api/v2/users';
-        
-        $data = array(
-            'email' => $email,
-            'password' => $password
-        );
-        
-        return $this->curlPost($apiUrl, $data);
+    public function deleteAllRegister($user_id){
+        $credits = Credit::where('user_id',$user_id)->get();;
+        foreach($credits as $credit){
+            $cd = Credit::findorfail($credit->id);
+            $cd->delete();
+        }
+
+        $customers = Customer::where('user_id',$user_id)->get();
+        foreach($customers as $customer){
+            $server = Server::findorfail($customer->server_id);
+            $this->setServerCredentials($server->url, $server->token);
+            $this->provider->removeFriend($customer->invited_id);
+            $cus = customer::findorfail($customer->id);
+            $cus->delete();
+        }
     }
 
-    public function verifyUser($email, $password){
-        $apiUrl = "https://plex.tv/api/v2/users/signin";
-        $data = array(
-            'login'=>$email,
-            'password'=>$password
-        );
-
-        return $this->curlPost($apiUrl, $data);
-    }
-
-    public function curlPost($url, $params){
-        $plexToken = setting('admin.plex_token');
-
-        $headers = array(
-            'X-Plex-Client-Identifier: '.$plexToken,
-            'Content-Type: application/json'
-        );
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        curl_close($ch);
-
-        return $response;
-    }
-
-    public function loginInPlex($username, $password){
-        $data = [
-            'auth' => [
-                $username, // Required
-                $password, // Required
-            ],
-            'headers' => [
-                // Headers: https://github.com/Arcanemagus/plex-api/wiki/Plex.tv#request-headers
-                // X-Plex-Client-Identifier is already defined in default config file
-            ]
-        ];
-        $plexUser = $this->provider->signIn($data, false);
-        return $plexUser;
-    }
-
-    public function getDataInvitation($email, $password, $ownerId){
-        $data_user = $this->loginInPlex($email, $password);
-
-        $opts = [
-            "http" => [
-                "method" => "GET",
-                "header" => "X-Plex-Token: ".$data_user['user']['authToken']
-            ]
-        ];
-
-        $context = stream_context_create($opts);
-
-        $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
-        $data = simplexml_load_string($response);
-        $ownerId = $data->Invite->attributes()->{'id'};
-        $friend = $data->Invite->attributes()->{'friend'};
-        $home = $data->Invite->attributes()->{'home'};
-        $server = $data->Invite->attributes()->{'server'};
-        $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
-    }
-
-    public function accept_invitation($token, $ownerId, $friend, $home, $server){
-        $ownerId = (string)$ownerId;
-        $url = "https://plex.tv/api/invites/requests/".$ownerId;
-        $data = [
-            'friend' => (string)$friend,
-            'home' => (string)$home,
-            'server' => (string)$server
-        ];
-
-        $headers = [
-            'X-Plex-Token:'.$token
-        ];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-    }
 
     public function setServerCredentials($server_url, $token){
         $config = [

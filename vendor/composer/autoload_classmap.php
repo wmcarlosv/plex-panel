@@ -6,12 +6,13 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\CheckCustomers' => $baseDir . '/app/Console/Commands/CheckCustomers.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
+    'App\\Http\\Controllers\\ApiController' => $baseDir . '/app/Http/Controllers/ApiController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\Voyager\\CreditController' => $baseDir . '/app/Http/Controllers/Voyager/CreditController.php',
     'App\\Http\\Controllers\\Voyager\\CustomerController' => $baseDir . '/app/Http/Controllers/Voyager/CustomerController.php',
-    'App\\Http\\Controllers\\Voyager\\PurchaseController' => $baseDir . '/app/Http/Controllers/Voyager/PurchaseController.php',
     'App\\Http\\Controllers\\Voyager\\VoyagerAuthController' => $baseDir . '/app/Http/Controllers/Voyager/VoyagerAuthController.php',
     'App\\Http\\Controllers\\Voyager\\VoyagerBaseController' => $baseDir . '/app/Http/Controllers/Voyager/VoyagerBaseController.php',
     'App\\Http\\Controllers\\Voyager\\VoyagerBreadController' => $baseDir . '/app/Http/Controllers/Voyager/VoyagerBreadController.php',
@@ -42,6 +43,9 @@ return array(
     'App\\Providers\\BroadcastServiceProvider' => $baseDir . '/app/Providers/BroadcastServiceProvider.php',
     'App\\Providers\\EventServiceProvider' => $baseDir . '/app/Providers/EventServiceProvider.php',
     'App\\Providers\\RouteServiceProvider' => $baseDir . '/app/Providers/RouteServiceProvider.php',
+    'App\\Widgets\\CreditsDimmer' => $baseDir . '/app/Widgets/CreditsDimmer.php',
+    'App\\Widgets\\CustomerDimmer' => $baseDir . '/app/Widgets/CustomerDimmer.php',
+    'App\\Widgets\\ResellerDimmer' => $baseDir . '/app/Widgets/ResellerDimmer.php',
     'Arrilot\\Widgets\\AbstractWidget' => $vendorDir . '/arrilot/laravel-widgets/src/AbstractWidget.php',
     'Arrilot\\Widgets\\AsyncFacade' => $vendorDir . '/arrilot/laravel-widgets/src/AsyncFacade.php',
     'Arrilot\\Widgets\\Console\\WidgetMakeCommand' => $vendorDir . '/arrilot/laravel-widgets/src/Console/WidgetMakeCommand.php',

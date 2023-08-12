@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Auth;
 use DB;
 use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
+use App\Models\Server;
 
 class CheckCustomers extends Command
 {
@@ -48,6 +49,8 @@ class CheckCustomers extends Command
         $customers = Customer::where('status','active')->get();
 
         foreach ($customers as $data) {
+            $server = Server::findorfail($data->server_id);
+            $this->setServerCredentials($server->url, $server->token);
             if(isset($data->invited_id) and !empty($data->invited_id)){
                 if(strtotime($data->date_to) < strtotime(date('Y-m-d'))){
                    $this->provider->removeFriend($data->invited_id);
@@ -59,5 +62,20 @@ class CheckCustomers extends Command
         print "Total Cancelados: ".$total."\n";
 
         return 0;
+    }
+
+    public function setServerCredentials($server_url, $token){
+        $config = [
+            'server_url'        => $server_url,
+            'token'             => $token,
+            
+            'client_identifier' => $token,
+            'product'           => '',
+            'version'           => '',
+            
+            'validate_ssl'      => true,
+        ];
+
+        $this->provider->setApiCredentials($config);
     }
 }

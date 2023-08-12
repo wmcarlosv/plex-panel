@@ -555,12 +555,13 @@ class ComposerStaticInit45dda26dd3d5c97186ea1b92ce907730
     );
 
     public static $classMap = array (
+        'App\\Console\\Commands\\CheckCustomers' => __DIR__ . '/../..' . '/app/Console/Commands/CheckCustomers.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
+        'App\\Http\\Controllers\\ApiController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\Voyager\\CreditController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/CreditController.php',
         'App\\Http\\Controllers\\Voyager\\CustomerController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/CustomerController.php',
-        'App\\Http\\Controllers\\Voyager\\PurchaseController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/PurchaseController.php',
         'App\\Http\\Controllers\\Voyager\\VoyagerAuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/VoyagerAuthController.php',
         'App\\Http\\Controllers\\Voyager\\VoyagerBaseController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/VoyagerBaseController.php',
         'App\\Http\\Controllers\\Voyager\\VoyagerBreadController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/VoyagerBreadController.php',
@@ -591,6 +592,9 @@ class ComposerStaticInit45dda26dd3d5c97186ea1b92ce907730
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Widgets\\CreditsDimmer' => __DIR__ . '/../..' . '/app/Widgets/CreditsDimmer.php',
+        'App\\Widgets\\CustomerDimmer' => __DIR__ . '/../..' . '/app/Widgets/CustomerDimmer.php',
+        'App\\Widgets\\ResellerDimmer' => __DIR__ . '/../..' . '/app/Widgets/ResellerDimmer.php',
         'Arrilot\\Widgets\\AbstractWidget' => __DIR__ . '/..' . '/arrilot/laravel-widgets/src/AbstractWidget.php',
         'Arrilot\\Widgets\\AsyncFacade' => __DIR__ . '/..' . '/arrilot/laravel-widgets/src/AsyncFacade.php',
         'Arrilot\\Widgets\\Console\\WidgetMakeCommand' => __DIR__ . '/..' . '/arrilot/laravel-widgets/src/Console/WidgetMakeCommand.php',
