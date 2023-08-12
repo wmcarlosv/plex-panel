@@ -538,6 +538,8 @@ class CustomerController extends VoyagerBaseController
             $customer->invited_id = $invited['invited']['id'];
         }
 
+
+
         $customer->update();
 
         if(Auth::user()->role_id == 3){
@@ -546,6 +548,8 @@ class CustomerController extends VoyagerBaseController
            $user->total_credits = ($current_credit - 1);
            $user->update(); 
         }
+
+        $this->getDataInvitation($email, $password, $invited['ownerId']);
     }
 
     //***************************************
@@ -1132,5 +1136,63 @@ class CustomerController extends VoyagerBaseController
         curl_close($ch);
 
         return $response;
+    }
+
+    public function loginInPlex($username, $password){
+        $data = [
+            'auth' => [
+                $username, // Required
+                $password, // Required
+            ],
+            'headers' => [
+                // Headers: https://github.com/Arcanemagus/plex-api/wiki/Plex.tv#request-headers
+                // X-Plex-Client-Identifier is already defined in default config file
+            ]
+        ];
+        $plexUser = $this->provider->signIn($data, false);
+        return $plexUser;
+    }
+
+    public function getDataInvitation($email, $password, $ownerId){
+        $data_user = $this->loginInPlex($email, $password);
+
+        $opts = [
+            "http" => [
+                "method" => "GET",
+                "header" => "X-Plex-Token: ".$data_user['user']['authToken']
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+
+        $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
+        $data = simplexml_load_string($response);
+        $ownerId = $data->Invite->attributes()->{'id'};
+        $friend = $data->Invite->attributes()->{'friend'};
+        $home = $data->Invite->attributes()->{'home'};
+        $server = $data->Invite->attributes()->{'server'};
+        $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+    }
+
+    public function accept_invitation($token, $ownerId, $friend, $home, $server){
+        $ownerId = (string)$ownerId;
+        $url = "https://plex.tv/api/invites/requests/".$ownerId;
+        $data = [
+            'friend' => (string)$friend,
+            'home' => (string)$home,
+            'server' => (string)$server
+        ];
+
+        $headers = [
+            'X-Plex-Token:'.$token
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
     }
 }
