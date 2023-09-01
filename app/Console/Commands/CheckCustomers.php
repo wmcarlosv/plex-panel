@@ -6,13 +6,14 @@ use Illuminate\Console\Command;
 use App\Models\Customer;
 use Auth;
 use DB;
-use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
+use App\Models\Plex;
 use App\Models\Server;
+use App\Models\Demo;
 
 class CheckCustomers extends Command
 {
 
-    private $provider;
+    private $plex;
     /**
      * The name and signature of the console command.
      *
@@ -34,7 +35,7 @@ class CheckCustomers extends Command
      */
     public function __construct()
     {
-        $this->provider = new PlexClient;
+        $this->plex = new Plex();
         parent::__construct();
     }
 
@@ -50,32 +51,35 @@ class CheckCustomers extends Command
 
         foreach ($customers as $data) {
             $server = Server::findorfail($data->server_id);
-            $this->setServerCredentials($server->url, $server->token);
+            $this->plex->setServerCredentials($server->url, $server->token);
             if(isset($data->invited_id) and !empty($data->invited_id)){
                 if(strtotime($data->date_to) < strtotime(date('Y-m-d'))){
-                   $this->provider->removeFriend($data->invited_id);
+                   $this->plex->provider->removeFriend($data->invited_id);
                    DB::table('customers')->where('id',$data->id)->update(['status'=>'inactive']);
                    $total++; 
                 }
             }
         }
+
         print "Total Cancelados: ".$total."\n";
 
+        $total_demos = 0;
+
+        $demos = Demo::all();
+        foreach($demos as $demo){
+            $server = Server::findorfail($demo->server_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+            if(isset($demo->invited_id) and !empty($demo->invited_id)){
+                if(strtotime($demo->end_date) < strtotime(date('Y-m-d H:i:s'))){
+                   $this->plex->provider->removeFriend($demo->invited_id);
+                   DB::table('demos')->where('id',$demo->id)->delete();
+                   $total_demos++; 
+                }
+            }
+        }
+
+        print "Total Demos Cancelados: ".$total_demos."\n";
+
         return 0;
-    }
-
-    public function setServerCredentials($server_url, $token){
-        $config = [
-            'server_url'        => $server_url,
-            'token'             => $token,
-            
-            'client_identifier' => $token,
-            'product'           => '',
-            'version'           => '',
-            
-            'validate_ssl'      => true,
-        ];
-
-        $this->provider->setApiCredentials($config);
     }
 }

@@ -14,4 +14,8 @@ class Server extends Model
     public function scopeServer($query){
         return $query->where('status',1)->where('is_demo',0);   
     }
+
+    public function scopeServerDemo($query){
+        return $query->where('status',1)->where('is_demo',1);   
+    }
 }

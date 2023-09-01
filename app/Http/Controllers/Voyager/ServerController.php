@@ -15,18 +15,26 @@ use TCG\Voyager\Events\BreadDataUpdated;
 use TCG\Voyager\Events\BreadImagesDeleted;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
-use App\Models\Customer;
-use App\Models\User;
 use App\Models\Server;
-use App\Models\Duration;
-
 use App\Models\Plex;
 
-class CustomerController extends VoyagerBaseController
+class ServerController extends VoyagerBaseController
 {
     use BreadRelationshipParser;
 
     private $plex;
+
+    //***************************************
+    //               ____
+    //              |  _ \
+    //              | |_) |
+    //              |  _ <
+    //              | |_) |
+    //              |____/
+    //
+    //      Browse our Data Type (B)READ
+    //
+    //****************************************
 
     public function __construct(){
         $this->plex = new Plex();
@@ -64,10 +72,6 @@ class CustomerController extends VoyagerBaseController
             $model = app($dataType->model_name);
 
             $query = $model::select($dataType->name.'.*');
-
-            if(Auth::user()->role_id == 3){
-                $query->where('user_id',Auth::user()->id);
-            }
 
             if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
                 $query->{$dataType->scope}();
@@ -205,6 +209,7 @@ class CustomerController extends VoyagerBaseController
             'showCheckboxColumn'
         ));
     }
+
     //***************************************
     //                _____
     //               |  __ \
@@ -311,6 +316,10 @@ class CustomerController extends VoyagerBaseController
         // If a column has a relationship associated with it, we do not want to show that field
         $this->removeRelationshipField($dataType, 'edit');
 
+
+        $server = $dataTypeContent;
+        $this->plex->setServerCredentials($server->url, $server->token);
+        $accounts = $this->plex->provider->getAccounts();
         // Check permission
         $this->authorize('edit', $dataTypeContent);
 
@@ -326,47 +335,15 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts'));
     }
 
     // POST BR(E)AD
     public function update(Request $request, $id)
     {
-        
-
         $slug = $this->getSlug($request);
 
-        $duration = Duration::findorfail($request->duration_id);
-
-        $server = Server::findorfail($request->server_id);
-        $this->plex->setServerCredentials($server->url, $server->token);
-
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        $current_date = strtotime(date('Y-m-d'));
-        $date_to = strtotime($request->date_to);
-
-        if($request->status == 'active'){
-            if($current_date > $date_to){
-                $redirect = redirect()->back();
-
-                return $redirect->with([
-                    'message'    => __('Para activar un usuario asegurate que la fecha hasta sea mayor a la fecha actual!!'),
-                    'alert-type' => 'error',
-                ]);
-            }
-        }
-
-        if(Auth::user()->role_id == 3){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
-            $redirect = redirect()->back();
-
-            return $redirect->with([
-                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
-                'alert-type' => 'error',
-            ]);
-           }
-        }
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
@@ -382,7 +359,6 @@ class CustomerController extends VoyagerBaseController
 
         $data = $query->findOrFail($id);
 
-
         // Check permission
         $this->authorize('edit', $data);
 
@@ -396,25 +372,7 @@ class CustomerController extends VoyagerBaseController
             });
         $original_data = clone($data);
 
-        if($this->insertUpdateData($request, $slug, $dataType->editRows, $data)){
-            
-            $validUser = $this->plex->provider->validateUser($request->email);
-
-            if($validUser['response']['status'] == "Valid user"){
-                $data_login = $this->plex->loginInPlex($request->email, $request->password);
-                if(!is_array($data_login)){
-                    
-                    $redirect = redirect()->back();
-
-                    return $redirect->with([
-                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
-                        'alert-type' => 'error',
-                    ]);
-                }
-            }
-
-            $this->plex->createPlexAccount($request->email, $request->password, $data);
-        }
+        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
 
         // Delete Images
         $this->deleteBreadImages($original_data, $to_remove);
@@ -490,48 +448,25 @@ class CustomerController extends VoyagerBaseController
      */
     public function store(Request $request)
     {
-        
         $slug = $this->getSlug($request);
-        $duration = Duration::findorfail($request->duration_id);
-        $server = Server::findorfail($request->server_id);
-        $this->plex->setServerCredentials($server->url, $server->token);
-        
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-        if(Auth::user()->role_id == 3){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
-            $redirect = redirect()->back();
 
+        $this->plex->setServerCredentials($request->url, $request->token);
+        $plex_data = $this->plex->provider->getAccounts();
+        if(!is_array($plex_data)){
+            $redirect = redirect()->back();
             return $redirect->with([
-                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                'message'    => __('Las Credenciales del Servidor Son Invalidas!!'),
                 'alert-type' => 'error',
             ]);
-           }
         }
+
+        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-        
-        if($data){
-
-            $validUser = $this->plex->provider->validateUser($request->email);
-
-            if($validUser['response']['status'] == "Valid user"){
-                $data_login = $this->plex->loginInPlex($request->email, $request->password);
-                if(!is_array($data_login)){
-                    Customer::findorfail($data->id)->delete();
-                    $redirect = redirect()->back();
-
-                    return $redirect->with([
-                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
-                        'alert-type' => 'error',
-                    ]);
-                }
-            }
-            
-            $this->plex->createPlexAccount($request->email, $request->password, $data);
-        }
 
         event(new BreadDataAdded($dataType, $data));
 
@@ -584,12 +519,6 @@ class CustomerController extends VoyagerBaseController
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
-            if(isset($data->invited_id) and !empty($data->invited_id)){
-                $server = Server::findorfail($data->server_id);
-                $this->plex->setServerCredentials($server->url, $server->token);
-                $this->plex->provider->removeFriend($data->invited_id);
-            }
-
             // Check permission
             $this->authorize('delete', $data);
 
@@ -598,7 +527,9 @@ class CustomerController extends VoyagerBaseController
                 $this->cleanup($dataType, $data);
             }
 
-            if ($data->delete()) {
+            $res = $data->delete();
+
+            if ($res) {
                 $affected++;
 
                 event(new BreadDataDeleted($dataType, $data));
@@ -616,6 +547,7 @@ class CustomerController extends VoyagerBaseController
                 'message'    => __('voyager::generic.error_deleting')." {$displayName}",
                 'alert-type' => 'error',
             ];
+
         return redirect()->route("voyager.{$dataType->slug}.index")->with($data);
     }
 
@@ -931,6 +863,16 @@ class CustomerController extends VoyagerBaseController
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        $this->plex->setServerCredentials($request->url, $request->token);
+        $plex_data = $this->plex->provider->getAccounts();
+        if(!is_array($plex_data)){
+            $redirect = redirect()->back();
+            return $redirect->with([
+                'message'    => __('Las Credenciales del Servidor Son Invalidas!!'),
+                'alert-type' => 'error',
+            ]);
+        }
 
         // Check permission
         $this->authorize('edit', app($dataType->model_name));
