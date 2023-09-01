@@ -162,7 +162,11 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
             @if($edit)
-                $("input[name='accounts_count']").val("{{$accounts['MediaContainer']['size']}}").attr("readonly","readonly");
+                @if(!empty($accounts['MediaContainer']))
+                    $("input[name='accounts_count']").val("{{$accounts['MediaContainer']['size']}}").attr("readonly","readonly");
+                @else
+                    $("input[name='accounts_count']").val("0").attr("readonly","readonly");
+                @endif
             @else
                 $("input[name='accounts_count']").val("0").attr("readonly","readonly");
             @endif

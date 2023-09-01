@@ -175,7 +175,7 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
 
-            $("input[name='email']").attr("readonly","readonly").val(generateEmail()+".com");
+            $("input[name='email']").attr("readonly","readonly").val(generateEmail());
 
             //Init datepicker for date fields if data-datepicker attribute defined
             //or if browser does not handle date inputs
