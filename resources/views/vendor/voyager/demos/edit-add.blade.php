@@ -150,7 +150,7 @@
         function generateEmail() {
           const domainName = getDomainName();
           const currentTime = new Date().toISOString().replace(/[-:.]/g, '');
-          const email = `${currentTime}@${domainName}`;
+          const email = `demo${currentTime}@${domainName}`;
           return email;
         }
 
