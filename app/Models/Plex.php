@@ -137,6 +137,50 @@ class Plex {
         $this->provider->setApiCredentials($config);
     }
 
+    public function createPlexAccount($email, $password, $data){
+        $this->setServerCredentials($this->server, $this->token);
+        $customer = Customer::findorfail($data->id);
+        $duration = Duration::findorfail($data->duration_id);
+
+        $response = $this->provider->validateUser($email);
+
+        $librarySectionIds = [];
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        if($response['response']['status'] == "Valid user"){
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            $customer->plex_user_name = $invited['invited']['username'];
+            $customer->invited_id = $invited['invited']['id'];
+        }else{
+            $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
+            $customer->plex_user_name = $plex_user->attributes()->{'username'};
+            $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            $customer->invited_id = $invited['invited']['id'];
+        }
+
+        $customer->update();
+
+        if(Auth::user()->role_id == 3){
+           $user = User::findorfail(Auth::user()->id);
+           $current_credit = $user->total_credits;
+           $user->total_credits = ($current_credit - intval($duration->months));
+           $user->update(); 
+        }
+
+        $this->getDataInvitation($email, $password, $invited['ownerId']);
+    }
+    
+
     public function createPlexAccountDemo($email, $password, $data){
         $this->setServerCredentials($this->server, $this->token);
         $demo = Demo::findorfail($data->id);
