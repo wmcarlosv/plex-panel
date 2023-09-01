@@ -18,10 +18,14 @@ Route::get('/', function () {
     return redirect('admin/login');
 });
 
-Route::get('/foo', function () {
-    Artisan::call('storage:link');
-});
+if (config('app.debug')) {
 
+    Route::get('/dev/{command}', function ($command) {
+        Artisan::call($command);
+        $output = Artisan::output();
+        dd($output);
+    });
+}
 
 Route::group(['prefix' => 'admin'], function () {
     Route::post('users/store',[UserController::class, 'custom_store'])->name('user_custom_store');
