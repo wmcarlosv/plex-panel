@@ -319,7 +319,7 @@ class ServerController extends VoyagerBaseController
 
         $server = $dataTypeContent;
         $this->plex->setServerCredentials($server->url, $server->token);
-        $accounts = $this->plex->provider->getAccounts();
+        $accounts = $this->plex->provider->getFriends();
         // Check permission
         $this->authorize('edit', $dataTypeContent);
 
@@ -461,7 +461,9 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
-        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
+        $data_counts = $this->plex->provider->getFriends();
+
+        $request->merge(['accounts_count'=>count($data_counts)]);
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
