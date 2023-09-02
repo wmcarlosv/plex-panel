@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Voyager\UserController;
+use App\Console\Commands\CheckCustomers;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,11 @@ if (config('app.debug')) {
         dd($output);
     });
 }
+
+Route::get('/clear-accounts', function(){
+    $c = new CheckCustomers();
+    $c->handle();
+});
 
 Route::group(['prefix' => 'admin'], function () {
     Route::post('users/store',[UserController::class, 'custom_store'])->name('user_custom_store');
