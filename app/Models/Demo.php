@@ -25,4 +25,8 @@ class Demo extends Model
         $endDate = $startDate->format('Y-m-d H:i:s');
         return ['start'=>date('Y-m-d H:i:s'), 'end'=>$endDate];
     }
+
+    public function server(){
+        return $this->belongsTo('App\Models\Server');
+    }
 }

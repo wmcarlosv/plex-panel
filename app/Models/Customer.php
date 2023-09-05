@@ -17,4 +17,8 @@ class Customer extends Model
         $this->user_id = Auth::user()->id;
         parent::save();
     }
+
+    public function server(){
+        return $this->belongsTo('App\Models\Server');
+    }
 }

@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Voyager\UserController;
 use App\Models\Customer;
 use App\Models\Plex;
-use App\Models\Server;
 use App\Models\Demo;
 
 /*
@@ -36,7 +35,7 @@ Route::get('cron', function(){
     $customers = Customer::where('status','active')->get();
 
     foreach ($customers as $data) {
-        $server = Server::findorfail($data->server_id);
+        $server = $data->server;
         $plex->setServerCredentials($server->url, $server->token);
         if(isset($data->invited_id) and !empty($data->invited_id)){
             if(strtotime($data->date_to) < strtotime(date('Y-m-d'))){
@@ -53,7 +52,7 @@ Route::get('cron', function(){
 
     $demos = Demo::all();
     foreach($demos as $demo){
-        $server = Server::findorfail($demo->server_id);
+        $server = $demo->server;
         $plex->setServerCredentials($server->url, $server->token);
         if(isset($demo->invited_id) and !empty($demo->invited_id)){
             if(strtotime($demo->end_date) < strtotime(date('Y-m-d H:i:s'))){
