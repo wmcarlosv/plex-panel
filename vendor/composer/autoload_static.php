@@ -563,6 +563,7 @@ class ComposerStaticInit45dda26dd3d5c97186ea1b92ce907730
         'App\\Http\\Controllers\\Voyager\\CreditController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/CreditController.php',
         'App\\Http\\Controllers\\Voyager\\CustomerController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/CustomerController.php',
         'App\\Http\\Controllers\\Voyager\\DemoController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/DemoController.php',
+        'App\\Http\\Controllers\\Voyager\\ServerController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/ServerController.php',
         'App\\Http\\Controllers\\Voyager\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/UserController.php',
         'App\\Http\\Controllers\\Voyager\\VoyagerAuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/VoyagerAuthController.php',
         'App\\Http\\Controllers\\Voyager\\VoyagerBaseController' => __DIR__ . '/../..' . '/app/Http/Controllers/Voyager/VoyagerBaseController.php',

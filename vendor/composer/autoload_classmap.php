@@ -14,6 +14,7 @@ return array(
     'App\\Http\\Controllers\\Voyager\\CreditController' => $baseDir . '/app/Http/Controllers/Voyager/CreditController.php',
     'App\\Http\\Controllers\\Voyager\\CustomerController' => $baseDir . '/app/Http/Controllers/Voyager/CustomerController.php',
     'App\\Http\\Controllers\\Voyager\\DemoController' => $baseDir . '/app/Http/Controllers/Voyager/DemoController.php',
+    'App\\Http\\Controllers\\Voyager\\ServerController' => $baseDir . '/app/Http/Controllers/Voyager/ServerController.php',
     'App\\Http\\Controllers\\Voyager\\UserController' => $baseDir . '/app/Http/Controllers/Voyager/UserController.php',
     'App\\Http\\Controllers\\Voyager\\VoyagerAuthController' => $baseDir . '/app/Http/Controllers/Voyager/VoyagerAuthController.php',
     'App\\Http\\Controllers\\Voyager\\VoyagerBaseController' => $baseDir . '/app/Http/Controllers/Voyager/VoyagerBaseController.php',

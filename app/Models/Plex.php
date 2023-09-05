@@ -163,21 +163,22 @@ class Plex {
         }else{
             $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
             $customer->plex_user_name = $plex_user->attributes()->{'username'};
-            $customer->plex_user_token = $plex_user->attributes()->{'authToken'};
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             $customer->invited_id = $invited['invited']['id'];
         }
-
-        $customer->update();
 
         if(Auth::user()->role_id == 3){
            $user = User::findorfail(Auth::user()->id);
            $current_credit = $user->total_credits;
            $user->total_credits = ($current_credit - intval($duration->months));
-           $user->update(); 
+           $user->update();
         }
 
         $this->getDataInvitation($email, $password, $invited['ownerId']);
+
+        $usr = $this->loginInPlex($email, $password);
+        $customer->plex_user_token = $usr['user']['authToken'];
+        $customer->update();
     }
     
 
