@@ -211,14 +211,7 @@ class Plex {
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             $demo->invited_id = $invited['invited']['id'];
         }
-
-        if(Auth::user()->role_id == 3){
-           $user = User::findorfail(Auth::user()->id);
-           $current_credit = $user->total_credits;
-           $user->total_credits = ($current_credit - intval($duration->months));
-           $user->update(); 
-        }
-
+        
         $this->getDataInvitation($email, $password, $invited['ownerId']);
 
         $usr = $this->loginInPlex($email, $password);
