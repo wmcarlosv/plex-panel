@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Auth;
 
 class Demo extends Model
 {
@@ -15,6 +16,7 @@ class Demo extends Model
         $dates = $this->sumHours($this->hours);
         $this->start_date = $dates['start'];
         $this->end_date = $dates['end'];
+        $this->user_id = Auth::user()->id;
         parent::save();
     }
 

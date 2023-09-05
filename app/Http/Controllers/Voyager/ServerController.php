@@ -17,6 +17,8 @@ use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
 use App\Models\Server;
 use App\Models\Plex;
+use App\Models\Demo;
+use App\Models\Customer;
 
 class ServerController extends VoyagerBaseController
 {
@@ -521,6 +523,7 @@ class ServerController extends VoyagerBaseController
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
+            $this->deleteAllRegister($data->id);
             // Check permission
             $this->authorize('delete', $data);
 
@@ -1038,5 +1041,26 @@ class ServerController extends VoyagerBaseController
     protected function relationIsUsingAccessorAsLabel($details)
     {
         return in_array($details->label, app($details->model)->additional_attributes ?? []);
+    }
+
+    public function deleteAllRegister($server_id){
+        $customers = Customer::where('server_id',$server_id)->get();
+        $demos = Demo::where('server_id',$server_id)->get();
+
+        foreach($customers as $customer){
+            $server = Server::findorfail($customer->server_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->provider->removeFriend($customer->invited_id);
+            $cus = customer::findorfail($customer->id);
+            $cus->delete();
+        }
+
+        foreach($demos as $demo){
+            $server = Server::findorfail($demo->server_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->provider->removeFriend($demo->invited_id);
+            $dem = Demo::findorfail($demo->id);
+            $dem->delete();
+        }
     }
 }

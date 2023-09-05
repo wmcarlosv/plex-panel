@@ -16,17 +16,17 @@ use TCG\Voyager\Events\BreadImagesDeleted;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
 use App\Models\User;
-use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
 use App\Models\Customer;
 use App\Models\Credit;
 use App\Models\Server;
+use App\Models\Plex;
 
 
 class UserController extends VoyagerBaseController
 {
     use BreadRelationshipParser;
 
-    private $provider;
+    private $plex;
 
     //***************************************
     //               ____
@@ -42,7 +42,7 @@ class UserController extends VoyagerBaseController
 
 
     public function __construct(){
-        $this->provider = new PlexClient;
+        $this->plex = new Plex();
     }
 
     public function index(Request $request)
@@ -1035,8 +1035,8 @@ class UserController extends VoyagerBaseController
         $customers = Customer::where('user_id',$user_id)->get();
         foreach($customers as $customer){
             $server = Server::findorfail($customer->server_id);
-            $this->setServerCredentials($server->url, $server->token);
-            $this->provider->removeFriend($customer->invited_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->provider->removeFriend($customer->invited_id);
             $cus = customer::findorfail($customer->id);
             $cus->delete();
         }
