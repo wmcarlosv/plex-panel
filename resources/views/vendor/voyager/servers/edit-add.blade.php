@@ -162,7 +162,7 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
             @if($edit)
-                @if(!empty($accounts))
+                @if(is_array($accounts))
                     $("input[name='accounts_count']").val("{{count($accounts)}}").attr("readonly","readonly");
                 @else
                     $("input[name='accounts_count']").val("0").attr("readonly","readonly");
