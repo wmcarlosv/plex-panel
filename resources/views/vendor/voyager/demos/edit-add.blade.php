@@ -154,6 +154,19 @@
           return email;
         }
 
+        function generateStrongPassword() {
+          const length = 15; // Minimum length of 10 characters
+          const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?"; // Characters to choose from
+          let password = "";
+
+          for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset.charAt(randomIndex);
+          }
+
+          return password;
+        }
+
         function deleteHandler(tag, isMulti) {
           return function() {
             $file = $(this).siblings(tag);
@@ -176,6 +189,7 @@
             $('.toggleswitch').bootstrapToggle();
 
             $("input[name='email']").attr("readonly","readonly").val(generateEmail());
+            $("input[name='password']").attr("readonly","readonly").val(generateStrongPassword());
 
             //Init datepicker for date fields if data-datepicker attribute defined
             //or if browser does not handle date inputs
