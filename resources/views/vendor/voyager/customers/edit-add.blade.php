@@ -159,19 +159,6 @@
           };
         }
 
-        function addMonths(date, months) {
-
-          var d = new Date(date);
-          d.setMonth(d.getMonth() + months);
-
-          var yyyy = d.getFullYear();
-          var mm = (d.getMonth() + 1).toString().padStart(2, '0'); 
-          var dd = d.getDate().toString().padStart(2, '0');
-
-          return yyyy + '-' + mm + '-' + dd;
-
-        }
-
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
             var today = new Date();
@@ -183,9 +170,7 @@
                 if(id){
                    $.get("/api/get-months-duration/"+id, function(response){
                         let data = response;
-                        let new_date = new Date(); // current date
-                        let date_result = addMonths(new_date, data.months);
-                        $("input[name='date_to']").val(date_result);
+                        $("input[name='date_to']").val(data.new_date);
 
                    }); 
                }else{
