@@ -438,7 +438,16 @@ class DemoController extends VoyagerBaseController
     public function store(Request $request)
     {
         $server = Server::findorfail($request->server_id);
-        $this->plex->setServerCredentials($server->url, $server->token);   
+        $this->plex->setServerCredentials($server->url, $server->token);
+        $plex_data = $this->plex->provider->getAccounts();
+
+        if(!is_array($plex_data)){
+            $redirect = redirect()->back();
+            return $redirect->with([
+                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
+                'alert-type' => 'error',
+            ]);
+        }
 
         $slug = $this->getSlug($request);
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -504,6 +513,16 @@ class DemoController extends VoyagerBaseController
             if(isset($data->invited_id) and !empty($data->invited_id)){
                 $server = Server::findorfail($data->server_id);
                 $this->plex->setServerCredentials($server->url, $server->token);
+                $plex_data = $this->plex->provider->getAccounts();
+
+                if(!is_array($plex_data)){
+                    $redirect = redirect()->back();
+                    return $redirect->with([
+                        'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
+                        'alert-type' => 'error',
+                    ]);
+                }
+
                 $this->plex->provider->removeFriend($data->invited_id);
             }   
 

@@ -165,6 +165,7 @@
                 @if(is_array($accounts))
                     $("input[name='accounts_count']").val("{{$accounts['MediaContainer']['size']}}").attr("readonly","readonly");
                 @else
+                    alert("Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!");
                     $("input[name='accounts_count']").val("0").attr("readonly","readonly");
                 @endif
             @else

@@ -1026,36 +1026,31 @@ class UserController extends VoyagerBaseController
     }
 
     public function deleteAllRegister($user_id){
+        
+        $customers = Customer::where('user_id',$user_id)->get();
+        foreach($customers as $customer){
+            $server = Server::findorfail($customer->server_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+
+            $plex_data = $this->plex->provider->getAccounts();
+            if(!is_array($plex_data)){
+                $redirect = redirect()->back();
+                return $redirect->with([
+                    'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
+                    'alert-type' => 'error',
+                ]);
+            }
+
+            $this->plex->provider->removeFriend($customer->invited_id);
+            $cus = customer::findorfail($customer->id);
+            $cus->delete();
+        }
+
         $credits = Credit::where('user_id',$user_id)->get();;
         foreach($credits as $credit){
             $cd = Credit::findorfail($credit->id);
             $cd->delete();
         }
-
-        $customers = Customer::where('user_id',$user_id)->get();
-        foreach($customers as $customer){
-            $server = Server::findorfail($customer->server_id);
-            $this->plex->setServerCredentials($server->url, $server->token);
-            $this->plex->provider->removeFriend($customer->invited_id);
-            $cus = customer::findorfail($customer->id);
-            $cus->delete();
-        }
-    }
-
-
-    public function setServerCredentials($server_url, $token){
-        $config = [
-            'server_url'        => $server_url,
-            'token'             => $token,
-            
-            'client_identifier' => $token,
-            'product'           => '',
-            'version'           => '',
-            
-            'validate_ssl'      => true,
-        ];
-
-        $this->provider->setApiCredentials($config);
     }
 
     public function profile(Request $request)
