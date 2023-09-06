@@ -163,7 +163,7 @@
             $('.toggleswitch').bootstrapToggle();
             @if($edit)
                 @if(is_array($accounts))
-                    $("input[name='accounts_count']").val("{{count($accounts)}}").attr("readonly","readonly");
+                    $("input[name='accounts_count']").val("{{$accounts['MediaContainer']['size']}}").attr("readonly","readonly");
                 @else
                     $("input[name='accounts_count']").val("0").attr("readonly","readonly");
                 @endif
