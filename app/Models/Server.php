@@ -11,11 +11,20 @@ class Server extends Model
 
     protected $table = "servers";
 
+    public $tmpName;
+
     public function scopeServer($query){
         return $query->where('status',1)->where('is_demo',0);   
     }
 
     public function scopeServerDemo($query){
         return $query->where('status',1)->where('is_demo',1);   
+    }
+
+    public function save($options = []){
+        if(!empty($this->tmpName)){
+            $this->name = $this->tmpName;
+        }
+        parent::save();
     }
 }

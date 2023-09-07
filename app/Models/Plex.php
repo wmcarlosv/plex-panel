@@ -1,21 +1,22 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Http\Request;
 use Havenstd06\LaravelPlex\Services\Plex as PlexClient;
 use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
 use App\Models\Customer;
 use App\Models\Duration;
 use App\Models\User;
 use App\Models\Demo;
+use Session;
 use Auth;
 
 class Plex {
 
     public $provider;
-    public $token;
-
-    public $server;
+    public $server_email;
+    public $name;
+    public $server_password;
 
     public function __construct(){
         $this->provider = new PlexClient;
@@ -71,10 +72,10 @@ class Plex {
                 $password, // Required
             ],
             'headers' => [
-                // Headers: https://github.com/Arcanemagus/plex-api/wiki/Plex.tv#request-headers
-                // X-Plex-Client-Identifier is already defined in default config file
+                "X-Plex-Client-Identifier" => uniqid()
             ]
         ];
+
         $plexUser = $this->provider->signIn($data, false);
         return $plexUser;
     }
@@ -122,23 +123,34 @@ class Plex {
         curl_close($ch);
     }
 
-    public function setServerCredentials($server_url, $token){
-        $config = [
-            'server_url'        => $server_url,
-            'token'             => $token,
-            'client_identifier' => $token,
-            'product'           => 'havenstd06/laravel-plex',
-            'version'           => '1.0.0',
-            'validate_ssl'      => false,
-        ];
+    public function setServerCredentials($user, $password){
+        $validate = false;
+        $serverData = $this->getServerCredentials($user, $password);
+        if(count($serverData) > 0){
+           $server_url = $serverData['scheme']."://".$serverData['address'].":".$serverData['port'];
+           $token = $serverData['token'];
+           $this->name = $serverData['name'];
+           $config = [
+                'server_url'        => $server_url,
+                'token'             => $token,
+                'client_identifier' => uniqid(),
+                'product'           => 'havenstd06/laravel-plex',
+                'version'           => '1.0.0',
+                'validate_ssl'      => false,
+            ];
 
-        $this->token = $token;
-        $this->server = $server_url;
-        $this->provider->setApiCredentials($config);
+            $this->server_email = $user;
+            $this->server_password = $password;
+            $this->provider->setApiCredentials($config); 
+            $validate = true;
+        }
+
+        return $validate;
+        
     }
 
     public function createPlexAccount($email, $password, $data){
-        $this->setServerCredentials($this->server, $this->token);
+        $this->setServerCredentials($this->server_email, $this->server_password);
         $customer = Customer::findorfail($data->id);
         $duration = Duration::findorfail($data->duration_id);
 
@@ -183,7 +195,7 @@ class Plex {
     
 
     public function createPlexAccountDemo($email, $password, $data){
-        $this->setServerCredentials($this->server, $this->token);
+        $this->setServerCredentials($this->server_email, $this->server_password);
         $demo = Demo::findorfail($data->id);
 
         $response = $this->provider->validateUser($email);
@@ -217,5 +229,43 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $demo->plex_user_token = $usr['user']['authToken'];
         $demo->update();
+    }
+
+    public function serverRequest($url, $username, $password) {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return the response as a string
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC); // Use basic authentication
+        curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password); // Set username and password
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); // Set any additional headers if needed
+        $response = curl_exec($ch);
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+        return $response;
+    }
+
+    public function getServerCredentials($user, $password){
+        $response_data = [];
+        $xml_response = simplexml_load_string($this->serverRequest("https://plex.tv/pms/servers.xml",$user, $password));
+        if(empty($xml_response->error)){
+            $data = $xml_response->Server;
+            $response_data['name'] = (string) $data->attributes()->{'name'};
+            $response_data['address'] = (string) $data->attributes()->{'address'};
+            $response_data['port'] = (string) $data->attributes()->{'port'};
+            $response_data['scheme'] = (string) $data->attributes()->{'scheme'};
+            $devices = simplexml_load_string($this->serverRequest("https://plex.tv/devices.xml", $user, $password));
+            foreach($devices->Device as $device){
+                $serverName = (string) trim($device->attributes()->{'name'});
+                if($response_data['name'] == $serverName){
+                    $response_data['token'] = (string) $device->attributes()->{'token'};
+                    break;
+                }
+            }
+        }
+
+        return $response_data;
     }
 }

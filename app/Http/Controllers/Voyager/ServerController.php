@@ -348,23 +348,25 @@ class ServerController extends VoyagerBaseController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         $this->plex->setServerCredentials($request->url, $request->token);
+
         $plex_data = $this->plex->provider->getAccounts();
+
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
             return $redirect->with([
-                'message'    => __('Las Credenciales del Servidor Son Invalidas!!'),
+                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
                 'alert-type' => 'error',
             ]);
         }
 
-        $data_counts = $this->plex->provider->getAccounts();
 
-        $request->merge(['accounts_count'=>$data_counts['MediaContainer']['size']]);
+        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
         $model = app($dataType->model_name);
+        $model->name = $this->plex->name;
         $query = $model->query();
         if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
             $query = $query->{$dataType->scope}();
@@ -469,22 +471,23 @@ class ServerController extends VoyagerBaseController
 
         $this->plex->setServerCredentials($request->url, $request->token);
         $plex_data = $this->plex->provider->getAccounts();
+
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
             return $redirect->with([
-                'message'    => __('Las Credenciales del Servidor Son Invalidas!!'),
+                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
                 'alert-type' => 'error',
             ]);
         }
 
-        $data_counts = $this->plex->provider->getAccounts();
-
-        $request->merge(['accounts_count'=>$data_counts['MediaContainer']['size']]);
+        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-        $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
+        $the_model_name = new $dataType->model_name();
+        $the_model_name->tmpName = $this->plex->name;
+        $data = $this->insertUpdateData($request, $slug, $dataType->addRows, $the_model_name);
 
         event(new BreadDataAdded($dataType, $data));
 
@@ -1053,19 +1056,7 @@ class ServerController extends VoyagerBaseController
         foreach($customers as $customer){
             $server = Server::findorfail($customer->server_id);
             $this->plex->setServerCredentials($server->url, $server->token);
-
-            $plex_data = $this->plex->provider->getAccounts();
-
-            if(!is_array($plex_data)){
-                $redirect = redirect()->back();
-                return $redirect->with([
-                    'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
-                    'alert-type' => 'error',
-                ]);
-            }
-
             $this->plex->provider->removeFriend($customer->invited_id);
-            
             $cus = customer::findorfail($customer->id);
             $cus->delete();
         }
