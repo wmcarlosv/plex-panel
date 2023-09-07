@@ -82,6 +82,10 @@
                                         {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
                                     @endif
 
+                                    @if($row->field == "password")
+                                        <button class="btn btn-info" id="generate-password" type="button">Generate</button>
+                                    @endif
+
                                     @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
                                         {!! $after->handle($row, $dataType, $dataTypeContent) !!}
                                     @endforeach
@@ -141,6 +145,19 @@
         var params = {};
         var $file;
 
+        function generateStrongPassword() {
+          const length = 15; // Minimum length of 10 characters
+          const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?"; // Characters to choose from
+          let password = "";
+
+          for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset.charAt(randomIndex);
+          }
+
+          return password;
+        }
+
         function deleteHandler(tag, isMulti) {
           return function() {
             $file = $(this).siblings(tag);
@@ -164,6 +181,10 @@
             var today = new Date();
             $("input[name='date_from']").val('<?=date('Y-m-d')?>').attr("readonly","readonly");
             $("input[name='date_to']").attr("readonly","readonly");
+
+            $("#generate-password").click(function(){
+                $("input[name='password']").val(generateStrongPassword());
+            });
 
             $("select[name='duration_id']").change(function(){
                 let id = $(this).val();

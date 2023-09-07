@@ -83,6 +83,10 @@
                                         {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
                                     @endif
 
+                                    @if($row->field == "password")
+                                        <button class="btn btn-info" id="generate-password" type="button">Generate</button>
+                                    @endif
+
                                     @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
                                         {!! $after->handle($row, $dataType, $dataTypeContent) !!}
                                     @endforeach
@@ -189,7 +193,10 @@
             $('.toggleswitch').bootstrapToggle();
 
             $("input[name='email']").attr("readonly","readonly").val(generateEmail());
-            $("input[name='password']").attr("readonly","readonly").val(generateStrongPassword());
+            
+            $("#generate-password").click(function(){
+                $("input[name='password']").val(generateStrongPassword());
+            });
 
             //Init datepicker for date fields if data-datepicker attribute defined
             //or if browser does not handle date inputs
