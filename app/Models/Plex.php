@@ -44,10 +44,8 @@ class Plex {
     }
 
     public function curlPost($url, $params){
-        $plexToken = $this->token;
-
         $headers = array(
-            'X-Plex-Client-Identifier: '.$plexToken,
+            'X-Plex-Client-Identifier: '.uniqid(),
             'Content-Type: application/json'
         );
 
