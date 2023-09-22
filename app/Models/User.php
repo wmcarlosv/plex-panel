@@ -25,6 +25,8 @@ class User extends \TCG\Voyager\Models\User
         'password',
     ];
 
+    public $additional_attributes = ['name_email_creator'];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -46,6 +48,7 @@ class User extends \TCG\Voyager\Models\User
 
     public function scopeUser($query){
         if(Auth::user()->role_id == 3){
+            $query->where('parent_user_id',Auth::user()->id);
             return $query->where('role_id',5);
         }else{
             return $query->where('role_id',3)->orWhere('role_id',5);
@@ -72,6 +75,7 @@ class User extends \TCG\Voyager\Models\User
 
             case 3:
                 $allowRoles = [5];
+                $query->where('parent_user_id',Auth::user()->id);
             break;
             
             case 1:
@@ -82,10 +86,7 @@ class User extends \TCG\Voyager\Models\User
         return $query->whereIn('role_id', $allowRoles);
     }
 
-    protected function getFullNameAttribute(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string $value) => strtoupper($value),
-        );
+    public function getNameEmailCreatorAttribute(){
+        return $this->name." ".$this->email;
     }
 }
