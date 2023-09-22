@@ -354,7 +354,7 @@ class ServerController extends VoyagerBaseController
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
             return $redirect->with([
-                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
+                'message'    => __('Las credenciales son invalidas, por favor verifica el correo, username o clave!!'),
                 'alert-type' => 'error',
             ]);
         }
@@ -475,7 +475,7 @@ class ServerController extends VoyagerBaseController
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
             return $redirect->with([
-                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
+                'message'    => __('Las credenciales son invalidas, por favor verifica el correo, username o clave!!'),
                 'alert-type' => 'error',
             ]);
         }

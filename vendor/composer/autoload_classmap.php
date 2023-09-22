@@ -41,6 +41,7 @@ return array(
     'App\\Models\\Demo' => $baseDir . '/app/Models/Demo.php',
     'App\\Models\\Duration' => $baseDir . '/app/Models/Duration.php',
     'App\\Models\\Plex' => $baseDir . '/app/Models/Plex.php',
+    'App\\Models\\Role' => $baseDir . '/app/Models/Role.php',
     'App\\Models\\Server' => $baseDir . '/app/Models/Server.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',

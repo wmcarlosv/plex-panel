@@ -439,10 +439,18 @@ class CreditController extends VoyagerBaseController
     {
         $slug = $this->getSlug($request);
 
-        $user = User::findorfail($request->user_id);
-        $current_credit = intval($user->total_credits);
-        $user->total_credits = ($current_credit+intval($request->qty));
-        $user->update();
+        if(Auth::user()->role_id == 3){
+            $user = User::findorfail(Auth::user()->id);
+            $current_credit = intval($user->total_credits);
+            
+            if($current_credit < $request->qty){
+                $redirect = redirect()->back();
+                return $redirect->with([
+                    'message'    => "No tienes creditos suficientes, por favor solicita mas creditos!!",
+                    'alert-type' => 'error',
+                ]);
+            }
+        }
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 

@@ -13,7 +13,13 @@
 
      public function run()
      {
-       $users = User::where('role_id',3)->get();
+       $users = [];
+       if(Auth::user()->role_id == 3){
+        $users = User::where('role_id',5)->where('parent_user_id',Auth::user()->id)->get();
+       }else{
+        $users = User::where('role_id',5)->orWhere('role_id',3)->get();
+       }
+       
        $count = $users->count();
        $string = trans_choice('Vendedores', $count);
 
@@ -31,7 +37,7 @@
 
    public function shouldBeDisplayed()
    {
-    if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1){
+    if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1 || Auth::user()->role_id == 3){
         return true;
     }else{
         return false;

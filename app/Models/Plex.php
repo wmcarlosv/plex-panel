@@ -177,7 +177,7 @@ class Plex {
             $customer->invited_id = $invited['invited']['id'];
         }
 
-        if(Auth::user()->role_id == 3){
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            $user = User::findorfail(Auth::user()->id);
            $current_credit = $user->total_credits;
            $user->total_credits = ($current_credit - intval($duration->months));
@@ -216,6 +216,7 @@ class Plex {
             $demo->plex_user_name = $invited['invited']['username'];
             $demo->invited_id = $invited['invited']['id'];
         }else{
+
             $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
             $demo->plex_user_name = $plex_user->attributes()->{'username'};
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);

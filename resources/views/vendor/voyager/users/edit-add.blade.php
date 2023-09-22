@@ -163,6 +163,10 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
 
+            $("select[name='role_id']").click(function(){
+
+            });
+
             //Init datepicker for date fields if data-datepicker attribute defined
             //or if browser does not handle date inputs
             $('.form-group input[type=date]').each(function (idx, elt) {

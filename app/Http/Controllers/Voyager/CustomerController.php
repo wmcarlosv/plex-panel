@@ -65,9 +65,9 @@ class CustomerController extends VoyagerBaseController
 
             $query = $model::select($dataType->name.'.*');
 
-            if(Auth::user()->role_id == 3){
+            /*if(Auth::user()->role_id == 3){
                 $query->where('user_id',Auth::user()->id);
-            }
+            }*/
 
             if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
                 $query->{$dataType->scope}();

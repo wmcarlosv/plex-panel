@@ -590,6 +590,7 @@ class ComposerStaticInit4c5d76575c4eda3a73b9b4a06b917b84
         'App\\Models\\Demo' => __DIR__ . '/../..' . '/app/Models/Demo.php',
         'App\\Models\\Duration' => __DIR__ . '/../..' . '/app/Models/Duration.php',
         'App\\Models\\Plex' => __DIR__ . '/../..' . '/app/Models/Plex.php',
+        'App\\Models\\Role' => __DIR__ . '/../..' . '/app/Models/Role.php',
         'App\\Models\\Server' => __DIR__ . '/../..' . '/app/Models/Server.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

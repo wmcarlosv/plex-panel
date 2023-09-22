@@ -31,4 +31,11 @@ class Demo extends Model
     public function server(){
         return $this->belongsTo('App\Models\Server');
     }
+
+    public function scopeByUser($query){
+        $role = Auth::user()->role_id;
+        if($role == 3 || $role == 5){
+            return $query->where('user_id',Auth::user()->id);
+        }
+    }
 }
