@@ -249,8 +249,15 @@ class Plex {
     public function getServerCredentials($user, $password){
         $response_data = [];
         $xml_response = simplexml_load_string($this->serverRequest("https://plex.tv/pms/servers.xml",$user, $password));
+        
         if(empty($xml_response->error)){
             $data = $xml_response->Server;
+            $size = (int) $xml_response->attributes()->{'size'};
+
+            if($size > 1){
+                $data = $xml_response->Server[$size-1];
+            }
+
             $response_data['name'] = (string) $data->attributes()->{'name'};
             $response_data['address'] = (string) $data->attributes()->{'address'};
             $response_data['port'] = (string) $data->attributes()->{'port'};
