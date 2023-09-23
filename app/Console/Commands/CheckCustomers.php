@@ -47,7 +47,10 @@ class CheckCustomers extends Command
     public function handle()
     {
         $total = 0;
-        $customers = Customer::where('status','active')->get();
+        $customers = Customer::where('status', 'active')
+            ->where(function ($query) {
+                $query->where('date_to', '<', date('Y-m-d'));
+            })->get();
 
         foreach ($customers as $data) {
             $server = Server::findorfail($data->server_id);
@@ -65,7 +68,7 @@ class CheckCustomers extends Command
 
         $total_demos = 0;
 
-        $demos = Demo::all();
+        $demos = Demo::where('end_date','<',now())->get();
         foreach($demos as $demo){
             $server = Server::findorfail($demo->server_id);
             $this->plex->setServerCredentials($server->url, $server->token);

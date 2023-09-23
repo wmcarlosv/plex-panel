@@ -32,11 +32,16 @@ if (config('app.debug')) {
 Route::get('cron', function(){
     $total = 0;
     $plex = new Plex();
-    $customers = Customer::where('status','active')->get();
+
+    $customers = Customer::where('status', 'active')
+    ->where(function ($query) {
+        $query->where('date_to', '<', date('Y-m-d'));
+    })->get();
+
 
     foreach ($customers as $data) {
         $server = $data->server;
-        if(!empty($data->server->url) && !empty($data->server->token)){
+        if(!empty($data->server->url) and !empty($data->server->token)){
             $plex->setServerCredentials($server->url, $server->token);
             if(isset($data->invited_id) and !empty($data->invited_id)){
                 if(strtotime($data->date_to) < strtotime(date('Y-m-d'))){
@@ -52,10 +57,10 @@ Route::get('cron', function(){
 
     $total_demos = 0;
 
-    $demos = Demo::all();
+    $demos = Demo::where('end_date','<',now())->get();
     foreach($demos as $demo){
         $server = $demo->server;
-        if(!empty($data->server->url) && !empty($data->server->token)){
+        if(!empty($demo->server->url) and !empty($demo->server->token)){
             $plex->setServerCredentials($server->url, $server->token);
             if(isset($demo->invited_id) and !empty($demo->invited_id)){
                 if(strtotime($demo->end_date) < strtotime(date('Y-m-d H:i:s'))){
