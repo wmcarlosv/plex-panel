@@ -18,7 +18,7 @@ class Server extends Model
     }
 
     public function scopeServerDemo($query){
-        return $query->where('status',1);   
+        return $query->where('status',1)->where('is_demo',1);   
     }
 
     public function save($options = []){
