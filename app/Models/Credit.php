@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Auth;
 use App\Models\User;
+use DB;
 
 class Credit extends Model
 {
@@ -28,20 +29,22 @@ class Credit extends Model
                 ]);
             }
 
-            $userr->total_credits = ($current_creditr-intval($this->qty));
-            $userr->update();
+            DB::table('users')->where('id',$userr->id)->update([
+                'total_credits'=>($current_creditr-intval($this->qty))
+            ]);
 
-            /*Reseller*/
             $user = User::findorfail($this->user_id);
             $current_credit = intval($user->total_credits);
-            $user->total_credits = ($current_credit+intval($this->qty));
-            $user->update();
+            DB::table('users')->where('id',$user->id)->update([
+                'total_credits'=>($current_credit+intval($this->qty))
+            ]);
         }else{
              /*Reseller*/
             $user = User::findorfail($this->user_id);
             $current_credit = intval($user->total_credits);
-            $user->total_credits = ($current_credit+intval($this->qty));
-            $user->update();
+            DB::table('users')->where('id',$user->id)->update([
+                'total_credits'=>($current_credit+intval($this->qty))
+            ]);
         }
 
         $this->user_parent_id = Auth::user()->id;
@@ -50,7 +53,7 @@ class Credit extends Model
     }
 
     public function scopeByUser($query){
-        if(Auth::user()->role_id == 3){
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 6){
           return $query->where('user_parent_id',Auth::user()->id);
         }
     }

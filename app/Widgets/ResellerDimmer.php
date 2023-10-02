@@ -15,7 +15,13 @@
      {
        $users = [];
        if(Auth::user()->role_id == 3){
-        $users = User::where('role_id',5)->where('parent_user_id',Auth::user()->id)->get();
+            $users = User::where('role_id',5)->where('parent_user_id',Auth::user()->id)->get();
+       }else if(Auth::user()->role_id == 6){
+        $users = User::where(function($query){
+                                $query->where('role_id',3)
+                                ->orWhere('role_id',5);
+                            })->where('parent_user_id',Auth::user()->id)->get();
+                                
        }else{
         $users = User::where('role_id',5)->orWhere('role_id',3)->get();
        }
@@ -37,7 +43,7 @@
 
    public function shouldBeDisplayed()
    {
-    if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1 || Auth::user()->role_id == 3){
+    if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1 || Auth::user()->role_id == 3 || Auth::user()->role_id == 6){
         return true;
     }else{
         return false;

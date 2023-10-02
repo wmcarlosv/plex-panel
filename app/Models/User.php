@@ -50,27 +50,35 @@ class User extends \TCG\Voyager\Models\User
         if(Auth::user()->role_id == 3){
             $query->where('parent_user_id',Auth::user()->id);
             return $query->where('role_id',5);
+        }else if(Auth::user()->role_id == 6){
+            return $query->where(function($query){ 
+                $query->where('role_id',5)->orWhere('role_id',3);
+            })->where('parent_user_id',Auth::user()->id);
         }else{
             return $query->where('role_id',3)->orWhere('role_id',5);
         }
     }
 
     public function save($options = []){
-        $this->status = "active";
-
-        if(Auth::user()->role_id == 3){
-            $this->parent_user_id = Auth::user()->id;
+        if(count($options) == 0){
+            $this->status = "active";
+            if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6 || Auth::user()->role_id == 1){
+                $this->parent_user_id = Auth::user()->id;
+            }
+            parent::save();
         }
-
-        parent::save();
     }
 
     public function scopeFilterUsers($query){
         $allowRoles = [];
         
         switch (Auth::user()->role_id) {
+            case 6:
+                $allowRoles = [5,3];
+                $query->where('parent_user_id',Auth::user()->id);
+            break;
             case 4:
-                $allowRoles = [2,3,4,5];
+                $allowRoles = [2,3,4,5,6];
             break;
 
             case 3:
@@ -79,7 +87,7 @@ class User extends \TCG\Voyager\Models\User
             break;
             
             case 1:
-                $allowRoles = [1,2,3,4,5];
+                $allowRoles = [1,2,3,4,5,6];
             break;
         }
 
@@ -87,6 +95,14 @@ class User extends \TCG\Voyager\Models\User
     }
 
     public function getNameEmailCreatorAttribute(){
-        return $this->name." ".$this->email;
+        return $this->name." - ".$this->email;
+    }
+
+    public function role(){
+        return $this->belongsTo('App\Models\Role');
+    }
+
+    public function servers(){
+        return $this->hasMany('App\Models\Server');
     }
 }

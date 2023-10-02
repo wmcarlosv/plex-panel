@@ -27,8 +27,13 @@
       ]));
    }
 
-   public function shouldBeDisplayed()
-   {
-    return true;
+   public function shouldBeDisplayed(){
+      $role = Auth::user()->role_id;
+      if($role == 5 || $role == 3){
+        return true;
+      }else{
+        return false;
+      }
    }
+   
  }

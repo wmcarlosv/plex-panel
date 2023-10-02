@@ -36,8 +36,11 @@ class Role extends Model
     public function scopeFilterRole($query){
         $allowRoles = [];
         switch (Auth::user()->role_id) {
+            case 6:
+                $allowRoles = [5,3];
+            break;
             case 4:
-                $allowRoles = [2,3,4,5];
+                $allowRoles = [2,3,4,5,6];
             break;
 
             case 3:
@@ -45,7 +48,7 @@ class Role extends Model
             break;
             
             case 1:
-                $allowRoles = [1,2,3,4,5];
+                $allowRoles = [1,2,3,4,5,6];
             break;
         }
 

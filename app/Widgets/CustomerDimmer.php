@@ -13,7 +13,7 @@
 
      public function run()
      {
-       if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4 || Auth::user()->role_id == 5){
+       if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4 || Auth::user()->role_id == 5 || Auth::user()->role_id == 6){
         $customer = Customer::where('user_id',Auth::user()->id)->get();
        }else{
         $customer = Customer::all();
