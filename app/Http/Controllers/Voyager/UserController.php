@@ -454,8 +454,12 @@ class UserController extends VoyagerBaseController
 
         $user = User::findorfail($request->user_id);
         $current_credit = intval($user->total_credits);
-        $user->total_credits = ($current_credit+intval($request->qty));
-        $user->update();
+        //$user->total_credits = ($current_credit+intval($request->qty));
+        //$user->update();
+
+        DB::table('users')->where('id',$user->id)->update([
+            'total_credits'=>($current_credit+intval($request->qty))
+        ]);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
