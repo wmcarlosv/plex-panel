@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Demo;
 use Session;
 use Auth;
+use DB;
 
 class Plex {
 
@@ -180,8 +181,12 @@ class Plex {
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            $user = User::findorfail(Auth::user()->id);
            $current_credit = $user->total_credits;
-           $user->total_credits = ($current_credit - intval($duration->months));
-           $user->update();
+           //$user->total_credits = ($current_credit - intval($duration->months));
+           //$user->update();
+
+           DB::table('users')->where('id',$user->id)->update([
+            'total_credits'=>($current_credit - intval($duration->months))
+           ]);
         }
 
         $this->getDataInvitation($email, $password, $invited['ownerId']);
