@@ -366,7 +366,7 @@ class CustomerController extends VoyagerBaseController
             }
         }
 
-        if(Auth::user()->role_id == 3){
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
             $redirect = redirect()->back();
 
@@ -515,7 +515,7 @@ class CustomerController extends VoyagerBaseController
         }
         
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-        if(Auth::user()->role_id == 3){
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
             $redirect = redirect()->back();
 
