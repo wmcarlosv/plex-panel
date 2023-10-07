@@ -18,6 +18,7 @@ class Plex {
     public $server_email;
     public $name;
     public $server_password;
+    public $serverData;
 
     public function __construct(){
         $this->provider = new PlexClient;
@@ -124,11 +125,11 @@ class Plex {
 
     public function setServerCredentials($user, $password){
         $validate = false;
-        $serverData = $this->getServerCredentials($user, $password);
-        if(count($serverData) > 0){
-           $server_url = $serverData['scheme']."://".$serverData['address'].":".$serverData['port'];
-           $token = $serverData['token'];
-           $this->name = $serverData['name'];
+        $this->serverData = $this->getServerCredentials($user, $password);
+        if(count($this->serverData) > 0){
+           $server_url = $this->serverData['scheme']."://".$this->serverData['address'].":".$this->serverData['port'];
+           $token = $this->serverData['token'];
+           $this->name = $this->serverData['name'];
            $config = [
                 'server_url'        => $server_url,
                 'token'             => $token,
