@@ -321,7 +321,7 @@ class ServerController extends VoyagerBaseController
 
         $server = $dataTypeContent;
         $this->plex->setServerCredentials($server->url, $server->token);
-        $accounts = $this->plex->provider->getAccounts();
+        $accounts = $this->plex->provider->getFriends();
         // Check permission
         $this->authorize('edit', $dataTypeContent);
 
@@ -349,7 +349,7 @@ class ServerController extends VoyagerBaseController
 
         $this->plex->setServerCredentials($request->url, $request->token);
 
-        $plex_data = $this->plex->provider->getAccounts();
+        $plex_data = $this->plex->provider->getFriends();
 
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
@@ -360,7 +360,7 @@ class ServerController extends VoyagerBaseController
         }
 
 
-        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
+        $request->merge(['accounts_count'=>count($plex_data)]);
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
@@ -470,7 +470,7 @@ class ServerController extends VoyagerBaseController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         $this->plex->setServerCredentials($request->url, $request->token);
-        $plex_data = $this->plex->provider->getAccounts();
+        $plex_data = $this->plex->provider->getFriends();
 
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
@@ -480,7 +480,7 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
-        $request->merge(['accounts_count'=>$plex_data['MediaContainer']['size']]);
+        $request->merge(['accounts_count'=>count($plex_data)]);
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
