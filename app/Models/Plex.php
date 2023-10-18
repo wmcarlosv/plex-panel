@@ -72,7 +72,8 @@ class Plex {
                 $password, // Required
             ],
             'headers' => [
-                "X-Plex-Client-Identifier" => uniqid()
+                "X-Plex-Client-Identifier" => uniqid(),
+                "X-Plex-Product"=>"Plex Web"
             ]
         ];
 
@@ -99,6 +100,7 @@ class Plex {
         $home = $data->Invite->attributes()->{'home'};
         $server = $data->Invite->attributes()->{'server'};
         $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+        $this->resetCustomization($data_user['user']['authToken'], uniqid());
     }
 
     public function accept_invitation($token, $ownerId, $friend, $home, $server){
@@ -117,6 +119,28 @@ class Plex {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+    }
+
+    public function resetCustomization($token, $ci){
+        $url = "https://clients.plex.tv/api/v2/user/settings?sharedSettings=1&X-Plex-Product=Plex%20Web&X-Plex-Token=$token&X-Plex-Client-Identifier=$ci";
+        $data = '{"value":[{
+                    "id":"experience",
+                    "type":"json",
+                    "value":"[{autoHomeHubsEnabled: true, showAdvancedSettings:true, sidebarSettings:{pinnedSources:[]}, autoPinnedProviders:[myPlex--tv.plex.provider.epg--home,myPlex--tv.plex.provider.vod--movies,myPlex--tv.plex.provider.discover--home,myPlex--tv.plex.provider.discover--watchlist],}]",
+                    "hidden":true
+                }]}';
+
+        $headers = ['Content-Type: application/json'];
+
+        $data_arr = json_decode($data, true);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
@@ -170,28 +194,44 @@ class Plex {
 
         if($response['response']['status'] == "Valid user"){
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
-            $customer->plex_user_name = $invited['invited']['username'];
-            $customer->invited_id = $invited['invited']['id'];
+            if(is_array($invited)){
+                $customer->plex_user_name = $invited['invited']['username'];
+                $customer->invited_id = $invited['invited']['id'];
+            }else{
+                $customer->plex_user_name = null;
+                $customer->invited_id = null;
+            }
+            
         }else{
             $plex_user = simplexml_load_string($this->createPlexUser($email, $password));
             $customer->plex_user_name = $plex_user->attributes()->{'username'};
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
-            $customer->invited_id = $invited['invited']['id'];
+
+            if(is_array($invited)){
+                $customer->invited_id = $invited['invited']['id'];
+            }else{
+                $customer->invited_id = null;
+            }
+            
         }
+
 
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-           $user = User::findorfail(Auth::user()->id);
-           $current_credit = $user->total_credits;
-           //$user->total_credits = ($current_credit - intval($duration->months));
-           //$user->update();
 
-           DB::table('users')->where('id',$user->id)->update([
-            'total_credits'=>($current_credit - intval($duration->months))
-           ]);
+           if(!empty($customer->invited_id)){
+               $user = User::findorfail(Auth::user()->id);
+               $current_credit = $user->total_credits;
+               DB::table('users')->where('id',$user->id)->update([
+                    'total_credits'=>($current_credit - intval($duration->months))
+               ]);
+           }
+           
         }
 
-        $this->getDataInvitation($email, $password, $invited['ownerId']);
-
+        if(is_array($invited)){
+            $this->getDataInvitation($email, $password, $invited['ownerId']);
+        }
+        
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
         $customer->update();

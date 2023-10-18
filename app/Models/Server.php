@@ -47,7 +47,7 @@ class Server extends Model
             if($parent->role->id == 3){
                 $ag = User::findorfail($parent->parent_user_id);
                 $servers = $ag->servers->pluck('id')->toArray();
-            }else if($parent->role->id == 4 || $parent->role->id == 6){
+            }else if($parent->role->id == 4 || $parent->role->id == 6 || $parent->role->id == 1){
                 $servers = $parent->servers->pluck('id')->toArray();
             }
         }else if($role == 3){

@@ -423,6 +423,18 @@ class CustomerController extends VoyagerBaseController
             }
 
             $this->plex->createPlexAccount($request->email, $request->password, $data);
+
+            $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
+
+            if(empty($the_data[0]->invited_id)){
+                Customer::findorfail($data->id)->delete();
+                
+                $redirect = redirect()->back();
+                return $redirect->with([
+                    'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
+                    'alert-type' => 'error',
+                ]);
+            }
         }
 
         // Delete Images
@@ -549,6 +561,18 @@ class CustomerController extends VoyagerBaseController
             }
             
             $this->plex->createPlexAccount($request->email, $request->password, $data);
+
+            $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
+
+            if(empty($the_data[0]->invited_id)){
+                Customer::findorfail($data->id)->delete();
+                
+                $redirect = redirect()->back();
+                return $redirect->with([
+                    'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
+                    'alert-type' => 'error',
+                ]);
+            }
         }
 
         event(new BreadDataAdded($dataType, $data));
