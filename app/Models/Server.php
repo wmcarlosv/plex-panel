@@ -25,6 +25,11 @@ class Server extends Model
         return $query->where('status',1)->where('is_demo',1)->whereIn('id',$servers);     
     }
 
+    public function scopeNormalServer($query){
+        $servers = $this->getServerIds();
+        return $query->where('status',1)->whereIn('id',$servers);    
+    }
+
     public function scopeServerByUser($query){
         return $query->where('user_id',Auth::user()->id);
     }
