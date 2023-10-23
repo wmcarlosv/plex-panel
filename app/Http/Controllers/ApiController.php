@@ -35,6 +35,18 @@ class ApiController extends Controller
         return $updatedDate;
     }
 
+    public function get_extend_months_duration($actualToDate, $monthsToAdd) {
+        // Get the current date
+        $startDate = new \DateTime($actualToDate);
+        // Add the specified number of months
+        $startDate->modify("+$monthsToAdd months");
+
+        // Format the updated date as YYYY-MM-DD
+        $updatedDate = $startDate->format("Y-m-d");
+
+        return response()->json(['date'=>$updatedDate]);
+    }
+
     public function loginCustomer(Request $request){
         $email = $request->email;
         $password = $request->password;

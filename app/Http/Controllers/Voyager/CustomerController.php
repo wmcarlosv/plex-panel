@@ -326,7 +326,10 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        $servers = Server::all();
+        $durations = Duration::all();
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations'));
     }
 
     // POST BR(E)AD
@@ -335,48 +338,7 @@ class CustomerController extends VoyagerBaseController
         
 
         $slug = $this->getSlug($request);
-
-        $duration = Duration::findorfail($request->duration_id);
-
-        $server = Server::findorfail($request->server_id);
-        $this->plex->setServerCredentials($server->url, $server->token);
-
-        $plex_data = $this->plex->provider->getAccounts();
-        if(!is_array($plex_data)){
-            $redirect = redirect()->back();
-            return $redirect->with([
-                'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
-                'alert-type' => 'error',
-            ]);
-        }
-
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        $current_date = strtotime(date('Y-m-d'));
-        $date_to = strtotime($request->date_to);
-
-        if($request->status == 'active'){
-            if($current_date > $date_to){
-                $redirect = redirect()->back();
-
-                return $redirect->with([
-                    'message'    => __('Para activar un usuario asegurate que la fecha hasta sea mayor a la fecha actual!!'),
-                    'alert-type' => 'error',
-                ]);
-            }
-        }
-
-        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
-            $redirect = redirect()->back();
-
-            return $redirect->with([
-                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
-                'alert-type' => 'error',
-            ]);
-           }
-        }
-
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
@@ -405,37 +367,7 @@ class CustomerController extends VoyagerBaseController
             });
         $original_data = clone($data);
 
-        if($this->insertUpdateData($request, $slug, $dataType->editRows, $data)){
-            
-            $validUser = $this->plex->provider->validateUser($request->email);
-
-            if($validUser['response']['status'] == "Valid user"){
-                $data_login = $this->plex->loginInPlex($request->email, $request->password);
-                if(!is_array($data_login)){
-                    
-                    $redirect = redirect()->back();
-
-                    return $redirect->with([
-                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
-                        'alert-type' => 'error',
-                    ]);
-                }
-            }
-
-            $this->plex->createPlexAccount($request->email, $request->password, $data);
-
-            $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
-
-            if(empty($the_data[0]->invited_id)){
-                Customer::findorfail($data->id)->delete();
-                
-                $redirect = redirect()->back();
-                return $redirect->with([
-                    'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
-                    'alert-type' => 'error',
-                ]);
-            }
-        }
+        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
 
         // Delete Images
         $this->deleteBreadImages($original_data, $to_remove);
@@ -514,7 +446,8 @@ class CustomerController extends VoyagerBaseController
         
         $slug = $this->getSlug($request);
         $duration = Duration::findorfail($request->duration_id);
-        $server = Server::findorfail($request->server_id);
+        $server = Server::findorfail($request->server_id); 
+
         $this->plex->setServerCredentials($server->url, $server->token);
 
         $plex_data = $this->plex->provider->getAccounts();
@@ -572,6 +505,14 @@ class CustomerController extends VoyagerBaseController
                     'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
                     'alert-type' => 'error',
                 ]);
+            }else{
+                if(!empty($server->limit_accounts)){
+                    $tope = (intval($server->limit_accounts)-intval($server->customers->count()));
+                    if($tope == 0){
+                        $server->status = 0;
+                        $server->save();
+                    }
+                }
             }
         }
 
@@ -1146,5 +1087,157 @@ class CustomerController extends VoyagerBaseController
     protected function relationIsUsingAccessorAsLabel($details)
     {
         return in_array($details->label, app($details->model)->additional_attributes ?? []);
+    }
+
+    public function extend_membership(Request $request){
+        $data = Customer::findorfail($request->customer_id);
+        $duration = Duration::findorfail($request->duration);
+
+        $redirect = redirect()->back();
+
+        $server = Server::findorfail($request->plexserver);
+
+        $old_server = Server::findorfail($data->server_id);
+
+        $this->plex->setServerCredentials($server->url, $server->token);
+        $plex_data = $this->plex->provider->getAccounts();
+
+        if(!is_array($plex_data)){
+            return $redirect->with([
+                'message'    => __('El servidor donde quieres renovar tiene problemas, verifica que el User, Correo o Password sean los Correctos, en tal caso contacte con el administrador del sistema!!'),
+                'alert-type' => 'error',
+            ]);
+        }
+
+        if($data->status == 'active'){
+            if($data->server_id == $request->plexserver){
+                $data->date_to = $request->to;
+                $data->save();
+
+                $this->removeCredit($data, $duration);
+
+                return $redirect->with([
+                    'message'    => __('Membresia extendida con exito!!'),
+                    'alert-type' => 'success',
+                ]);
+
+            }else{
+                if(isset($data->invited_id) and !empty($data->invited_id)){
+
+                    $this->plex->setServerCredentials($old_server->url, $old_server->token);
+                    $this->plex->provider->removeFriend($data->invited_id);
+
+                    if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+                       if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+                        return $redirect->with([
+                            'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
+                            'alert-type' => 'error',
+                        ]);
+                       }
+                    }
+
+                    $validUser = $this->plex->provider->validateUser($data->email);
+
+                    if($validUser['response']['status'] == "Valid user"){
+                        $data_login = $this->plex->loginInPlex($data->email, $data->password);
+                        if(!is_array($data_login)){
+                            return $redirect->with([
+                                'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                                'alert-type' => 'error',
+                            ]);
+                        }
+                    }
+
+                    $this->plex->setServerCredentials($server->url, $server->token);
+                    $this->plex->createPlexAccount($data->email, $data->password, $data);
+
+                    $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
+
+                    if(empty($the_data[0]->invited_id)){
+                        return $redirect->with([
+                            'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
+                            'alert-type' => 'error',
+                        ]);
+                    }
+
+                    $data->server_id = $request->plexserver;
+                    $data->date_to = $request->to;
+                    $data->save();
+
+                    $this->removeCredit($data, $duration);
+                    
+                    return $redirect->with([
+                        'message'    => __('Membresia extendida con exito!!'),
+                        'alert-type' => 'success',
+                    ]);
+                    
+                }else{
+                    return $redirect->with([
+                        'message'    => __('La cuenta que intenta renovar tiene errores en los datos por favor contacte con el administrador!!'),
+                        'alert-type' => 'error',
+                    ]);
+                }
+            }
+        }else{
+
+            if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+               if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+                return $redirect->with([
+                    'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
+                    'alert-type' => 'error',
+                ]);
+               }
+            }
+
+            $validUser = $this->plex->provider->validateUser($data->email);
+
+            if($validUser['response']['status'] == "Valid user"){
+                $data_login = $this->plex->loginInPlex($data->email, $data->password);
+                if(!is_array($data_login)){
+                    return $redirect->with([
+                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                        'alert-type' => 'error',
+                    ]);
+                }
+            }
+
+            $this->plex->createPlexAccount($data->email, $data->password, $data);
+
+            $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
+
+            if(empty($the_data[0]->invited_id)){
+                return $redirect->with([
+                    'message'    => __('Ocurrio un error al actualizar la cuenta, es posible que la clave no sea la misma, que ya exista una invitacion pendiente, por favor contacte al administrador del sistema!!'),
+                    'alert-type' => 'error',
+                ]);
+            }
+
+            $data->server_id = $request->plexserver;
+            $data->date_to = $request->to;
+            $data->status = "active";
+            $data->save();
+
+            $this->removeCredit($data, $duration);
+
+            return $redirect->with([
+                'message'    => __('Membresia extendida con exito!!'),
+                'alert-type' => 'success',
+            ]);
+
+        }
+    }
+
+    public function removeCredit(Customer $customer, Duration $duration){
+
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+           if(!empty($customer->invited_id)){
+               $user = User::findorfail(Auth::user()->id);
+               $current_credit = $user->total_credits;
+               DB::table('users')->where('id',$user->id)->update([
+                    'total_credits'=>($current_credit - intval($duration->months))
+               ]);
+           }
+        }
+        
     }
 }

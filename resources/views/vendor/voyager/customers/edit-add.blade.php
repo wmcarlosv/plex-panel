@@ -82,8 +82,12 @@
                                         {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
                                     @endif
 
+                                    @if($row->field == "email")
+                                        <button class="btn btn-info" id="generate-email" type="button">Generar Email</button>
+                                    @endif
+
                                     @if($row->field == "password")
-                                        <button class="btn btn-info" id="generate-password" type="button">Generate</button>
+                                        <button class="btn btn-info" id="generate-password" type="button">Generar Clave</button>
                                     @endif
 
                                     @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
@@ -97,6 +101,24 @@
                                 </div>
                             @endforeach
 
+                            @if($edit)
+                                <div class="col-md-12">
+                                    @if($dataTypeContent->status == "active")
+                                    <h3>Estado actual:</h3> 
+                                    <h2><label for="" class="label label-success">Activo</label></h2>
+                                @else
+                                    <h3>Estado actual:</h3> 
+                                    <h2><label for="" class="label label-danger">Inactivo</label></h2>
+                                @endif
+                                </div>
+
+                                <div class="col-md-12">
+                                    <h3>Servidor actual:</h3> 
+                                    <h2><label for="" class="label label-success">{{ $dataTypeContent->server->name }}</label></h2>
+                                </div>
+                                
+                            @endif
+
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">
@@ -104,6 +126,9 @@
                                 <button type="submit" class="btn btn-primary save">{{ __('voyager::generic.save') }}</button>
                             @stop
                             @yield('submit-buttons')
+                            @if($edit)
+                                <button type="button" class="btn btn-success" id="extend_membership">Extender Membresia</button>
+                            @endif
                         </div>
                     </form>
 
@@ -132,12 +157,65 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('voyager::generic.cancel') }}</button>
-                    <button type="button" class="btn btn-danger" id="confirm_delete">{{ __('voyager::generic.delete_confirm') }}</button>
+                    <button type="button" class="btn btn-success" id="confirm_delete">{{ __('voyager::generic.delete_confirm') }}</button>
                 </div>
             </div>
         </div>
     </div>
     <!-- End Delete File Modal -->
+
+        @if($edit)
+        <div class="modal fade modal-success" id="extend_modal">
+            <div class="modal-dialog">
+                <form id="extend_form" action="{{ route('extend_membership') }}" method="POST">
+                    @method('PUT')
+                    @csrf
+                    <input type="hidden" name="customer_id" value="{{ $dataTypeContent->id }}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-hidden="true">&times;</button>
+                            <h4 class="modal-title"><i class="voyager-question"></i> Extender Membresia</h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Servidor:</label>
+                                <select name="plexserver" required class="form-control">
+                                    <option value="">-</option>
+                                    @foreach($servers as $server)
+                                        <option value="{{$server->id}}" @if($dataTypeContent->server_id == $server->id) selected='selected' @endif>{{$server->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Duracion:</label>
+                                <select name="duration" required class="form-control">
+                                    <option value="">-</option>
+                                    @foreach($durations as $duration)
+                                        <option data-months='{{$duration->months}}' value="{{$duration->id}}">{{$duration->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Ultima Fecha Hasta:</label>
+                                <input type="date" class="form-control" readonly value="{{$dataTypeContent->date_to}}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="">Fecha a Extender:</label>
+                                <input type="date" class="form-control" require name="to" readonly id="to" />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Confirmar</button>
+                            <button type="button" class="btn btn-danger" id="cancel_extend_modal">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 @stop
 
 @section('javascript')
@@ -145,14 +223,43 @@
         var params = {};
         var $file;
 
-        function generateStrongPassword() {
-          const length = 15; // Minimum length of 10 characters
-          const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?"; // Characters to choose from
-          let password = "";
+        function getDomainName() {
+          return window.location.hostname;
+        }
 
+        function formatDateToDDMMYYYYHMS() {
+          const now = new Date();
+          const day = String(now.getDate()).padStart(2, '0');
+          const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+          const year = String(now.getFullYear());
+          const hours = String(now.getHours()).padStart(2, '0');
+          const minutes = String(now.getMinutes()).padStart(2, '0');
+          const seconds = String(now.getSeconds()).padStart(2, '0');
+          const formattedDate = day + month + year + hours + minutes + seconds;
+          return formattedDate;
+        }
+
+        // Function to generate an email address with the current time and domain name
+        function generateEmail() {
+          const domainName = getDomainName();
+          const currentTime = formatDateToDDMMYYYYHMS();
+          const email = `cuenta${currentTime}@${domainName}`;
+          return email;
+        }
+
+        function generateStrongPassword() {
+          const length = 15;
+          const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+          const numberChars = '0123456789';
+          const specialChars = '!@#$%^&*';
+
+          const allChars = uppercaseChars + lowercaseChars + numberChars + specialChars;
+
+          let password = '';
           for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            password += charset.charAt(randomIndex);
+            const randomIndex = Math.floor(Math.random() * allChars.length);
+            password += allChars[randomIndex];
           }
 
           return password;
@@ -182,8 +289,46 @@
             $("input[name='date_from']").val('<?=date('Y-m-d')?>').attr("readonly","readonly");
             $("input[name='date_to']").attr("readonly","readonly");
 
+            $("#generate-email").click(function(){
+                $("input[name='email']").val(generateEmail());
+            });
+
+            @if($edit)
+                @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6)
+                    $("input[name='date_to']").removeAttr("readonly");
+                @endif
+            @endif
+
+
             $("#generate-password").click(function(){
                 $("input[name='password']").val(generateStrongPassword());
+            });
+
+            $("select[name='duration']").change(function(){
+                if($(this).val()){
+                    let ms = $(this).children("option:selected").attr("data-months");
+                    @php
+                        $current_date = date('Y-m-d');
+                        $last_date_to = $dataTypeContent->date_to;
+                        $the_date = "";
+                        if(strtotime($current_date) > strtotime($last_date_to)){
+                            $the_date = $current_date;
+                        }else{
+                            $the_date = $last_date_to;
+                        }
+                    @endphp
+                    let current_date_to = '{{$the_date}}';
+                    $.get('/api/get-extend-month-durations/'+current_date_to+'/'+ms, function(response){
+                        if(response.date){
+                            $("input[name='to']").val(response.date);
+                        }else{
+                            $("input[name='to']").val("");
+                        }
+                    });
+                }else{
+                    $("input[name='to']").val("");
+                }
+                
             });
 
             $("select[name='duration_id']").change(function(){
@@ -244,7 +389,25 @@
 
                 $('#confirm_delete_modal').modal('hide');
             });
+
             $('[data-toggle="tooltip"]').tooltip();
+
+            @if($edit)
+                $("select[name='status'], input[name='date_from'], select[name='duration_id'], select[name='server_id']").parent().hide();
+                $("#generate-password").hide();
+                $("input[name='email'], input[name='password']").attr("readonly","readonly");
+
+                $("#extend_membership").click(function(){
+                    $("#extend_modal").modal('show');
+                });
+
+                $("#cancel_extend_modal").click(function(){
+                    $("input[name='to']").val("");
+                    $("select[name='duration']").val("");
+                    $("select[name='server']").val('{{$dataTypeContent->server_id}}');
+                    $("#extend_modal").modal('hide');
+                });
+            @endif
         });
     </script>
 @stop

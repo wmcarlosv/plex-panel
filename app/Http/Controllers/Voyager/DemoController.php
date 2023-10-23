@@ -18,6 +18,10 @@ use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
 use App\Models\User;
 use App\Models\Plex;
 use App\Models\Server;
+use App\Models\Duration;
+use App\Models\Demo;
+use App\Models\Customer;
+use App\Http\Controllers\Voyager\CustomerController;
 
 class DemoController extends VoyagerBaseController
 {
@@ -320,7 +324,10 @@ class DemoController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        $servers = Server::where('status',1)->get();
+        $durations = Duration::all();
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','servers','durations'));
     }
 
     // POST BR(E)AD
@@ -506,6 +513,7 @@ class DemoController extends VoyagerBaseController
         
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+
             if(isset($data->invited_id) and !empty($data->invited_id)){
                 $server = Server::findorfail($data->server_id);
                 $this->plex->setServerCredentials($server->url, $server->token);
@@ -1029,5 +1037,48 @@ class DemoController extends VoyagerBaseController
     protected function relationIsUsingAccessorAsLabel($details)
     {
         return in_array($details->label, app($details->model)->additional_attributes ?? []);
+    }
+
+    public function convert_client(Request $request){
+        $demo = Demo::findorfail($request->demo);
+        $duration = Duration::findorfail($request->duration_id);
+
+        $customer = new Customer();
+        $customer->name = $request->name;
+        $customer->email = $demo->email;
+        $customer->password = $demo->password;
+        $customer->server_id = $demo->server_id;
+        $customer->date_from  = date('Y-m-d');
+        $customer->date_to = $request->date_to;
+        $customer->duration_id = $request->duration_id;
+        $customer->plex_user_name = $demo->plex_user_name;
+        $customer->invited_id = $demo->invited_id;
+        $customer->plex_user_token = $demo->plex_user_token;
+        $customer->screens = $request->screen;
+        $customer->save();
+
+        $this->removeCredit($customer, $duration);
+        $demo->delete();
+
+        return redirect()
+        ->route("voyager.customers.index")
+        ->with([
+            'message'    => __('Cliente Creado con Exito!!'),
+            'alert-type' => 'success',
+        ]);
+    }
+
+    public function removeCredit(Customer $customer, Duration $duration){
+
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+           if(!empty($customer->invited_id)){
+               $user = User::findorfail(Auth::user()->id);
+               $current_credit = $user->total_credits;
+               DB::table('users')->where('id',$user->id)->update([
+                    'total_credits'=>($current_credit - intval($duration->months))
+               ]);
+           }
+        }
+        
     }
 }

@@ -93,6 +93,11 @@
                                 </div>
                             @endforeach
 
+                            <div class="col-md-12">
+                                <h3>Cantidad de Cuentas (Panel)</h3>
+                                <h2><span class="label label-success">{{$dataTypeContent->customers->count()}}</span></h2>
+                            </div>
+
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">

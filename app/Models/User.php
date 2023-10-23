@@ -105,4 +105,8 @@ class User extends \TCG\Voyager\Models\User
     public function servers(){
         return $this->hasMany('App\Models\Server');
     }
+
+    public function assigned_servers(){
+        return $this->belongsToMany('App\Models\Server','user_servers','user_id','server_id');
+    }
 }
