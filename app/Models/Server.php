@@ -15,18 +15,40 @@ class Server extends Model
 
     public $tmpName;
 
+    public function customers(){
+        return $this->hasMany("App\Models\Customer")->where('status','active');
+    }
+
     public function scopeServer($query){
-        $servers = $this->getServerIds();
+        $servers_assigned = Auth::user()->assigned_servers();
+        if($servers_assigned->count() > 0){
+            $servers = $servers_assigned->pluck('server_id')->toArray();
+        }else{
+            $servers = $this->getServerIds();
+        }
+        
         return $query->where('status',1)->where('is_demo',0)->whereIn('id',$servers);   
     }
 
     public function scopeServerDemo($query){
-        $servers = $this->getServerIds();
+        $servers_assigned = Auth::user()->assigned_servers();
+        if($servers_assigned->count() > 0){
+            $servers = $servers_assigned->pluck('server_id')->toArray();
+        }else{
+            $servers = $this->getServerIds();
+        }
+        
         return $query->where('status',1)->where('is_demo',1)->whereIn('id',$servers);     
     }
 
     public function scopeNormalServer($query){
-        $servers = $this->getServerIds();
+        $servers_assigned = Auth::user()->assigned_servers();
+        if($servers_assigned->count() > 0){
+            $servers = $servers_assigned->pluck('server_id')->toArray();
+        }else{
+            $servers = $this->getServerIds();
+        }
+        
         return $query->where('status',1)->whereIn('id',$servers);    
     }
 

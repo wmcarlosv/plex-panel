@@ -84,7 +84,11 @@
                                     @endif
 
                                     @if($row->field == "password")
-                                        <button class="btn btn-info" id="generate-password" type="button">Generate</button>
+                                        <button class="btn btn-info" id="generate-password" type="button">Generar Clave</button>
+                                    @endif
+
+                                    @if($row->field == "email")
+                                        <button class="btn btn-info" id="generate-email" type="button">Generar Email</button>
                                     @endif
 
                                     @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
@@ -103,6 +107,9 @@
                         <div class="panel-footer">
                             @section('submit-buttons')
                                 <button type="submit" class="btn btn-primary save">{{ __('voyager::generic.save') }}</button>
+                                @if($edit)
+                                    <button class="btn btn-success" type="button" id="button_convert_customer">Convertir en Cliente</button>
+                                @endif
                             @stop
                             @yield('submit-buttons')
                         </div>
@@ -139,6 +146,70 @@
         </div>
     </div>
     <!-- End Delete File Modal -->
+    @if($edit)
+        <div class="modal fade modal-success" id="convert_customer">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('convert_client') }}" method="POST">
+                        @method('post')
+                        @csrf
+                        <input type="hidden" name="demo" value="{{ $dataTypeContent->id }}">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Crear Cliente</h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="">Nombre:</label>
+                                <input type="text" name="name" required class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="">Email:</label>
+                                <input type="text" class="form-control" value="{{$dataTypeContent->email}}" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="">Clave:</label>
+                                <input type="text" class="form-control" value="{{$dataTypeContent->password}}" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="">Server:</label>
+                                <input type="text" class="form-control" value="{{$dataTypeContent->server->name}}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Pantallas:</label>
+                                <select name="screen" required class="form-control">
+                                    <option value="1">1</option> 
+                                    <option value="2">2</option> 
+                                    <option value="3">3</option> 
+                                    <option value="4" selected='selected'>4</option> 
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Duration:</label>
+                                <select name="duration_id" required class="form-control">
+                                    <option value="">Seleccione</option>
+                                    @foreach($durations as $duration)
+                                        <option data-months="{{$duration->months}}" value="{{$duration->id}}">{{$duration->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Fecha Hasta:</label>
+                                <input type="date" name="date_to" required class="form-control" readonly />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success" id="save_convert_customer">Crear</button>
+                            <button type="button" class="btn btn-danger" id="cancel_convert_customer">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @stop
 
 @section('javascript')
@@ -150,22 +221,39 @@
           return window.location.hostname;
         }
 
+        function formatDateToDDMMYYYYHMS() {
+          const now = new Date();
+          const day = String(now.getDate()).padStart(2, '0');
+          const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+          const year = String(now.getFullYear());
+          const hours = String(now.getHours()).padStart(2, '0');
+          const minutes = String(now.getMinutes()).padStart(2, '0');
+          const seconds = String(now.getSeconds()).padStart(2, '0');
+          const formattedDate = day + month + year + hours + minutes + seconds;
+          return formattedDate;
+        }
+
         // Function to generate an email address with the current time and domain name
         function generateEmail() {
           const domainName = getDomainName();
-          const currentTime = new Date().toISOString().replace(/[-:.]/g, '');
+          const currentTime = formatDateToDDMMYYYYHMS();
           const email = `demo${currentTime}@${domainName}`;
           return email;
         }
 
         function generateStrongPassword() {
-          const length = 15; // Minimum length of 10 characters
-          const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}|;:,.<>?"; // Characters to choose from
-          let password = "";
+          const length = 15;
+          const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+          const numberChars = '0123456789';
+          const specialChars = '!@#$%^&*';
 
+          const allChars = uppercaseChars + lowercaseChars + numberChars + specialChars;
+
+          let password = '';
           for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            password += charset.charAt(randomIndex);
+            const randomIndex = Math.floor(Math.random() * allChars.length);
+            password += allChars[randomIndex];
           }
 
           return password;
@@ -192,10 +280,34 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
 
-            $("input[name='email']").attr("readonly","readonly").val(generateEmail());
+            $("#button_convert_customer").click(function(){
+                $("#convert_customer").modal('show');
+            });
+
+            $("#cancel_convert_customer").click(function(){
+                $("#convert_customer").modal('hide');
+            });
+
+            $("#generate-email").click(function(){
+                $("input[name='email']").val(generateEmail());
+            });
             
             $("#generate-password").click(function(){
                 $("input[name='password']").val(generateStrongPassword());
+            });
+
+            $("select[name='duration_id']").change(function(){
+                let id = $(this).val();
+                if(id){
+                   $.get("/api/get-months-duration/"+id, function(response){
+                        let data = response;
+                        $("input[name='date_to']").val(data.new_date);
+
+                   }); 
+               }else{
+                $("input[name='date_to']").val("");
+               }
+                
             });
 
             //Init datepicker for date fields if data-datepicker attribute defined

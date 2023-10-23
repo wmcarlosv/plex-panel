@@ -16,6 +16,7 @@ use App\Http\Controllers\ApiController;
 */
 
 Route::get('get-months-duration/{duration_id}',[ApiController::class, 'get_months_duration']);
+Route::get('get-extend-month-durations/{startdate}/{months}',[ApiController::class, 'get_extend_months_duration']);
 Route::post('login-customer',[ApiController::class, 'loginCustomer']);
 Route::post('get-libraries', [ApiController::class, 'getLibraries']);
 Route::post('get-library', [ApiController::class, 'getLibrary']);

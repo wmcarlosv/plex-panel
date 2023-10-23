@@ -8,7 +8,8 @@ use App\Models\Customer;
 use App\Models\Duration;
 use App\Models\User;
 use App\Models\Demo;
-use Session;
+use App\Models\Server;
+use App\Models\Session;
 use Auth;
 use DB;
 
@@ -299,25 +300,100 @@ class Plex {
         if(empty($xml_response->error)){
             $data = $xml_response->Server;
             $size = (int) $xml_response->attributes()->{'size'};
+            if($size!=0){
+                if($size > 1){
+                    $data = $xml_response->Server[$size-1];
+                }
 
-            if($size > 1){
-                $data = $xml_response->Server[$size-1];
-            }
-
-            $response_data['name'] = (string) $data->attributes()->{'name'};
-            $response_data['address'] = (string) $data->attributes()->{'address'};
-            $response_data['port'] = (string) $data->attributes()->{'port'};
-            $response_data['scheme'] = (string) $data->attributes()->{'scheme'};
-            $devices = simplexml_load_string($this->serverRequest("https://plex.tv/devices.xml", $user, $password));
-            foreach($devices->Device as $device){
-                $serverName = (string) trim($device->attributes()->{'name'});
-                if($response_data['name'] == $serverName){
-                    $response_data['token'] = (string) $device->attributes()->{'token'};
-                    break;
+                $response_data['name'] = (string) $data->attributes()->{'name'};
+                $response_data['address'] = (string) $data->attributes()->{'address'};
+                $response_data['port'] = (string) $data->attributes()->{'port'};
+                $response_data['scheme'] = (string) $data->attributes()->{'scheme'};
+                $devices = simplexml_load_string($this->serverRequest("https://plex.tv/devices.xml", $user, $password));
+                foreach($devices->Device as $device){
+                    $serverName = (string) trim($device->attributes()->{'name'});
+                    if($response_data['name'] == $serverName){
+                        $response_data['token'] = (string) $device->attributes()->{'token'};
+                        break;
+                    }
                 }
             }
         }
 
         return $response_data;
+    }
+
+    public function getSessionsAllServers(){
+        $servers = Server::where('status',1)->where('is_demo',0)->get();
+        DB::table('sessions')->delete();
+        foreach($servers as $server){
+            if($server->customers->count() > 0){
+                $data = $this->getServerCredentials($server->url, $server->token);
+                $sessions = $this->getSessionsByServer($data);
+                foreach($sessions as $session){
+                    $ss = new Session();
+                    $ss->server_id = $server->id;
+                    $ss->plex_user_id = $session['plex_user_id'];
+                    $ss->plex_session_id = $session['plex_session_id'];
+                    $ss->save();
+                }
+            }
+        }
+        $this->setScreenMessage();
+    }
+
+    public function getSessionsByServer($data){
+        $plex_sessions = [];
+        $opts = [
+            "http" => [
+                "method" => "GET",
+                "header" => "X-Plex-Token: ".$data['token']
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+        $url = $data['scheme']."://".$data['address'].":".$data['port']."/status/sessions";
+        $response = file_get_contents($url, false, $context);
+        $sessions = simplexml_load_string($response);
+        $cont = 0;
+        foreach($sessions->Video as $video){
+            $plex_sessions[$cont]['plex_session_id'] = (string) $video->Session->attributes()->{'id'};
+            $plex_sessions[$cont]['plex_user_id'] = (string) $video->User->attributes()->{'id'};
+            $cont++;
+        }
+        return $plex_sessions;
+    }
+
+    public function setScreenMessage(){
+        $servers = Server::where('status',1)->where('is_demo',0)->get();
+        foreach($servers as $server){
+            if($server->customers->count() > 0){
+                $data = $this->getServerCredentials($server->url, $server->token);
+                $customers = Customer::where('server_id',$server->id)->where('status','active')->get();
+                foreach($customers as $customer){
+                    $session = Session::where('plex_user_id',$customer->invited_id)->get();
+                    if($session->count() > $customer->screen){
+                        $last_session_id = $session[$session->count() - 1]->plex_session_id;
+                        $this->requestScreen($data, $last_session_id);
+                    }
+                }
+            }
+        }
+    }
+
+    public function requestScreen($data, $sessionId){
+        $message = setting('admin.screen_message');
+        $url = $data['scheme']."://".$data['address'].":".$data['port']."/status/sessions/terminate?sessionId=".$sessionId."&reason=".$message."&X-Plex-Token=".$data['token'];
+        dd($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'cURL Error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+        echo $response;
+
     }
 }

@@ -359,13 +359,14 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
-
+    
         $request->merge(['accounts_count'=>count($plex_data)]);
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
         $model = app($dataType->model_name);
+
         $model->name = $this->plex->name;
         $query = $model->query();
         if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
@@ -376,6 +377,19 @@ class ServerController extends VoyagerBaseController
         }
 
         $data = $query->findOrFail($id);
+
+        if(!empty($request->limit_accounts)){
+            $tope = intval($request->limit_accounts) - intval($data->customers->count());
+            if($tope<=0){
+                $redirect = redirect()->back();
+                return $redirect->with([
+                    'message'    => __('El limite de cuentas debe ser mayor a la cantidad actual, por favor verifique e intentelo de Nuevo!!'),
+                    'alert-type' => 'error',
+                ]);
+            }/*else{
+                DB::table('servers')->where('id',$data->id)->update(['status'=>1]);
+            }*/
+        }
 
         // Check permission
         $this->authorize('edit', $data);
