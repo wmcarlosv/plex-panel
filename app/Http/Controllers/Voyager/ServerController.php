@@ -337,7 +337,9 @@ class ServerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts'));
+        $libraries = $this->plex->provider->getLibraries()['MediaContainer']['Directory'];
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts','libraries'));
     }
 
     // POST BR(E)AD

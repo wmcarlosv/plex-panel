@@ -7,6 +7,7 @@ use App\Models\Duration;
 use App\Models\Customer;
 use App\Models\Plex;
 use App\Models\Server;
+use DB;
 
 class ApiController extends Controller
 {
@@ -89,5 +90,60 @@ class ApiController extends Controller
         $q = $request->q;
         $this->activeServer($server_id);
         return response()->json(['response'=>$this->plex->provider->searchLibrary($q, 20), 'server_data'=>$this->plex->serverData]);
+    }
+
+    public function change_server(Request $request){
+        $data = [];
+        $customer = Customer::findorfail($request->id);
+        $server_to = Server::findorfail($request->server_id);
+
+        if(isset($customer->invited_id) and !empty($customer->invited_id)){
+            /*Remove Before Server*/
+            $server = Server::findorfail($customer->server_id);
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->provider->removeFriend($customer->invited_id);
+
+            /* Add to New Server*/
+            $this->plex->setServerCredentials($server_to->url, $server_to->token);
+            $plex_data = $this->plex->provider->getAccounts();
+            if(!is_array($plex_data)){
+                $data = [
+                    'success'=>false,
+                    'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
+                ];   
+            }else{
+                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
+                if(empty($the_data[0]->invited_id)){
+                    $data = [
+                        'success'=>false,
+                        'message'=>"Ocurrio un error al momento de realizar el cambio de servidor, por favor utilice la opcion de reparar cuenta para solventar este problema!!"
+                        ];
+                }else{
+                    if(!empty($server_to->limit_accounts)){
+                        $tope = (intval($server_to->limit_accounts)-intval($server_to->customers->count()));
+                        if($tope == 0){
+                            $server_to->status = 0;
+                            $server_to->save();
+                        }
+                    }
+
+                    $data = [
+                        'success'=>true,
+                        'message'=>"El cambio de servidor se ha realizado con exito, esta pagina se recargara en breve!!"
+                    ];
+
+                    $customer->server_id = $server_to->id;
+                    $customer->save();
+                }
+            }
+        }else{
+            $data = [
+                'success'=>false,
+                'message'=>"El cliente no estar correctamente vinculado con plex, por favor verifica bien los datos!!"
+            ];
+        }
+
+        return response()->json($data);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Voyager\UserController;
 use App\Http\Controllers\Voyager\CustomerController;
 use App\Http\Controllers\CronController;
 use App\Http\Controllers\Voyager\DemoController;
+use App\Http\Controllers\ApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,5 +37,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('users/store',[UserController::class, 'custom_store'])->name('user_custom_store');
     Route::post('demos/convert-client',[DemoController::class, 'convert_client'])->name('convert_client');
     Route::put('customers/extend-membership',[CustomerController::class, 'extend_membership'])->name('extend_membership');
+    Route::post('change-server',[ApiController::class, 'change_server'])->name('change_server');
     Voyager::routes();
 });
