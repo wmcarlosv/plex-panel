@@ -105,6 +105,11 @@
                                 <button type="submit" class="btn btn-primary save">{{ __('voyager::generic.save') }}</button>
                             @stop
                             @yield('submit-buttons')
+                            @if($edit)
+                                @if(is_array($accounts))
+                                    <button class="btn btn-success" type="button" id="update-libraries-button">Actualizar Librerias</button>
+                                @endif
+                            @endif
                         </div>
                     </form>
 
@@ -139,6 +144,34 @@
         </div>
     </div>
     <!-- End Delete File Modal -->
+
+    @if($edit)
+        <div class="modal fade modal-success" id="update-libraries-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Actualizar Librerias</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <ul class="list-group">
+                            @foreach($libraries as $library)
+                                <li class="list-group-item"><input type="checkbox" name="libraries[]" value="{{$library['key']}}"> {{$library['title']}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" id="save-update-libraries">Actualizar</button>
+                        <button type="button" class="btn btn-danger" id="cancel-update-libraries">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @stop
 
 @section('javascript')
@@ -166,6 +199,29 @@
 
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
+
+            $("#update-libraries-button").click(function(){
+                $("#update-libraries-modal").modal('show');
+            });
+
+            $("#cancel-update-libraries").click(function(){
+                $("#update-libraries-modal").modal('hide');
+            });
+
+            $("#save-update-libraries").click(function(){
+                let libraries = $("input[name='libraries[]']");
+                var cont = 0;
+                libraries.each(function(){
+                    if($(this).prop("checked")){
+                        cont++;
+                    }
+                });
+
+                if(cont > 0){
+                    alert("enviar");
+                }
+            });
+
             @if($edit)
                 @if(is_array($accounts))
                     $("input[name='accounts_count']").val("{{count($accounts)}}").attr("readonly","readonly");
