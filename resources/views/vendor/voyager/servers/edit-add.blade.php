@@ -218,7 +218,16 @@
                 });
 
                 if(cont > 0){
-                    alert("enviar");
+                    $.ajax({
+                        url:"{{route('update_libraries',$dataTypeContent->id)}}",
+                        type: "POST",
+                        data: $("input[name='libraries[]']:checked").serialize(),
+                        success: function(response){
+                            console.log(response);
+                        }
+                    });
+                }else{
+                    alert("Debes seleccionar al menos una libraria!!");
                 }
             });
 

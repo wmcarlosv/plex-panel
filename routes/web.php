@@ -38,5 +38,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('demos/convert-client',[DemoController::class, 'convert_client'])->name('convert_client');
     Route::put('customers/extend-membership',[CustomerController::class, 'extend_membership'])->name('extend_membership');
     Route::post('change-server',[ApiController::class, 'change_server'])->name('change_server');
+    Route::post('update-libraries/{server_id?}',[ApiController::class, 'updateLibraries'])->name('update_libraries');
     Voyager::routes();
 });
