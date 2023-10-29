@@ -7,6 +7,7 @@ use App\Models\Duration;
 use App\Models\Customer;
 use App\Models\Plex;
 use App\Models\Server;
+use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
 use DB;
 
 class ApiController extends Controller
@@ -143,6 +144,45 @@ class ApiController extends Controller
                 'message'=>"El cliente no estar correctamente vinculado con plex, por favor verifica bien los datos!!"
             ];
         }
+
+        return response()->json($data);
+    }
+
+    public function updateLibraries(Request $request,$server_id){
+        $data = [];
+        $librarySectionIds = [];
+        $server = Server::findorfail($server_id);
+
+        $this->plex->setServerCredentials($server->url, $server->token);
+        $libraries = $request->libraries;
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        foreach($libraries as $library){
+            $librarySectionIds[] = (int) $library;
+        }
+
+        $cont = 0;
+        foreach($server->customers as $customer){
+            $this->plex->provider->updateFriendRestrictions($customer->invited_id, $settings);
+            $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
+            #$data_user = $this->plex->loginInPlex($customer->email, $customer->password);
+            #$this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
+            $cont++;
+        }
+
+        $data = [
+            'success'=>true,
+            'message'=>"Se les actualizo la librerias a ".$cont.", Clientes"
+        ];
 
         return response()->json($data);
     }
