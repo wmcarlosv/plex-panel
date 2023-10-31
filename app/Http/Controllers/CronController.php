@@ -23,7 +23,7 @@ class CronController extends Controller
             $customers = Customer::where('status', 'active')
             ->where(function ($query) {
                 $query->where('date_to', '<', date('Y-m-d'));
-            })->get();
+            })->limit(5)->get();
 
 
             foreach ($customers as $data) {
@@ -44,7 +44,7 @@ class CronController extends Controller
 
             $total_demos = 0;
 
-            $demos = Demo::where('end_date','<',now())->get();
+            $demos = Demo::where('end_date','<',now())->limit(5)->get();
             foreach($demos as $demo){
                 $server = $demo->server;
                 if(!empty($demo->server->url) and !empty($demo->server->token)){
