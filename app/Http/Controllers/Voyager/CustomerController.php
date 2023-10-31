@@ -21,6 +21,7 @@ use App\Models\Server;
 use App\Models\Duration;
 
 use App\Models\Plex;
+use Session;
 
 class CustomerController extends VoyagerBaseController
 {
@@ -528,10 +529,15 @@ class CustomerController extends VoyagerBaseController
                 $redirect = redirect()->back();
             }
 
+            $la_data = Customer::findorfail($data->id);
+
+            Session::flash('modal',$la_data);
+
             return $redirect->with([
                 'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                'alert-type' => 'success',
+                'alert-type' => 'success'
             ]);
+
         } else {
             return response()->json(['success' => true, 'data' => $data]);
         }
