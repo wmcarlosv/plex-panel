@@ -408,6 +408,7 @@
                           text: "Estamos Realizando el Cambio!!",
                           icon: 'warning',
                           showConfirmButton:false,
+                          allowOutsideClick: false,
                           confirmButtonText: 'Yes, delete it!'
                         });
 
@@ -419,6 +420,7 @@
                                   text: data.message,
                                   icon: 'success',
                                   showConfirmButton:false,
+                                  allowOutsideClick:false,
                                   confirmButtonText: 'Yes, delete it!'
                                 });
                                 setTimeout(() => location.reload(), 3000);
