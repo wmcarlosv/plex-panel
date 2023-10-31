@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Plex;
 use App\Models\Demo;
+use DB;
 
 class CronController extends Controller
 {
