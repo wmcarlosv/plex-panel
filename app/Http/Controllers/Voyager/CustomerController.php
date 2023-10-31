@@ -66,10 +66,6 @@ class CustomerController extends VoyagerBaseController
 
             $query = $model::select($dataType->name.'.*');
 
-            /*if(Auth::user()->role_id == 3){
-                $query->where('user_id',Auth::user()->id);
-            }*/
-
             if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
                 $query->{$dataType->scope}();
             }
@@ -188,7 +184,7 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.browse";
         }
 
-        $servers = Server::where('status',1)->get();
+        $servers = Server::where('status',1)->server()->get();
 
         return Voyager::view($view, compact(
             'actions',
@@ -330,7 +326,7 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        $servers = Server::all();
+        $servers = Server::where('status',1)->server()->get();
         $durations = Duration::all();
 
         return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations'));

@@ -449,6 +449,7 @@
                   html:'<textarea id="field_copy" class="form-control" style="height: 115px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
                   confirmButtonColor: '#5cb85c',
                   confirmButtonText: 'Copiar y Salir',
+                  allowOutsideClick:false
                 }).then((result) => {
                   if (result.isConfirmed) {
                     $("#field_copy").select();
