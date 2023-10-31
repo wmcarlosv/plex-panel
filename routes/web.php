@@ -39,5 +39,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::put('customers/extend-membership',[CustomerController::class, 'extend_membership'])->name('extend_membership');
     Route::post('change-server',[ApiController::class, 'change_server'])->name('change_server');
     Route::post('update-libraries/{server_id?}',[ApiController::class, 'updateLibraries'])->name('update_libraries');
+    Route::get('change-status/{customer_id}',[ApiController::class, 'change_status'])->name('change_status');
     Voyager::routes();
 });

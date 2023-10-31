@@ -292,11 +292,9 @@
             $("#generate-email").click(function(){
                 $("input[name='email']").val(generateEmail());
             });
-
-            @if($edit)
-                @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6)
-                    $("input[name='date_to']").removeAttr("readonly");
-                @endif
+           
+            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6)
+                $("input[name='date_to']").removeAttr("readonly");
             @endif
 
 

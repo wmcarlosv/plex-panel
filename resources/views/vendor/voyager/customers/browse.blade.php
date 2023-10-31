@@ -74,7 +74,6 @@
                                 @endif
                             </form>
                         @endif
-                        <div class="table-responsive">
                             <table id="dataTable" class="table table-hover">
                                 <thead>
                                     <tr>
@@ -253,6 +252,20 @@
                                             </td>
                                         @endforeach
                                         <td class="no-sort no-click bread-actions">
+                                            <div class="dropdown">
+                                              <a class="btn btn-success dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown">
+                                                <i class="voyager-list-add"></i> Mas
+                                                <span class="caret"></span>
+                                              </a>
+                                              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                @if($data->status == "active")
+                                                    <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
+                                                @else
+                                                    <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
+                                                @endif
+                                                <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                              </ul>
+                                            </div>
                                             @foreach($actions as $action)
                                                 @if (!method_exists($action, 'massAction'))
                                                     @include('voyager::bread.partials.actions', ['action' => $action])
@@ -263,7 +276,6 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
                         @if ($isServerSide)
                             <div class="pull-left">
                                 <div role="status" class="show-res" aria-live="polite">{{ trans_choice(
@@ -361,8 +373,10 @@
         $(document).ready(function () {
             var id;
             $("body").on("click","a.change-server-modal", function(){
-                server_id = $(this).attr("data-server-id");
-                id = $(this).attr("data-id");
+                let row = JSON.parse($(this).attr("data-row"));
+                console.log(row);
+                server_id = row.server_id;
+                id = row.id;
                 removeServerById(server_id);
                 $("#change-server").modal({backdrop: 'static', keyboard: false}, 'show');
             });
@@ -374,6 +388,74 @@
                     }
                 });
             }
+
+            $("body").on("click","a.change-status", function(){
+                let row = JSON.parse($(this).attr("data-row"));
+
+                Swal.fire({
+                  title: 'Estas Seguro de Realizar Esta Accion?',
+                  icon: 'info',
+                  showCancelButton: true,
+                  confirmButtonText:'Aceptar',
+                  confirmButtonColor: "#2ecc71",
+                  cancelButtonText:'Cancelar',
+                  cancelButtonColor: "#fa2a00"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+
+                        Swal.fire({
+                          title: 'Advertencia',
+                          text: "Estamos Realizando el Cambio!!",
+                          icon: 'warning',
+                          showConfirmButton:false,
+                          allowOutsideClick: false,
+                          confirmButtonText: 'Yes, delete it!'
+                        });
+
+                        $.get("change-status/"+row.id, function(response){
+                            let data = response;
+                            if(data.success){
+                                Swal.fire({
+                                  title: 'Notificacion',
+                                  text: data.message,
+                                  icon: 'success',
+                                  showConfirmButton:false,
+                                  allowOutsideClick:false,
+                                  confirmButtonText: 'Yes, delete it!'
+                                });
+                                setTimeout(() => location.reload(), 3000);
+                            }else{
+                                 Swal.fire({
+                                  title: 'Notificacion',
+                                  text: data.message,
+                                  icon: 'error',
+                                  showConfirmButton:false,
+                                  confirmButtonText: 'Yes, delete it!'
+                                });
+                            }
+                        });
+                    }
+                });
+
+            });
+
+            @if(Session::get('modal'))
+                @php 
+                    $data = Session::get('modal');
+                @endphp
+                Swal.fire({
+                  title: 'Estos son los datos que debes darle al cliente!!',
+                  icon: 'info',
+                  html:'<textarea id="field_copy" class="form-control" style="height: 115px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
+                  confirmButtonColor: '#5cb85c',
+                  confirmButtonText: 'Copiar y Salir',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    $("#field_copy").select();
+                    document.execCommand('copy');
+                  }
+                });
+            @endif
 
             $("#change-server-save").click(function(){
                 $(this).text("Cargando...").attr("disabled", true);

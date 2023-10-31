@@ -174,8 +174,6 @@ class ApiController extends Controller
         foreach($server->customers as $customer){
             $this->plex->provider->updateFriendRestrictions($customer->invited_id, $settings);
             $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
-            #$data_user = $this->plex->loginInPlex($customer->email, $customer->password);
-            #$this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
             $cont++;
         }
 
@@ -183,6 +181,63 @@ class ApiController extends Controller
             'success'=>true,
             'message'=>"Se les actualizo la librerias a ".$cont.", Clientes"
         ];
+
+        return response()->json($data);
+    }
+
+    public function change_status($customer_id){
+        $customer = Customer::findorfail($customer_id);
+        $server = Server::findorfail($customer->server_id);
+        $data = [];
+        if($customer->status == "active"){
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->provider->removeFriend($customer->invited_id);
+            $customer->plex_user_name = null;
+            $customer->plex_user_token = null;
+            $customer->invited_id = null;
+            $customer->status = "inactive";
+            $customer->save();
+            $data = [
+                'success'=>true,
+                'message'=>'Cliente Inhabhilitado con Exito!!'
+            ];
+        }else{
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $plex_data = $this->plex->provider->getAccounts();
+            if(!is_array($plex_data)){
+                $data = [
+                    'success'=>false,
+                    'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
+                ];   
+            }else{
+                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
+
+                if(empty($the_data[0]->invited_id)){
+                    $data = [
+                        'success'=>false,
+                        'message'=>"Ocurrio un error al momento de realizar el cambio de servidor, por favor utilice la opcion de reparar cuenta para solventar este problema!!"
+                        ];
+                }else{
+                    if(!empty($server->limit_accounts)){
+                        $tope = (intval($server->limit_accounts)-intval($server->customers->count()));
+                        if($tope == 0){
+                            $server->status = 0;
+                            $server->save();
+                        }
+                    }
+
+                    $data = [
+                        'success'=>true,
+                        'message'=>"Cliente Habilitado con Exito!"
+                    ];
+
+                    $customer->status = "active";
+                    $customer->server_id = $server->id;
+                    $customer->save();
+                }
+            }
+        }
 
         return response()->json($data);
     }
