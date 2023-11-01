@@ -74,6 +74,7 @@
                                 @endif
                             </form>
                         @endif
+                        <div class="table-responsive">
                             <table id="dataTable" class="table table-hover">
                                 <thead>
                                     <tr>
@@ -276,6 +277,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
                         @if ($isServerSide)
                             <div class="pull-left">
                                 <div role="status" class="show-res" aria-live="polite">{{ trans_choice(
