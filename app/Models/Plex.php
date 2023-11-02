@@ -296,7 +296,7 @@ class Plex {
     public function getServerCredentials($user, $password){
         $response_data = [];
         $xml_response = simplexml_load_string($this->serverRequest("https://plex.tv/pms/servers.xml",$user, $password));
-        
+        $encontrado = false;
         if(empty($xml_response->error)){
             $data = $xml_response->Server;
             $size = (int) $xml_response->attributes()->{'size'};
@@ -310,11 +310,24 @@ class Plex {
                 $response_data['port'] = (string) $data->attributes()->{'port'};
                 $response_data['scheme'] = (string) $data->attributes()->{'scheme'};
                 $devices = simplexml_load_string($this->serverRequest("https://plex.tv/devices.xml", $user, $password));
+
                 foreach($devices->Device as $device){
                     $serverName = (string) trim($device->attributes()->{'name'});
                     if($response_data['name'] == $serverName){
                         $response_data['token'] = (string) $device->attributes()->{'token'};
+                        $encontrado = true;
                         break;
+                    }
+                }
+
+                if(!$encontrado){
+                    foreach($devices->Device as $device){
+                        $serverName = (string) trim($device->attributes()->{'name'});
+                        if($serverName == "Plex Media Server"){
+                            $response_data['token'] = (string) $device->attributes()->{'token'};
+                            $encontrado = true;
+                            break;
+                        }
                     }
                 }
             }
