@@ -243,8 +243,22 @@
         function generateEmail() {
           const domainName = getDomainName();
           const currentTime = formatDateToDDMMYYYYHMS();
-          const email = `cuenta${currentTime}@${domainName}`;
+          const name = generateRandomString(12);
+          const email = `${name}@${domainName}`;
           return email;
+        }
+
+        function generateRandomString(length) {
+          const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; // You can include any characters you want in the charset
+          let result = '';
+          const charsetLength = charset.length;
+
+          for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charsetLength);
+            result += charset.charAt(randomIndex);
+          }
+
+          return result;
         }
 
         function generateStrongPassword() {
