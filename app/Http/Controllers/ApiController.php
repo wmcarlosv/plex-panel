@@ -113,7 +113,7 @@ class ApiController extends Controller
                     'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
                 ];   
             }else{
-                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
                 $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
                 if(empty($the_data[0]->invited_id)){
                     $data = [
@@ -210,7 +210,7 @@ class ApiController extends Controller
                     'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
                 ];   
             }else{
-                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
                 $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
 
                 if(empty($the_data[0]->invited_id)){
