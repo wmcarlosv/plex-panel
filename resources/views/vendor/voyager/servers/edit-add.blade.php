@@ -235,7 +235,7 @@
                 @if(is_array($accounts))
                     $("input[name='accounts_count']").val("{{count($accounts)}}").attr("readonly","readonly");
                 @else
-                    alert("Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!");
+                    alert("Existen problemas en el servidor, verifica que el Email, nombre de usuario y clave sean los correctos!!");
                     $("input[name='accounts_count']").val("0").attr("readonly","readonly");
                 @endif
             @else
