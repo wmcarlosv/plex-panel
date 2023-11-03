@@ -124,8 +124,11 @@ class ApiController extends Controller
                     if(!empty($server_to->limit_accounts)){
                         $tope = (intval($server_to->limit_accounts)-intval($server_to->customers->count()));
                         if($tope == 0){
-                            $server_to->status = 0;
-                            $server_to->save();
+                            /*$server_to->status = 0;
+                            $server_to->save();*/
+                            DB::table('servers')->where('id',$server->id)->update([
+                                'status'=>0
+                            ]);
                         }
                     }
 
@@ -222,8 +225,11 @@ class ApiController extends Controller
                     if(!empty($server->limit_accounts)){
                         $tope = (intval($server->limit_accounts)-intval($server->customers->count()));
                         if($tope == 0){
-                            $server->status = 0;
-                            $server->save();
+                            /*$server->status = 0;
+                            $server->save();*/
+                            DB::table('servers')->where('id',$server->id)->update([
+                                'status'=>0
+                            ]);
                         }
                     }
 

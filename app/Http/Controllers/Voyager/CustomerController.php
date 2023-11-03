@@ -509,8 +509,11 @@ class CustomerController extends VoyagerBaseController
                 if(!empty($server->limit_accounts)){
                     $tope = (intval($server->limit_accounts)-intval($server->customers->count()));
                     if($tope == 0){
-                        $server->status = 0;
-                        $server->save();
+                        /*$server->status = 0;
+                        $server->save();*/
+                        DB::table('servers')->where('id',$server->id)->update([
+                            'status'=>0
+                        ]);
                     }
                 }
             }
