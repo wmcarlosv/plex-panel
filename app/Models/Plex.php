@@ -52,25 +52,11 @@ class Plex {
             'Content-Type: application/json'
         );
 
-        $todo_ok = 0;
-
-        $data_proxies = [
-            "PROXY_USERNAME",
-            "PROXY_PASSWORD",
-            "PROXY_HOST",
-            "PROXY_PORT",
-            "PROXY_TYPE"
-        ];
-
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        foreach($data_proxies as $dp){
-            
-        }
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -1225,8 +1225,6 @@ class CustomerController extends VoyagerBaseController
             $data->status = "active";
             $data->save();
 
-            $this->removeCredit($data, $duration);
-
             return $redirect->with([
                 'message'    => __('Membresia extendida con exito!!'),
                 'alert-type' => 'success',
