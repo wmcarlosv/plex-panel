@@ -40,7 +40,7 @@ class Role extends Model
                 $allowRoles = [5,3];
             break;
             case 4:
-                $allowRoles = [2,3,4,5,6];
+                $allowRoles = [2,3,5,6];
             break;
 
             case 3:
