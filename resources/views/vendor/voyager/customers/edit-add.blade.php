@@ -244,8 +244,22 @@
           const domainName = getDomainName();
           const currentTime = formatDateToDDMMYYYYHMS();
           const name = generateRandomString(12);
-          const email = `${name}@${domainName}`;
+          const domains = getDomainsEmail();
+          const domains_count = domains.length;
+          const domain_selected = Math.floor(Math.random() * domains_count);
+
+          var email = `${name}@${domainName}`;
+          
+          if(domains_count > 0){
+            email = `${name}@${domains[domain_selected]}`;
+          }
+          
           return email;
+        }
+
+        function getDomainsEmail(){
+            let domains = [@foreach($domains as $domain) '{{$domain}}', @endforeach];
+            return domains;
         }
 
         function generateRandomString(length) {

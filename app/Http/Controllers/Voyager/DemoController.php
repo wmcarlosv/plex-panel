@@ -22,6 +22,7 @@ use App\Models\Duration;
 use App\Models\Demo;
 use App\Models\Customer;
 use App\Http\Controllers\Voyager\CustomerController;
+use App\Models\Domain;
 
 class DemoController extends VoyagerBaseController
 {
@@ -327,7 +328,9 @@ class DemoController extends VoyagerBaseController
         $servers = Server::where('status',1)->get();
         $durations = Duration::all();
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','servers','durations'));
+        $domains = [];
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','servers','durations','domains'));
     }
 
     // POST BR(E)AD
@@ -428,7 +431,9 @@ class DemoController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        $domains = Domain::whereIn('type',['all','demo'])->pluck('name');
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','domains'));
     }
 
     /**

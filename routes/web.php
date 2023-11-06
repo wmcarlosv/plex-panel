@@ -40,5 +40,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('change-server',[ApiController::class, 'change_server'])->name('change_server');
     Route::post('update-libraries/{server_id?}',[ApiController::class, 'updateLibraries'])->name('update_libraries');
     Route::get('change-status/{customer_id}',[ApiController::class, 'change_status'])->name('change_status');
+    Route::post("import-proxies",[ApiController::class, 'import_proxies'])->name('import_proxies');
     Voyager::routes();
 });

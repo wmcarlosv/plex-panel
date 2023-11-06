@@ -12,6 +12,7 @@ use App\Models\Server;
 use App\Models\Session;
 use Auth;
 use DB;
+use App\Models\Proxy;
 
 class Plex {
 
@@ -20,9 +21,11 @@ class Plex {
     public $name;
     public $server_password;
     public $serverData;
+    public $proxy;
 
     public function __construct(){
         $this->provider = new PlexClient;
+        $this->proxy = null;
     }
 
     public function createPlexUser($email, $password) {
@@ -33,7 +36,38 @@ class Plex {
             'password' => $password
         );
         
-        return $this->curlPost($apiUrl, $data);
+        $headers = array(
+            'X-Plex-Client-Identifier: '.uniqid(),
+            'Content-Type: application/json'
+        );
+
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $this->proxy = $this->getCorrectProxy();
+
+        if($this->proxy){
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL , 1);
+            curl_setopt($ch, CURLOPT_PROXY, $this->proxy->ip);         
+            curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxy->port);
+        }
+
+        $response = curl_exec($ch);
+
+        //Check for errors.
+        if(curl_errno($ch)){
+            dd($this->proxy->ip, $this->proxy->port, curl_error($ch));
+        }
+
+        
+        
+        curl_close($ch);
+
+        return $response;
     }
 
     public function verifyUser($email, $password){
@@ -213,7 +247,10 @@ class Plex {
             }else{
                 $customer->invited_id = null;
             }
-            
+
+            if($this->proxy){
+                $customer->proxy_id = $this->proxy->id;
+            }
         }
 
 
@@ -459,5 +496,25 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
         $customer->update();
+    }
+
+    public function getCorrectProxy(){
+        $proxy = [];
+        $proxies = Proxy::all();
+        $cont = 0;
+        $rand_pos = null;
+        foreach($proxies as $p){
+            if($p->customers->count() < 3){
+                $proxy[$cont] = $p;
+                $cont++;
+            }
+        }
+
+        if($cont > 0){
+            $rand_pos = rand(0, $cont);
+            return $proxy[$rand_pos];
+        }else{
+            return null;
+        }
     }
 }

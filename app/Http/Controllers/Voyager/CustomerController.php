@@ -19,6 +19,7 @@ use App\Models\Customer;
 use App\Models\User;
 use App\Models\Server;
 use App\Models\Duration;
+use App\Models\Domain;
 
 use App\Models\Plex;
 use Session;
@@ -328,8 +329,9 @@ class CustomerController extends VoyagerBaseController
 
         $servers = Server::where('status',1)->server()->get();
         $durations = Duration::all();
+        $domains = [];
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations','domains'));
     }
 
     // POST BR(E)AD
@@ -431,7 +433,9 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        $domains = Domain::whereIn('type',['all','account'])->pluck('name');
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','domains'));
     }
 
     /**
