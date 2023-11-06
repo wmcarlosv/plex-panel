@@ -9,6 +9,8 @@ use App\Models\Plex;
 use App\Models\Server;
 use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
 use DB;
+use File;
+use App\Models\Proxy;
 
 class ApiController extends Controller
 {
@@ -246,5 +248,41 @@ class ApiController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function import_proxies(Request $request){
+        $proxies = [];
+        $file = $request->file('proxies');
+        $content = $file->get();
+        $cont = 0;
+        $message = "";
+        foreach(explode(PHP_EOL, $content) as $proxy) {
+            $arr_proxy = explode(':', $proxy);
+            if(!empty($arr_proxy[0]) and !empty($arr_proxy[1])){
+                $ip = $arr_proxy[0];
+                $port = str_replace("\r","",$arr_proxy[1]);
+                $verify = Proxy::where("ip",$ip)->where("port",$port)->first();
+                if(!$verify){
+                    $proxy = new Proxy();
+                    $proxy->ip = $ip;
+                    $proxy->port = $port;
+                    $proxy->save();
+                    $cont++;
+                }
+            }
+        }
+
+        $redirect = redirect()->route("voyager.proxies.index");
+
+        if($cont == 0){
+            $message = "No se importo ningun proxy Nuevo!!";
+        }else{
+            $message = "Se importaron: ".$cont.", proxies de manera exitosa!!";
+        }
+
+        return $redirect->with([
+                'message'    => $message,
+                'alert-type' => 'success',
+            ]);
     }
 }

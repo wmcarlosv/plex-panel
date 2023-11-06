@@ -15,6 +15,8 @@ class CreateProxiesTable extends Migration
     {
         Schema::create('proxies', function (Blueprint $table) {
             $table->id();
+            $table->string('ip',100)->nullable(false);
+            $table->string('port',10)->nullable(false);
             $table->timestamps();
         });
     }
