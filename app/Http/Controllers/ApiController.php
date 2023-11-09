@@ -285,4 +285,18 @@ class ApiController extends Controller
                 'alert-type' => 'success',
             ]);
     }
+
+    public function convert_iphone(Request $request){
+        $customer = Customer::findorfail($request->pp_customer_id);
+        $server = Server::findorfail($request->server_pp_id);
+
+        if($customer->server_id == $server->id){
+            $this->plex->setServerCredentials($server->url, $server->token);
+            
+        }else{
+            $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+        }
+
+        return redirect()->route("voyager.customers.index");
+    }
 }
