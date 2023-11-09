@@ -517,4 +517,96 @@ class Plex {
             return null;
         }
     }
+
+    public function createHomeUser(Server $server, Customer $customer, $pin){
+
+        $url = "https://plex.tv/api/home/users?invitedEmail=".$customer->plex_user_name;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, $server->url . ':' . $server->token);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        $user = simplexml_load_string(curl_exec($ch));
+
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        $this->setServerCredentials($server->url, $server->token);
+        $dataOwner = $this->loginInPlex($server->url, $server->token);
+        $this->getDataInvitationHomeUser($customer->email, $customer->password, $dataOwner['user']['id']);
+        $userPin = $this->loginInPlex($customer->email, $customer->password);
+        $this->setHomeUserPin($userPin,$pin);
+    }
+
+    public function getDataInvitationHomeUser($email, $password, $ownerId){
+        $data_user = $this->loginInPlex($email, $password);
+
+        $opts = [
+            "http" => [
+                "method" => "GET",
+                "header" => "X-Plex-Token: ".$data_user['user']['authToken']
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+
+        $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
+        $data = simplexml_load_string($response);
+        $ownerId = $data->Invite->attributes()->{'id'};
+        $friend = $data->Invite->attributes()->{'friend'};
+        $home = $data->Invite->attributes()->{'home'};
+        $server = $data->Invite->attributes()->{'server'};
+        $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+        #$this->resetCustomization($data_user['user']['authToken'], uniqid());
+    }
+
+    public function setHomeUserPin($user,$pin=""){
+        $url = "https://clients.plex.tv/api/home/users/".$user['user']['id']."?pin=".$pin."&X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$user['user']['authToken'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        $pin = simplexml_load_string(curl_exec($ch));
+
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+    }
+
+    public function removeHomeUserPin($user,$pin){
+        $url = "https://clients.plex.tv/api/home/users/".$user['user']['id']."?currentPin=".$pin."&pin=&X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$user['user']['authToken'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        $pin = simplexml_load_string(curl_exec($ch));
+
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+    }
+
+    public function removeHomeUser($customer){
+        $userIdDeleted = $this->loginInPlex($customer->email, $customer->password);
+        $user = $this->loginInPlex($customer->server->url, $customer->server->token);
+        $url = "https://clients.plex.tv/api/home/users/".$userIdDeleted['user']['id']."?&X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$user['user']['authToken'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        $deletedUser = simplexml_load_string(curl_exec($ch));
+
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+    }
 }

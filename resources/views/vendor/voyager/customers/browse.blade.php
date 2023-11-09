@@ -267,7 +267,13 @@
                                                     @endif
                                                 @endif
                                                 <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
-                                                <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                                    @if(empty($data->pin))
+                                                        <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                    @else
+                                                        <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                    @endif
+                                                @endif
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)
@@ -430,6 +436,15 @@
                 id = row.id;
                 removeServerById(server_id);
                 $("#change-server").modal({backdrop: 'static', keyboard: false}, 'show');
+            });
+
+            $("body").on("click","a.remove-iphone", function(){
+                if(confirm("Estas Seguro de Remover esta Cuenta de Iphone?")){
+                    return true;
+                }
+
+                return false;
+
             });
 
             $("#convert-iphone-form").submit(function(){
