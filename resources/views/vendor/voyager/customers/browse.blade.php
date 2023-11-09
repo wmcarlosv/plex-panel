@@ -259,12 +259,15 @@
                                                 <span class="caret"></span>
                                               </a>
                                               <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                @if($data->status == "active")
-                                                    <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
-                                                @else
-                                                    <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
+                                                @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
+                                                    @if($data->status == "active")
+                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
+                                                    @else
+                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
+                                                    @endif
                                                 @endif
                                                 <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)
@@ -351,6 +354,42 @@
             </div>
         </div>
     </div>
+
+        <!--Modal Convert Iphone-->
+    <div class="modal modal-success" id="convert-iphone-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Convertir a Iphone</h4>
+                </div>
+                <form action="{{ route('convert_iphone') }}" id="convert-iphone-form" method="POST">
+                    @method("POST")
+                    @csrf
+                    <div class="modal-body">
+                        <input type="hidden" name="pp_customer_id">
+                        <div class="form-group">
+                            <label for="">Servidor:</label>
+                            <select name="server_pp_id" required class="form-control">
+                                <option value="">Seleccione</option>
+                                @foreach($servers_pp as $spp)
+                                    <option value="{{ $spp->id }}">{{$spp->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Pin: ("Para Convertir a Iphone es neceario tener un pin de 4 digitos")</label>
+                            <input type="text" id="pin" required name="pin" class="form-control" minlength="4" maxlength="4" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success" id="btn-convert-iphone" type="submit">Convertir</button>
+                        <button class="btn btn-danger" type="button" id="convert-iphone-cancel">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -366,6 +405,16 @@
     @endif
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        function onlyNumbers(id){
+            var numberInput = document.getElementById(id);
+            numberInput.addEventListener("input", function (e) {
+                numberInput.value = numberInput.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        onlyNumbers("pin");
+
          $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': '{{csrf_token()}}'
@@ -381,6 +430,23 @@
                 id = row.id;
                 removeServerById(server_id);
                 $("#change-server").modal({backdrop: 'static', keyboard: false}, 'show');
+            });
+
+            $("#convert-iphone-form").submit(function(){
+                $("#btn-convert-iphone").attr("disabled", true).text("Cargando...");
+                $("#convert-iphone-cancel").attr("disabled", true);
+            });
+
+            $("body").on("click","a.convert-iphone", function(){
+                let row = JSON.parse($(this).attr("data-row"));
+                server_id = row.server_id;
+                id = row.id;
+                $("input[name='pp_customer_id']").val(id);
+                $("#convert-iphone-modal").modal({backdrop: 'static', keyboard: false}, 'show');
+            });
+
+            $("#convert-iphone-cancel").click(function(){
+                $("#convert-iphone-modal").modal("hide");
             });
 
             function removeServerById(id){

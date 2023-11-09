@@ -62,9 +62,12 @@ class User extends \TCG\Voyager\Models\User
     public function save($options = []){
         $this->status = "active";
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6 || Auth::user()->role_id == 1){
-            if($this->id != Auth::user()->id){
+            if(empty($this->parent_user_id)){
                 $this->parent_user_id = Auth::user()->id;
             }
+            /*if($this->id != Auth::user()->id){
+                $this->parent_user_id = Auth::user()->id;
+            }*/
         }
         parent::save();
     }
