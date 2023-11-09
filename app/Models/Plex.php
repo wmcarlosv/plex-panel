@@ -560,7 +560,7 @@ class Plex {
         $home = $data->Invite->attributes()->{'home'};
         $server = $data->Invite->attributes()->{'server'};
         $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
-        #$this->resetCustomization($data_user['user']['authToken'], uniqid());
+        $this->resetCustomization($data_user['user']['authToken'], uniqid());
     }
 
     public function setHomeUserPin($user,$pin=""){

@@ -161,26 +161,19 @@ class ApiController extends Controller
         $this->plex->setServerCredentials($server->url, $server->token);
         $libraries = $request->libraries;
 
-        $settings = new FriendRestrictionsSettings(
-            allowChannels: '1',
-            allowSubtitleAdmin: '1',
-            allowSync: '0',
-            allowTuners: '0',
-            filterMovies: '',
-            filterMusic: '',
-            filterTelevision: '',
-        );
-
         foreach($libraries as $library){
             $librarySectionIds[] = (int) $library;
         }
 
         $cont = 0;
         foreach($server->customers as $customer){
-            $this->plex->provider->updateFriendRestrictions($customer->invited_id, $settings);
             $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
+            $data_user = $this->plex->loginInPlex($customer->email, $customer->password);
+            $this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
             $cont++;
         }
+
+
 
         $data = [
             'success'=>true,
