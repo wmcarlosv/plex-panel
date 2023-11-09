@@ -322,6 +322,7 @@ class ServerController extends VoyagerBaseController
         $server = $dataTypeContent;
         $this->plex->setServerCredentials($server->url, $server->token);
         $accounts = $this->plex->provider->getFriends();
+
         // Check permission
         $this->authorize('edit', $dataTypeContent);
 
@@ -337,11 +338,13 @@ class ServerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        $libraries_array = $this->plex->provider->getServerDetail();
-        if(is_array($libraries_array)){
-            $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
-        }else{
-            $libraries = [];
+        $libraries = [];
+
+        if(is_array($accounts)){
+            $libraries_array = $this->plex->provider->getServerDetail();
+            if(is_array($libraries_array)){
+                $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
+            }
         }
         
         return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts','libraries'));
