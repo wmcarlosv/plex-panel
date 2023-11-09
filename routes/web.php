@@ -42,5 +42,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('change-status/{customer_id}',[ApiController::class, 'change_status'])->name('change_status');
     Route::post("import-proxies",[ApiController::class, 'import_proxies'])->name('import_proxies');
     Route::post("convert-iphone",[ApiController::class, 'convert_iphone'])->name('convert_iphone');
+    Route::get("remove-iphone/{customer_id}",[ApiController::class, 'remove_iphone'])->name('remove_iphone');
     Voyager::routes();
 });

@@ -161,26 +161,19 @@ class ApiController extends Controller
         $this->plex->setServerCredentials($server->url, $server->token);
         $libraries = $request->libraries;
 
-        $settings = new FriendRestrictionsSettings(
-            allowChannels: '1',
-            allowSubtitleAdmin: '1',
-            allowSync: '0',
-            allowTuners: '0',
-            filterMovies: '',
-            filterMusic: '',
-            filterTelevision: '',
-        );
-
         foreach($libraries as $library){
             $librarySectionIds[] = (int) $library;
         }
 
         $cont = 0;
         foreach($server->customers as $customer){
-            $this->plex->provider->updateFriendRestrictions($customer->invited_id, $settings);
             $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
+            $data_user = $this->plex->loginInPlex($customer->email, $customer->password);
+            $this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
             $cont++;
         }
+
+
 
         $data = [
             'success'=>true,
@@ -289,14 +282,39 @@ class ApiController extends Controller
     public function convert_iphone(Request $request){
         $customer = Customer::findorfail($request->pp_customer_id);
         $server = Server::findorfail($request->server_pp_id);
-
-        if($customer->server_id == $server->id){
-            $this->plex->setServerCredentials($server->url, $server->token);
-            
-        }else{
+        $pin = $request->pin;
+        
+        if($customer->server_id != $server->id){
+            //Eliminamos del server anterior
             $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+            $this->plex->provider->removeFriend($customer->invited_id);
+            //Insertamos en el server Nuevo
+            $this->plex->setServerCredentials($server->url, $server->token);
+            $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
         }
 
-        return redirect()->route("voyager.customers.index");
+        $this->plex->createHomeUser($server, $customer, $pin);
+
+        $customer->pin = $pin;
+        $customer->save();
+
+        return redirect()->route("voyager.customers.index")->with([
+            'message'=>'Cuenta Convertida a Iphone de Manera Exitosa!!',
+            'alert-type'=>'success'
+        ]);
+    }
+
+    public function remove_iphone($customer_id){
+        $customer = Customer::findorfail($customer_id);
+        $userPin = $this->plex->loginInPlex($customer->email, $customer->password);
+        $this->plex->removeHomeUserPin($userPin, $customer->pin);
+        $this->plex->removeHomeUser($customer);
+        $customer->pin = null;
+        $customer->save();
+
+        return redirect()->route("voyager.customers.index")->with([
+            'message'=>'Cuenta Removida de Iphone de Manera Exitosa!!',
+            'alert-type'=>'success'
+        ]);
     }
 }

@@ -159,7 +159,7 @@
                     <div class="modal-body">
                         <ul class="list-group">
                             @foreach($libraries as $library)
-                                <li class="list-group-item"><input type="checkbox" name="libraries[]" value="{{$library['key']}}"> {{$library['title']}}</li>
+                                <li class="list-group-item"><input type="checkbox" checked="checked" name="libraries[]" value="{{$library['Section']['id']}}"> {{$library['Section']['title']}}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -175,6 +175,7 @@
 @stop
 
 @section('javascript')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         var params = {};
         var $file;
@@ -201,7 +202,7 @@
             $('.toggleswitch').bootstrapToggle();
 
             $("#update-libraries-button").click(function(){
-                $("#update-libraries-modal").modal('show');
+                $("#update-libraries-modal").modal({backdrop: 'static', keyboard: false}, 'show');
             });
 
             $("#cancel-update-libraries").click(function(){
@@ -218,12 +219,40 @@
                 });
 
                 if(cont > 0){
+                    $("#update-libraries-modal").modal('hide');
+                    Swal.fire({
+                      title: 'Advertencia',
+                      text: "Estamos Realizando el Cambio!!",
+                      icon: 'warning',
+                      showConfirmButton:false,
+                      allowOutsideClick: false,
+                      confirmButtonText: 'Yes, delete it!'
+                    });
+
                     $.ajax({
                         url:"{{route('update_libraries',$dataTypeContent->id)}}",
                         type: "POST",
                         data: $("input[name='libraries[]']:checked").serialize(),
                         success: function(response){
-                            console.log(response);
+                        let data = response;
+                            if(data.success){
+                                Swal.fire({
+                                  title: 'Notificacion',
+                                  text: data.message,
+                                  icon: 'success',
+                                  showConfirmButton:true,
+                                  allowOutsideClick:false,
+                                  confirmButtonText: 'Yes, delete it!'
+                                });
+                            }else{
+                                 Swal.fire({
+                                  title: 'Notificacion',
+                                  text: data.message,
+                                  icon: 'error',
+                                  showConfirmButton:true,
+                                  confirmButtonText: 'Yes, delete it!'
+                                });
+                            }
                         }
                     });
                 }else{
