@@ -169,7 +169,7 @@ class ApiController extends Controller
         foreach($server->customers as $customer){
             $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
             $data_user = $this->plex->loginInPlex($customer->email, $customer->password);
-            $this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
+            #$this->plex->resetCustomization($data_user['user']['authToken'], uniqid());
             $cont++;
         }
 
