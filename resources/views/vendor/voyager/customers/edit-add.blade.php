@@ -312,6 +312,18 @@
         }
 
         $('document').ready(function () {
+
+            @if(env('DYNAMIC_SERVER'))
+                @if($selectedServer)
+                    var newOption = new Option("{{$selectedServer['name']}} ({{$selectedServer['local_name']}})","{{$selectedServer['id']}}", true, true);
+                    // Append it to the select
+                    $('select[name="server_id"]').append(newOption).trigger('change');
+                    $('select[name="server_id"]').css("display","none");
+                    $('select[name="server_id"]').parent().find("span.select2-container").css("display","none");
+                    $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['name']}} ({{$selectedServer['local_name']}})' />");
+                @endif
+            @endif
+
             $('.toggleswitch').bootstrapToggle();
             var today = new Date();
             $("input[name='date_from']").val('<?=date('Y-m-d')?>').attr("readonly","readonly");

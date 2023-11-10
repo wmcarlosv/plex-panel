@@ -15,6 +15,8 @@ class Server extends Model
 
     public $tmpName;
 
+    public $additional_attributes = ['name_and_local_name'];
+
     public function customers(){
         return $this->hasMany("App\Models\Customer")->where('status','active');
     }
@@ -85,5 +87,9 @@ class Server extends Model
         }
 
         return $servers;
+    }
+
+    public function getNameAndLocalNameAttribute(){
+        return $this->name." (".$this->local_name.")";
     }
 }

@@ -329,11 +329,12 @@ class CustomerController extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
+        $selectedServer = null;
         $servers = Server::where('status',1)->server()->get();
         $durations = Duration::all();
         $domains = [];
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations','domains'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'servers','durations','domains','selectedServer'));
     }
 
     // POST BR(E)AD
@@ -437,7 +438,14 @@ class CustomerController extends VoyagerBaseController
 
         $domains = Domain::whereIn('type',['all','account'])->pluck('name');
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','domains'));
+        $servers = [];
+        $selectedServer = null;
+        if(env("DYNAMIC_SERVER")){
+            $servers = Server::where('status',1)->server()->get()->toArray();
+            $selectedServer = $servers[rand(0, count($servers)-1)];
+        }
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','domains','selectedServer'));
     }
 
     /**

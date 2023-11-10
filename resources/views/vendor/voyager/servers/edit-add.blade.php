@@ -242,7 +242,7 @@
                                   icon: 'success',
                                   showConfirmButton:true,
                                   allowOutsideClick:false,
-                                  confirmButtonText: 'Yes, delete it!'
+                                  confirmButtonText: 'OK'
                                 });
                             }else{
                                  Swal.fire({
@@ -250,7 +250,7 @@
                                   text: data.message,
                                   icon: 'error',
                                   showConfirmButton:true,
-                                  confirmButtonText: 'Yes, delete it!'
+                                  confirmButtonText: 'OK'
                                 });
                             }
                         }
