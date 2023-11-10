@@ -110,6 +110,9 @@
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
+                                                @if($data->pin)
+                                                    <img src="{{ asset('images/iphone.png') }}" style="width:25px; height: 25px; display: inline; background: transparent !important;" alt="Iphone">
+                                                @endif
                                             </td>
                                         @endif
                                         @foreach($dataType->browseRows as $row)
@@ -504,7 +507,7 @@
                                   icon: 'success',
                                   showConfirmButton:false,
                                   allowOutsideClick:false,
-                                  confirmButtonText: 'Yes, delete it!'
+                                  confirmButtonText: 'OK'
                                 });
                                 setTimeout(() => location.reload(), 3000);
                             }else{
@@ -513,7 +516,7 @@
                                   text: data.message,
                                   icon: 'error',
                                   showConfirmButton:false,
-                                  confirmButtonText: 'Yes, delete it!'
+                                  confirmButtonText: 'OK'
                                 });
                             }
                         });
