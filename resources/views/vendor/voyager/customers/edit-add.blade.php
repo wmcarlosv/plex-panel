@@ -451,6 +451,9 @@
 
             @if($edit)
                 $("select[name='status'], input[name='date_from'], select[name='duration_id'], select[name='server_id']").parent().hide();
+                @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                    $("select[name='server_id']").parent().show();
+                @endif
                 $("#generate-password").hide();
                 $("input[name='email'], input[name='password']").attr("readonly","readonly");
 
