@@ -122,6 +122,7 @@
                                             }
                                             @endphp
                                             <td>
+
                                                 @if (isset($row->details->view_browse))
                                                     @include($row->details->view_browse, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $data->{$row->field}, 'view' => 'browse', 'options' => $row->details])
                                                 @elseif (isset($row->details->view))
@@ -162,7 +163,17 @@
 
                                                 @elseif(($row->type == 'select_dropdown' || $row->type == 'radio_btn') && property_exists($row->details, 'options'))
 
-                                                    {!! $row->details->options->{$data->{$row->field}} ?? '' !!}
+                                                    @if($row->field == "status")
+                                                        @if($data->status == "active")
+                                                            <span class="label label-success">{!! $row->details->options->{$data->{$row->field}} ?? '' !!}</span>
+                                                        @else
+                                                            <span class="label label-danger">{!! $row->details->options->{$data->{$row->field}} ?? '' !!}</span>
+                                                        @endif
+                                                    @else
+                                                        {!! $row->details->options->{$data->{$row->field}} ?? '' !!}
+                                                    @endif
+                                                    
+
 
                                                 @elseif($row->type == 'date' || $row->type == 'timestamp')
                                                     @if ( property_exists($row->details, 'format') && !is_null($data->{$row->field}) )
@@ -270,11 +281,19 @@
                                                     @endif
                                                 @endif
                                                 <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
-                                                @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
-                                                    @if(empty($data->pin))
-                                                        <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
-                                                    @else
-                                                        <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                @if(env('IPHONE_FOR_ALL'))
+                                                        @if(empty($data->pin))
+                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                        @else
+                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                        @endif
+                                                @else
+                                                    @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                                        @if(empty($data->pin))
+                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                        @else
+                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                        @endif
                                                     @endif
                                                 @endif
                                               </ul>
