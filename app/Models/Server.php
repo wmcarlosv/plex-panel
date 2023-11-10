@@ -90,6 +90,10 @@ class Server extends Model
     }
 
     public function getNameAndLocalNameAttribute(){
-        return $this->name." (".$this->local_name.")";
+        if(!empty($this->local_name)){
+            return $this->name." (".$this->local_name.")";
+        }else{
+            return $this->name;
+        }
     }
 }
