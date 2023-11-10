@@ -13,10 +13,10 @@
 
      public function run()
      {
-       if(Auth::user()->role_id == 3 || Auth::user()->role_id == 4 || Auth::user()->role_id == 5 || Auth::user()->role_id == 6){
-        $customer = Customer::where('user_id',Auth::user()->id)->get();
+       if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5 || Auth::user()->role_id == 6){
+        $customer = Customer::where('user_id',Auth::user()->id)->where('status','active')->get();
        }else{
-        $customer = Customer::all();
+        $customer = Customer::where('status','active')->get();
        }
        
        $count = $customer->count();
