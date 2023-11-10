@@ -160,23 +160,15 @@ class ApiController extends Controller
 
         $this->plex->setServerCredentials($server->url, $server->token);
         $libraries = $request->libraries;
-
-        foreach($libraries as $library){
-            $librarySectionIds[] = (int) $library;
-        }
-
         $cont = 0;
-
-        foreach($server->customers as $customer){
-            $this->plex->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
+        foreach($libraries as $library){
+            $this->plex->refreshLibraries($library);
             $cont++;
         }
 
-
-
         $data = [
             'success'=>true,
-            'message'=>"Se les actualizo la librerias a ".$cont.", Clientes"
+            'message'=>"Se Actualizaron: ".$cont." Librerias!!"
         ];
 
         return response()->json($data);

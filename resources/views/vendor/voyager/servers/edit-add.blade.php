@@ -159,7 +159,7 @@
                     <div class="modal-body">
                         <ul class="list-group">
                             @foreach($libraries as $library)
-                                <li class="list-group-item"><input type="checkbox" checked="checked" name="libraries[]" value="{{$library['Section']['id']}}"> {{$library['Section']['title']}}</li>
+                                <li class="list-group-item"><input type="checkbox" name="libraries[]" value="{{$library['Section']['key']}}"> {{$library['Section']['title']}}</li>
                             @endforeach
                         </ul>
                     </div>

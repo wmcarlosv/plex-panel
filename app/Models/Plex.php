@@ -609,4 +609,18 @@ class Plex {
         }
         curl_close($ch);
     }
+
+    public function refreshLibraries($library_id){
+        $data = $this->serverData;
+        $opts = [
+            "http" => [
+                "method" => "GET" 
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+        $url = $data['scheme']."://".$data['address'].":".$data['port']."/library/sections/".$library_id."/refresh?X-Plex-Token=".$data['token'];
+        $response = file_get_contents($url, false, $context);
+        $refresh = simplexml_load_string($response);
+    }
 }
