@@ -270,7 +270,7 @@
         }
 
         function generateStrongPassword() {
-          const length = 15;
+          const length = 10;
           const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
           const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
           const numberChars = '0123456789';
@@ -279,9 +279,28 @@
           const allChars = uppercaseChars + lowercaseChars + numberChars + specialChars;
 
           let password = '';
-          for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * allChars.length);
-            password += allChars[randomIndex];
+          //upper
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * uppercaseChars.length);
+            password += uppercaseChars[randomIndex];
+          }
+
+          //lower
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * lowercaseChars.length);
+            password += lowercaseChars[randomIndex];
+          }
+
+          //number
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * numberChars.length);
+            password += numberChars[randomIndex];
+          }
+
+           //special
+          for (let i = 0; i < 1; i++) {
+            const randomIndex = Math.floor(Math.random() * specialChars.length);
+            password += specialChars[randomIndex];
           }
 
           return password;
