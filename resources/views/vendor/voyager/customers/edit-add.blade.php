@@ -83,7 +83,9 @@
                                     @endif
 
                                     @if($row->field == "email")
-                                        <button class="btn btn-info" id="generate-email" type="button">Generar Email</button>
+                                        @if(!$edit)
+                                            <button class="btn btn-info" id="generate-email" type="button">Generar Email</button>
+                                        @endif
                                     @endif
 
                                     @if($row->field == "password")
@@ -114,7 +116,7 @@
 
                                 <div class="col-md-12">
                                     <h3>Servidor actual:</h3> 
-                                    <h2><label for="" class="label label-success">{{ $dataTypeContent->server->name }}</label></h2>
+                                    <h2><label for="" class="label label-success">{{ $dataTypeContent->server->name_and_local_name }}</label></h2>
                                 </div>
                                 
                             @endif
@@ -184,7 +186,7 @@
                                 <select name="plexserver" required class="form-control">
                                     <option value="">-</option>
                                     @foreach($servers as $server)
-                                        <option value="{{$server->id}}" @if($dataTypeContent->server_id == $server->id) selected='selected' @endif>{{$server->name}}</option>
+                                        <option value="{{$server->id}}" @if($dataTypeContent->server_id == $server->id) selected='selected' @endif>{{$server->name_and_local_name}}</option>
                                     @endforeach
                                 </select>
                             </div>

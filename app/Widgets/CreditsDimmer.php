@@ -21,7 +21,8 @@
         'text'   => __('Creditos', ['count' => $count, 'string' => Str::lower($string)]),
         'button' => [
             'text' => __('Solicitar Creditos'),
-            'link' => "https://api.whatsapp.com/send/?phone=".setting('admin.credits_number')."&text=Necesito+mas+Cr%C3%A9ditos%21%21&type=phone_number&app_absent=0",
+            'link'=>'#'
+            //'link' => "https://api.whatsapp.com/send/?phone=".setting('admin.credits_number')."&text=Necesito+mas+Cr%C3%A9ditos%21%21&type=phone_number&app_absent=0",
         ],
         'image' => voyager_asset('images/widget-backgrounds/02.jpg'),
       ]));

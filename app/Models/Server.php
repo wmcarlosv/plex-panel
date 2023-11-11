@@ -28,6 +28,10 @@ class Server extends Model
         }else{
             $servers = $this->getServerIds();
         }
+
+        if(env("IPHONE_ONLY_SERVER")){
+            $query->where("is_plex_pass",0);
+        }
         
         return $query->where('status',1)->where('is_demo',0)->whereIn('id',$servers);   
     }
@@ -90,10 +94,19 @@ class Server extends Model
     }
 
     public function getNameAndLocalNameAttribute(){
-        if(!empty($this->local_name)){
-            return $this->name." (".$this->local_name.")";
+        if(env('SHOW_ONLY_SERVER_LOCAL_NAME')){
+            $role = Auth::user()->role_id;
+            if($role == 5 || $role == 3){
+                return $this->local_name;
+            }else{
+                return $this->name." (".$this->local_name.")";
+            }
         }else{
-            return $this->name;
+            if(!empty($this->local_name)){
+                return $this->name." (".$this->local_name.")";
+            }else{
+                return $this->name;
+            }
         }
     }
 }
