@@ -370,7 +370,7 @@
                         <select id="server_id" class="form-control">
                             <option value="">Seleccione</option>
                             @foreach($servers as $server)
-                                <option value="{{$server->id}}">{{$server->name}}</option>
+                                <option value="{{$server->id}}">{{$server->name_and_local_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -401,12 +401,12 @@
                             <select name="server_pp_id" required class="form-control">
                                 <option value="">Seleccione</option>
                                 @foreach($servers_pp as $spp)
-                                    <option value="{{ $spp->id }}">{{$spp->name}}</option>
+                                    <option value="{{ $spp->id }}">{{$spp->name_and_local_name}}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="">Pin: ("Para Convertir a Iphone es neceario tener un pin de 4 digitos")</label>
+                            <label for="">Pin: ("Para Convertir a Iphone es neceario tener un pin de 4 digitos")<br /><b style="font-weight: bold; font-size: 14px;">No Colocar: 1234</b></label>
                             <input type="text" id="pin" required name="pin" class="form-control" minlength="4" maxlength="4" />
                         </div>
                     </div>

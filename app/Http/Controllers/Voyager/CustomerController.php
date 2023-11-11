@@ -186,7 +186,11 @@ class CustomerController extends VoyagerBaseController
         }
 
         $servers = Server::where('status',1)->server()->get();
-        $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->server()->get();
+        if(env("IPHONE_ONLY_SERVER")){
+            $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->get();
+        }else{
+            $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->server()->get();
+        }
 
         return Voyager::view($view, compact(
             'actions',

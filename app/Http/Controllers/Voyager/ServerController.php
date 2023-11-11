@@ -396,9 +396,9 @@ class ServerController extends VoyagerBaseController
                     'message'    => __('El limite de cuentas debe ser mayor a la cantidad actual, por favor verifique e intentelo de Nuevo!!'),
                     'alert-type' => 'error',
                 ]);
-            }/*else{
+            }else{
                 DB::table('servers')->where('id',$data->id)->update(['status'=>1]);
-            }*/
+            }
         }
 
         // Check permission
