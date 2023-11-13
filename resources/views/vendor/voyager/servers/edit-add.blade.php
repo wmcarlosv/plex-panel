@@ -201,6 +201,8 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
 
+            $("input[name='token']").attr("type","password");
+
             $("#update-libraries-button").click(function(){
                 $("#update-libraries-modal").modal({backdrop: 'static', keyboard: false}, 'show');
             });

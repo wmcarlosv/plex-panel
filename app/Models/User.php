@@ -81,7 +81,7 @@ class User extends \TCG\Voyager\Models\User
                 $query->where('parent_user_id',Auth::user()->id);
             break;
             case 4:
-                $allowRoles = [2,3,5,6];
+                $allowRoles = [2,3,5];
             break;
 
             case 3:
