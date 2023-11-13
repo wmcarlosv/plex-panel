@@ -110,9 +110,6 @@
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
-                                                @if($data->pin)
-                                                    <img src="{{ asset('images/iphone.png') }}" style="width:25px; height: 25px; display: inline; background: transparent !important;" alt="Iphone">
-                                                @endif
                                             </td>
                                         @endif
                                         @foreach($dataType->browseRows as $row)
@@ -122,7 +119,6 @@
                                             }
                                             @endphp
                                             <td>
-
                                                 @if (isset($row->details->view_browse))
                                                     @include($row->details->view_browse, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $data->{$row->field}, 'view' => 'browse', 'options' => $row->details])
                                                 @elseif (isset($row->details->view))
@@ -163,17 +159,7 @@
 
                                                 @elseif(($row->type == 'select_dropdown' || $row->type == 'radio_btn') && property_exists($row->details, 'options'))
 
-                                                    @if($row->field == "status")
-                                                        @if($data->status == "active")
-                                                            <span class="label label-success">{!! $row->details->options->{$data->{$row->field}} ?? '' !!}</span>
-                                                        @else
-                                                            <span class="label label-danger">{!! $row->details->options->{$data->{$row->field}} ?? '' !!}</span>
-                                                        @endif
-                                                    @else
-                                                        {!! $row->details->options->{$data->{$row->field}} ?? '' !!}
-                                                    @endif
-                                                    
-
+                                                    {!! $row->details->options->{$data->{$row->field}} ?? '' !!}
 
                                                 @elseif($row->type == 'date' || $row->type == 'timestamp')
                                                     @if ( property_exists($row->details, 'format') && !is_null($data->{$row->field}) )
@@ -267,39 +253,9 @@
                                             </td>
                                         @endforeach
                                         <td class="no-sort no-click bread-actions">
-                                            <div class="dropdown" style="display: inline !important; left: 25px;">
-                                              <a class="btn btn-success dropdown-toggle" title="Mas Opciones" id="dropdownMenu1" data-toggle="dropdown">
-                                                <i class="voyager-list-add"></i>
-                                              </a>
-                                              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
-                                                    @if($data->status == "active")
-                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
-                                                    @else
-                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
-                                                    @endif
-                                                @endif
-                                                <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
-                                                @if(env('IPHONE_FOR_ALL'))
-                                                        @if(empty($data->pin))
-                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
-                                                        @else
-                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
-                                                        @endif
-                                                @else
-                                                    @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
-                                                        @if(empty($data->pin))
-                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
-                                                        @else
-                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
-                                                        @endif
-                                                    @endif
-                                                @endif
-                                              </ul>
-                                            </div>
                                             @foreach($actions as $action)
                                                 @if (!method_exists($action, 'massAction'))
-                                                    @include('vendor.voyager.partials.actions', ['action' => $action])
+                                                    @include('voyager::bread.partials.actions', ['action' => $action])
                                                 @endif
                                             @endforeach
                                         </td>
@@ -353,70 +309,6 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-
-
-    <!--Modal Change Server-->
-    <div class="modal modal-success" id="change-server" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Cambiar de Servidor</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="">Servidor:</label>
-                        <select id="server_id" class="form-control">
-                            <option value="">Seleccione</option>
-                            @foreach($servers as $server)
-                                <option value="{{$server->id}}">{{$server->name_and_local_name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success" type="button" id="change-server-save">Cambiar</button>
-                    <button class="btn btn-danger" type="button" id="change-server-cancel">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        <!--Modal Convert Iphone-->
-    <div class="modal modal-success" id="convert-iphone-modal" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Convertir a Iphone</h4>
-                </div>
-                <form action="{{ route('convert_iphone') }}" id="convert-iphone-form" method="POST">
-                    @method("POST")
-                    @csrf
-                    <div class="modal-body">
-                        <input type="hidden" name="pp_customer_id">
-                        <div class="form-group">
-                            <label for="">Servidor:</label>
-                            <select name="server_pp_id" required class="form-control">
-                                <option value="">Seleccione</option>
-                                @foreach($servers_pp as $spp)
-                                    <option value="{{ $spp->id }}">{{$spp->name_and_local_name}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="">Pin: ("Para Convertir a Iphone es neceario tener un pin de 4 digitos")<br /><b style="font-weight: bold; font-size: 14px;">No Colocar: 1234</b></label>
-                            <input type="text" id="pin" required name="pin" class="form-control" minlength="4" maxlength="4" />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-success" id="btn-convert-iphone" type="submit">Convertir</button>
-                        <button class="btn btn-danger" type="button" id="convert-iphone-cancel">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @stop
 
 @section('css')
@@ -430,183 +322,8 @@
     @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>
     @endif
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-
-        function onlyNumbers(id){
-            var numberInput = document.getElementById(id);
-            numberInput.addEventListener("input", function (e) {
-                numberInput.value = numberInput.value.replace(/[^0-9]/g, '');
-            });
-        }
-
-        onlyNumbers("pin");
-
-         $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': '{{csrf_token()}}'
-            }
-        });
-
         $(document).ready(function () {
-            var id;
-            $("body").on("click","a.change-server-modal", function(){
-                let row = JSON.parse($(this).attr("data-row"));
-                console.log(row);
-                server_id = row.server_id;
-                id = row.id;
-                removeServerById(server_id);
-                $("#change-server").modal({backdrop: 'static', keyboard: false}, 'show');
-            });
-
-            $("body").on("click","a.remove-iphone", function(){
-                if(confirm("Estas Seguro de Remover esta Cuenta de Iphone?")){
-                    return true;
-                }
-
-                return false;
-
-            });
-
-            $("#convert-iphone-form").submit(function(){
-                $("#btn-convert-iphone").attr("disabled", true).text("Cargando...");
-                $("#convert-iphone-cancel").attr("disabled", true);
-            });
-
-            $("body").on("click","a.convert-iphone", function(){
-                let row = JSON.parse($(this).attr("data-row"));
-                server_id = row.server_id;
-                id = row.id;
-                $("input[name='pp_customer_id']").val(id);
-                $("#convert-iphone-modal").modal({backdrop: 'static', keyboard: false}, 'show');
-            });
-
-            $("#convert-iphone-cancel").click(function(){
-                $("#convert-iphone-modal").modal("hide");
-            });
-
-            function removeServerById(id){
-                $("#server_id").children("option").each(function(){
-                    if(id == $(this).val()){
-                        $(this).remove();
-                    }
-                });
-            }
-
-            $("body").on("click","a.change-status", function(){
-                let row = JSON.parse($(this).attr("data-row"));
-
-                Swal.fire({
-                  title: 'Estas Seguro de Realizar Esta Accion?',
-                  icon: 'info',
-                  showCancelButton: true,
-                  confirmButtonText:'Aceptar',
-                  confirmButtonColor: "#2ecc71",
-                  cancelButtonText:'Cancelar',
-                  cancelButtonColor: "#fa2a00"
-                }).then((result)=>{
-                    if(result.isConfirmed){
-
-                        Swal.fire({
-                          title: 'Advertencia',
-                          text: "Estamos Realizando el Cambio!!",
-                          icon: 'warning',
-                          showConfirmButton:false,
-                          allowOutsideClick: false,
-                          confirmButtonText: 'Yes, delete it!'
-                        });
-
-                        $.get("change-status/"+row.id, function(response){
-                            let data = response;
-                            if(data.success){
-                                Swal.fire({
-                                  title: 'Notificacion',
-                                  text: data.message,
-                                  icon: 'success',
-                                  showConfirmButton:false,
-                                  allowOutsideClick:false,
-                                  confirmButtonText: 'OK'
-                                });
-                                setTimeout(() => location.reload(), 3000);
-                            }else{
-                                 Swal.fire({
-                                  title: 'Notificacion',
-                                  text: data.message,
-                                  icon: 'error',
-                                  showConfirmButton:false,
-                                  confirmButtonText: 'OK'
-                                });
-                            }
-                        });
-                    }
-                });
-
-            });
-
-            @if(Session::get('modal'))
-                @php 
-                    $data = Session::get('modal');
-                @endphp
-                Swal.fire({
-                  title: 'Estos son los datos que debes darle al cliente!!',
-                  icon: 'info',
-                  html:'<textarea id="field_copy" class="form-control" style="height: 115px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
-                  confirmButtonColor: '#5cb85c',
-                  confirmButtonText: 'Copiar y Salir',
-                  allowOutsideClick:false
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    $("#field_copy").select();
-                    document.execCommand('copy');
-                  }
-                });
-            @endif
-
-            $("#change-server-save").click(function(){
-                $(this).text("Cargando...").attr("disabled", true);
-                let server = $("#server_id").val();
-                if(server){
-                    $.ajax({
-                        type:"POST",
-                        url:"{{ route('change_server') }}",
-                        data:{'id':id, 'server_id':server},
-                        success:function(response){
-                            let data = response;
-                            console.log(data);
-                            if(data.success){
-                                $("#change-server").modal('hide');
-                                Swal.fire({
-                                  position: 'top-end',
-                                  icon: 'success',
-                                  title: data.message,
-                                  showConfirmButton: false,
-                                  timer: 2000
-                                });
-
-                                setTimeout(() => location.reload(), 3000);
-
-                            }else{
-                                Swal.fire(
-                                  'Alert',
-                                  data.message,
-                                  'error'
-                                )
-                            }
-                        }
-                    });
-                }else{
-                    alert("Debes Seleccionar un Servidor!!");
-                }
-            });
-
-            $("#change-server-cancel").click(function(){
-                $("#change-server").modal('hide');
-                $("#server_id").val("")
-                server_id = "";
-                id = "";
-            });
-
-
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([
