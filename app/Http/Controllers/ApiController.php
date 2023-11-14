@@ -321,10 +321,16 @@ class ApiController extends Controller
             ]);
 
         }else{
+
             //Remove Plex
-            $this->plex->provider->removeFriend($customer->invited_id);
-            //Add Plex
-            $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+            if(!empty($customer->invited_id)){
+                $this->plex->provider->removeFriend($customer->invited_id);
+                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+            }else{
+                //Add Plex
+                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+            }
+
             $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
             if(empty($the_data[0]->invited_id)){
                 return redirect()->route("voyager.customers.index")->with([
