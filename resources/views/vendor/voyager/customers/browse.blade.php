@@ -295,9 +295,7 @@
                                                         @endif
                                                     @endif
                                                 @endif
-                                                @if(empty($data->invited_id) and $data->status == "active")
-                                                    <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
-                                                @endif
+                                                <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)

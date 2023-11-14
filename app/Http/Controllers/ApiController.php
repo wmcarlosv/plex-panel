@@ -310,6 +310,7 @@ class ApiController extends Controller
     public function repair_account($customer_id){
         $customer = Customer::findorfail($customer_id);
         $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+
         $plex_data = $this->plex->provider->getAccounts();
 
         if(!is_array($plex_data)){
@@ -320,7 +321,9 @@ class ApiController extends Controller
             ]);
 
         }else{
-
+            //Remove Plex
+            $this->plex->provider->removeFriend($customer->invited_id);
+            //Add Plex
             $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
             $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
             if(empty($the_data[0]->invited_id)){
