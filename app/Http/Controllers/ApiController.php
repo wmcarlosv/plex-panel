@@ -322,7 +322,9 @@ class ApiController extends Controller
 
         }else{
             //Remove Plex
-            $this->plex->provider->removeFriend($customer->invited_id);
+            if(!empty($customer->invited_id)){
+                $this->plex->provider->removeFriend($customer->invited_id);
+            }
             //Add Plex
             $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
             $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
