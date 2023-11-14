@@ -272,30 +272,55 @@
                                                 <i class="voyager-list-add"></i>
                                               </a>
                                               <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
-                                                    @if($data->status == "active")
-                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
-                                                    @else
-                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
-                                                    @endif
-                                                @endif
-                                                <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
-                                                @if( setting('admin.iphone_for_all') )
-                                                        @if(empty($data->pin))
-                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
-                                                        @else
-                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                @if(setting('admin.extra_options_limited'))
+                                                    @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3 || Auth::user()->role_id == 4)
+                                                        @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
+                                                            @if($data->status == "active")
+                                                                <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
+                                                            @else
+                                                                <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
+                                                            @endif
                                                         @endif
+
+                                                        @if($data->status == "active")
+                                                            <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                        @endif
+                                                    @endif
                                                 @else
-                                                    @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
-                                                        @if(empty($data->pin))
-                                                            <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                    @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
+                                                        @if($data->status == "active")
+                                                            <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
                                                         @else
-                                                            <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                            <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
+                                                        @endif
+                                                    @endif
+
+                                                    @if($data->status == "active")
+                                                        <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                    @endif
+                                                @endif
+
+                                                @if($data->status == "active")
+                                                    @if( setting('admin.iphone_for_all') )
+                                                            @if(empty($data->pin))
+                                                                <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                            @else
+                                                                <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                            @endif
+                                                    @else
+                                                        @if(Auth::user()->role_id == 6 || Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                                            @if(empty($data->pin))
+                                                                <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
+                                                            @else
+                                                                <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
+                                                            @endif
                                                         @endif
                                                     @endif
                                                 @endif
-                                                <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
+
+                                                @if($data->status == "active")
+                                                    <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
+                                                @endif
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)
