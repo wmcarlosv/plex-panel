@@ -341,7 +341,11 @@
                     $('select[name="server_id"]').append(newOption).trigger('change');
                     $('select[name="server_id"]').css("display","none");
                     $('select[name="server_id"]').parent().find("span.select2-container").css("display","none");
-                    $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['name']}} ({{$selectedServer['local_name']}})' />");
+                    @if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5)
+                        $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['local_name']}}' />");
+                    @else
+                         $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['name']}} ({{$selectedServer['local_name']}})' />");
+                    @endif
                 @endif
             @endif
 

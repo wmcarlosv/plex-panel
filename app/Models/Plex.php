@@ -374,7 +374,7 @@ class Plex {
     }
 
     public function getSessionsAllServers(){
-        $servers = Server::where('status',1)->where('is_demo',0)->get();
+        $servers = Server::where('status',1)->where('is_demo',0)->where('is_plex_pass', 1)->get();
         DB::table('sessions')->delete();
         foreach($servers as $server){
             if($server->customers->count() > 0){
@@ -415,7 +415,7 @@ class Plex {
     }
 
     public function setScreenMessage(){
-        $servers = Server::where('status',1)->where('is_demo',0)->get();
+        $servers = Server::where('status',1)->where('is_demo',0)->where("is_plex_pass", 1)->get();
         foreach($servers as $server){
             if($server->customers->count() > 0){
                 $data = $this->getServerCredentials($server->url, $server->token);
