@@ -92,6 +92,19 @@ class AdminSettingSeeder extends Seeder
             ])->save();
         }
 
+        $setting = $this->findSetting('admin.extra_options_limited');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Opciones Extras Limitadas',
+                'value'        => "",
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
     }
 
     protected function findSetting($key)
