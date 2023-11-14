@@ -43,5 +43,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post("import-proxies",[ApiController::class, 'import_proxies'])->name('import_proxies');
     Route::post("convert-iphone",[ApiController::class, 'convert_iphone'])->name('convert_iphone');
     Route::get("remove-iphone/{customer_id}",[ApiController::class, 'remove_iphone'])->name('remove_iphone');
+    Route::get("repair-account/{customer_id}",[ApiController::class, 'repair_account'])->name('repair_account');
     Voyager::routes();
 });

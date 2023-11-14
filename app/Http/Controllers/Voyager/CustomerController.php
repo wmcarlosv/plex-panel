@@ -186,7 +186,7 @@ class CustomerController extends VoyagerBaseController
         }
 
         $servers = Server::where('status',1)->server()->get();
-        if(env("IPHONE_ONLY_SERVER")){
+        if( setting("admin.iphone_only_server") ){
             $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->get();
         }else{
             $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->server()->get();
@@ -444,7 +444,7 @@ class CustomerController extends VoyagerBaseController
 
         $servers = [];
         $selectedServer = null;
-        if(env("DYNAMIC_SERVER")){
+        if( setting('admin.dynamic_server') ){
             $servers = Server::where('status',1)->server()->get()->toArray();
             $selectedServer = $servers[rand(0, count($servers)-1)];
         }

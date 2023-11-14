@@ -106,7 +106,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($dataTypeContent as $data)
-                                    <tr>
+                                    <tr @if(empty($data->invited_id) and $data->status == "active") style="background: #e1b6b6 !important;" @endif>
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
@@ -267,7 +267,7 @@
                                             </td>
                                         @endforeach
                                         <td class="no-sort no-click bread-actions">
-                                            <div class="dropdown" style="display: inline !important; left: 25px;">
+                                            <div class="dropdown" style="display: inline !important;">
                                               <a class="btn btn-success dropdown-toggle" title="Mas Opciones" id="dropdownMenu1" data-toggle="dropdown">
                                                 <i class="voyager-list-add"></i>
                                               </a>
@@ -280,7 +280,7 @@
                                                     @endif
                                                 @endif
                                                 <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
-                                                @if(env('IPHONE_FOR_ALL'))
+                                                @if( setting('admin.iphone_for_all') )
                                                         @if(empty($data->pin))
                                                             <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
                                                         @else
@@ -294,6 +294,9 @@
                                                             <li><a href="{{ route('remove_iphone', $data->id) }}" class="remove-iphone" data-row='{{json_encode($data)}}'>Quitar Iphone</a></li>
                                                         @endif
                                                     @endif
+                                                @endif
+                                                @if(empty($data->invited_id) and $data->status == "active")
+                                                    <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
                                                 @endif
                                               </ul>
                                             </div>
@@ -460,9 +463,31 @@
             });
 
             $("body").on("click","a.remove-iphone", function(){
-                if(confirm("Estas Seguro de Remover esta Cuenta de Iphone?")){
-                    return true;
-                }
+
+                Swal.fire({
+                  title: 'Estas Seguro de Quitar de Iphone?',
+                  icon: 'info',
+                  showCancelButton: true,
+                  confirmButtonText:'Aceptar',
+                  confirmButtonColor: "#2ecc71",
+                  cancelButtonText:'Cancelar',
+                  cancelButtonColor: "#fa2a00"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+
+                        Swal.fire({
+                          title: 'Advertencia',
+                          text: "Estamos Realizando el Cambio!!",
+                          icon: 'warning',
+                          showConfirmButton:false,
+                          allowOutsideClick: false,
+                          confirmButtonText: 'Yes, delete it!'
+                        });
+
+                        location.href=$(this).attr("href");
+
+                    }
+                });
 
                 return false;
 
@@ -538,6 +563,35 @@
                                 });
                             }
                         });
+                    }
+                });
+
+            });
+
+            $("body").on("click","a.repair-account", function(){
+                let row = JSON.parse($(this).attr("data-row"));
+
+                Swal.fire({
+                  title: 'Estas Seguro de Reparar esta Cuenta?',
+                  icon: 'info',
+                  showCancelButton: true,
+                  confirmButtonText:'Aceptar',
+                  confirmButtonColor: "#2ecc71",
+                  cancelButtonText:'Cancelar',
+                  cancelButtonColor: "#fa2a00"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+
+                        Swal.fire({
+                          title: 'Advertencia',
+                          text: "Estamos Realizando la Reparacion!!",
+                          icon: 'warning',
+                          showConfirmButton:false,
+                          allowOutsideClick: false,
+                          confirmButtonText: 'Yes, delete it!'
+                        });
+
+                        location.href = "repair-account/"+row.id;
                     }
                 });
 

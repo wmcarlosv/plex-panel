@@ -211,8 +211,6 @@ class ApiController extends Controller
                     if(!empty($server->limit_accounts)){
                         $tope = (intval($server->limit_accounts)-intval($server->customers->count()));
                         if($tope == 0){
-                            /*$server->status = 0;
-                            $server->save();*/
                             DB::table('servers')->where('id',$server->id)->update([
                                 'status'=>0
                             ]);
@@ -307,5 +305,35 @@ class ApiController extends Controller
             'message'=>'Cuenta Removida de Iphone de Manera Exitosa!!',
             'alert-type'=>'success'
         ]);
+    }
+
+    public function repair_account($customer_id){
+        $customer = Customer::findorfail($customer_id);
+        $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+        $plex_data = $this->plex->provider->getAccounts();
+
+        if(!is_array($plex_data)){
+
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!',
+                'alert-type'=>'error'
+            ]);
+
+        }else{
+
+            $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+            $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
+            if(empty($the_data[0]->invited_id)){
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'Ocurrio un Error al Reparar la cuenta por favor Contacte con el Administrador!!',
+                    'alert-type'=>'error'
+                ]);
+            }else{
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'Cuenta Reparada con Exito!!',
+                    'alert-type'=>'success'
+                ]);
+            }
+        }
     }
 }

@@ -334,7 +334,7 @@
 
         $('document').ready(function () {
 
-            @if(env('DYNAMIC_SERVER'))
+            @if( setting('admin.dynamic_server') )
                 @if($selectedServer)
                     var newOption = new Option("{{$selectedServer['name']}} ({{$selectedServer['local_name']}})","{{$selectedServer['id']}}", true, true);
                     // Append it to the select
