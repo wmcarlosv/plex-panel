@@ -281,6 +281,10 @@
                                                                 <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
                                                             @endif
                                                         @endif
+
+                                                        @if($data->status == "active")
+                                                            <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                        @endif
                                                     @endif
                                                 @else
                                                     @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
@@ -290,10 +294,10 @@
                                                             <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
                                                         @endif
                                                     @endif
-                                                @endif
 
-                                                @if($data->status == "active")
-                                                    <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                    @if($data->status == "active")
+                                                        <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                    @endif
                                                 @endif
 
                                                 @if($data->status == "active")
