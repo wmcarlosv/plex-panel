@@ -258,7 +258,7 @@
                         }
                     });
                 }else{
-                    alert("Debes seleccionar al menos una libraria!!");
+                    alert("Debes seleccionar al menos una libreria!!");
                 }
             });
 

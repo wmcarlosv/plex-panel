@@ -29,7 +29,7 @@ class Server extends Model
             $servers = $this->getServerIds();
         }
 
-        if(env("IPHONE_ONLY_SERVER")){
+        if( setting("admin.iphone_only_server") ){
             $query->where("is_plex_pass",0);
         }
         
@@ -44,7 +44,12 @@ class Server extends Model
             $servers = $this->getServerIds();
         }
         
-        return $query->where('status',1)->where('is_demo',1)->whereIn('id',$servers);     
+        if( setting("admin.server_for_alls") ){
+            return $query->where('status',1)->whereIn('id',$servers); 
+        }else{
+            return $query->where('status',1)->where('is_demo',1)->whereIn('id',$servers); 
+        }
+            
     }
 
     public function scopeNormalServer($query){
@@ -94,7 +99,7 @@ class Server extends Model
     }
 
     public function getNameAndLocalNameAttribute(){
-        if(env('SHOW_ONLY_SERVER_LOCAL_NAME')){
+        if(setting('admin.show_only_server_local_name')){
             $role = Auth::user()->role_id;
             if($role == 5 || $role == 3){
                 return $this->local_name;
