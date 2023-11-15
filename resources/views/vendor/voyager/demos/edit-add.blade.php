@@ -327,6 +327,23 @@
         $('document').ready(function () {
             $('.toggleswitch').bootstrapToggle();
 
+            @if($edit)
+
+                $("input[name='email'], input[name='password']").attr("readonly","readonly");
+                $("#generate-email, #generate-password").attr("disabled", true);
+
+                let server_id = $("select[name='server_id']")
+                server_id.parent().append("<input type='text' readonly class='form-control' value='"+server_id.children("option:selected").text()+"' />");
+                server_id.parent().find("span.select2-container").remove();
+                server_id.remove();
+
+                let hours = $("select[name='hours']")
+                hours.parent().append("<input type='text' readonly class='form-control' value='"+hours.children("option:selected").text()+"' />");
+                hours.parent().find("span.select2-container").remove();
+                hours.remove();
+
+            @endif
+
             $("#button_convert_customer").click(function(){
                 $("#convert_customer").modal('show');
             });

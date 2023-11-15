@@ -472,7 +472,7 @@ class CustomerController extends VoyagerBaseController
 
         $this->plex->setServerCredentials($server->url, $server->token);
 
-        $plex_data = $this->plex->provider->getAccounts();
+        $plex_data = $this->plex->provider->getFriends();
         if(!is_array($plex_data)){
             $redirect = redirect()->back();
             return $redirect->with([
@@ -538,6 +538,9 @@ class CustomerController extends VoyagerBaseController
                         ]);
                     }
                 }
+
+                $server->accounts_count = (count($plex_data) + 1);
+                $server->save();
             }
         }
 
@@ -601,7 +604,7 @@ class CustomerController extends VoyagerBaseController
                 $server = Server::findorfail($data->server_id);
                 $this->plex->setServerCredentials($server->url, $server->token);
 
-                $plex_data = $this->plex->provider->getAccounts();
+                $plex_data = $this->plex->provider->getFriends();
                 if(!is_array($plex_data)){
                     $redirect = redirect()->back();
                     return $redirect->with([
@@ -611,6 +614,9 @@ class CustomerController extends VoyagerBaseController
                 }
         
                 $this->plex->provider->removeFriend($data->invited_id);
+
+                $server->accounts_count = (count($plex_data) - 1);
+                $server->save();
             }
 
             // Check permission
@@ -1130,7 +1136,7 @@ class CustomerController extends VoyagerBaseController
         $old_server = Server::findorfail($data->server_id);
 
         $this->plex->setServerCredentials($server->url, $server->token);
-        $plex_data = $this->plex->provider->getAccounts();
+        $plex_data = $this->plex->provider->getFriends();
 
         if(!is_array($plex_data)){
             return $redirect->with([
