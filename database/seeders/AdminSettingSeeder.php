@@ -97,7 +97,20 @@ class AdminSettingSeeder extends Seeder
         if (!$setting->exists) {
             $setting->fill([
                 'display_name' => 'Opciones Extras Limitadas',
-                'value'        => "",
+                'value'        => false,
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
+        $setting = $this->findSetting('admin.show_ip_address_all');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Mostrar Ip Proxy A Todos Roles',
+                'value'        => false,
                 'details'      => '',
                 'type'         => 'checkbox',
                 'order'        => 1,

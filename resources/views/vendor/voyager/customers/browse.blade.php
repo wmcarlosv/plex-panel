@@ -84,22 +84,43 @@
                                             </th>
                                         @endif
                                         @foreach($dataType->browseRows as $row)
-                                        <th>
-                                            @if ($isServerSide && in_array($row->field, $sortableColumns))
-                                                <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">
-                                            @endif
-                                            {{ $row->getTranslatedAttribute('display_name') }}
-                                            @if ($isServerSide)
-                                                @if ($row->isCurrentSortField($orderBy))
-                                                    @if ($sortOrder == 'asc')
-                                                        <i class="voyager-angle-up pull-right"></i>
-                                                    @else
-                                                        <i class="voyager-angle-down pull-right"></i>
+                                            @if(setting('admin.show_ip_address_all'))
+                                                <th>
+                                                    @if ($isServerSide && in_array($row->field, $sortableColumns))
+                                                        <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">
                                                     @endif
+                                                    {{ $row->getTranslatedAttribute('display_name') }}
+                                                    @if ($isServerSide)
+                                                        @if ($row->isCurrentSortField($orderBy))
+                                                            @if ($sortOrder == 'asc')
+                                                                <i class="voyager-angle-up pull-right"></i>
+                                                            @else
+                                                                <i class="voyager-angle-down pull-right"></i>
+                                                            @endif
+                                                        @endif
+                                                        </a>
+                                                    @endif
+                                                </th>
+                                            @else
+                                                @if($row->field != 'customer_belongsto_proxy_relationship')
+                                                    <th>
+                                                        @if ($isServerSide && in_array($row->field, $sortableColumns))
+                                                            <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">
+                                                        @endif
+                                                        {{ $row->getTranslatedAttribute('display_name') }}
+                                                        @if ($isServerSide)
+                                                            @if ($row->isCurrentSortField($orderBy))
+                                                                @if ($sortOrder == 'asc')
+                                                                    <i class="voyager-angle-up pull-right"></i>
+                                                                @else
+                                                                    <i class="voyager-angle-down pull-right"></i>
+                                                                @endif
+                                                            @endif
+                                                            </a>
+                                                        @endif
+                                                    </th>
                                                 @endif
-                                                </a>
                                             @endif
-                                        </th>
                                         @endforeach
                                         <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
                                     </tr>
@@ -121,6 +142,12 @@
                                                 $data->{$row->field} = $data->{$row->field.'_browse'};
                                             }
                                             @endphp
+
+                                            @if(!setting('admin.show_ip_address_all'))
+                                                @if($row->field == "customer_belongsto_proxy_relationship")
+                                                    @continue
+                                                @endif
+                                            @endif
                                             <td>
 
                                                 @if (isset($row->details->view_browse))

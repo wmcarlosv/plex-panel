@@ -446,7 +446,11 @@ class CustomerController extends VoyagerBaseController
         $selectedServer = null;
         if( setting('admin.dynamic_server') ){
             $servers = Server::where('status',1)->server()->get()->toArray();
-            $selectedServer = $servers[rand(0, count($servers)-1)];
+            if(count($servers) > 1){
+                $selectedServer = $servers[rand(0, count($servers)-1)];
+            }else{
+                $selectedServer = $servers[0];
+            }
         }
 
         return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','domains','selectedServer'));

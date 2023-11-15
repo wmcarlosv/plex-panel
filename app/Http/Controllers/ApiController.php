@@ -284,6 +284,7 @@ class ApiController extends Controller
 
         $this->plex->createHomeUser($server, $customer, $pin);
 
+        $customer->server_id = $server->id;
         $customer->pin = $pin;
         $customer->save();
 
@@ -295,9 +296,33 @@ class ApiController extends Controller
 
     public function remove_iphone($customer_id){
         $customer = Customer::findorfail($customer_id);
+        $servers = [];
+        $selectedServer = null;
+
+        if( setting('admin.dynamic_server') ){
+            $servers = Server::where('status',1)->server()->get();
+            if($servers->count() > 1){
+                $selectedServer = $servers[ rand(0, ($servers->count() - 1)) ];
+            }else{
+                $selectedServer = $servers[0];
+            }
+        }else{
+            $selectedServer = $customer->server;
+        }
+
         $userPin = $this->plex->loginInPlex($customer->email, $customer->password);
         $this->plex->removeHomeUserPin($userPin, $customer->pin);
         $this->plex->removeHomeUser($customer);
+
+        //Remove Actual Server
+        $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+        $this->plex->provider->removeFriend($customer->invited_id);
+
+        //Add New Server
+        $this->plex->setServerCredentials($selectedServer->url, $selectedServer->token);
+        $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+
+        $customer->server_id = $selectedServer->id;
         $customer->pin = null;
         $customer->save();
 
