@@ -11,6 +11,7 @@ use Havenstd06\LaravelPlex\Classes\FriendRestrictionsSettings;
 use DB;
 use File;
 use App\Models\Proxy;
+use Session;
 
 class ApiController extends Controller
 {
@@ -287,6 +288,9 @@ class ApiController extends Controller
         $customer->server_id = $server->id;
         $customer->pin = $pin;
         $customer->save();
+
+        $la_data = Customer::findorfail($customer->id);
+        Session::flash('modal',$la_data);
 
         return redirect()->route("voyager.customers.index")->with([
             'message'=>'Cuenta Convertida a Iphone de Manera Exitosa!!',
