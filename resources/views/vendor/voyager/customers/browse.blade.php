@@ -102,7 +102,7 @@
                                                     @endif
                                                 </th>
                                             @else
-                                                @if($row->field != 'customer_belongsto_proxy_relationship')
+                                                @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
                                                     <th>
                                                         @if ($isServerSide && in_array($row->field, $sortableColumns))
                                                             <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">
@@ -119,7 +119,27 @@
                                                             </a>
                                                         @endif
                                                     </th>
+                                                @else
+                                                    @if($row->field != 'customer_belongsto_proxy_relationship')
+                                                        <th>
+                                                            @if ($isServerSide && in_array($row->field, $sortableColumns))
+                                                                <a href="{{ $row->sortByUrl($orderBy, $sortOrder) }}">
+                                                            @endif
+                                                            {{ $row->getTranslatedAttribute('display_name') }}
+                                                            @if ($isServerSide)
+                                                                @if ($row->isCurrentSortField($orderBy))
+                                                                    @if ($sortOrder == 'asc')
+                                                                        <i class="voyager-angle-up pull-right"></i>
+                                                                    @else
+                                                                        <i class="voyager-angle-down pull-right"></i>
+                                                                    @endif
+                                                                @endif
+                                                                </a>
+                                                            @endif
+                                                        </th>
+                                                    @endif
                                                 @endif
+                                                
                                             @endif
                                         @endforeach
                                         <th class="actions text-right dt-not-orderable">{{ __('voyager::generic.actions') }}</th>
@@ -144,8 +164,10 @@
                                             @endphp
 
                                             @if(!setting('admin.show_ip_address_all'))
-                                                @if($row->field == "customer_belongsto_proxy_relationship")
-                                                    @continue
+                                                @if(Auth::user()->role_id != 4 && Auth::user()->role_id != 1)
+                                                    @if($row->field == "customer_belongsto_proxy_relationship")
+                                                        @continue
+                                                    @endif
                                                 @endif
                                             @endif
                                             <td>
@@ -654,7 +676,7 @@
                 Swal.fire({
                   title: 'Estos son los datos que debes darle al cliente!!',
                   icon: 'info',
-                  html:'<textarea id="field_copy" class="form-control" style="height: 115px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
+                  html:'<textarea id="field_copy" class="form-control" style="height: 135px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
                   confirmButtonColor: '#5cb85c',
                   confirmButtonText: 'Copiar y Salir',
                   allowOutsideClick:false
