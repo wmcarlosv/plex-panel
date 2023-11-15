@@ -330,7 +330,7 @@
             @if($edit)
 
                 $("input[name='email'], input[name='password']").attr("readonly","readonly");
-                $("#generate-email, #generate-password").attr("disabled", true);
+                $("#generate-email, #generate-password, button[type='submit']").attr("disabled", true);
 
                 let server_id = $("select[name='server_id']")
                 server_id.parent().append("<input type='text' readonly class='form-control' value='"+server_id.children("option:selected").text()+"' />");
