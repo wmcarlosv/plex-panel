@@ -325,29 +325,17 @@
                                               <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                                                 @if(setting('admin.extra_options_limited'))
                                                     @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3 || Auth::user()->role_id == 4)
-                                                        @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
-                                                            @if($data->status == "active")
-                                                                <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
-                                                            @else
-                                                                <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
-                                                            @endif
-                                                        @endif
-
                                                         @if($data->status == "active")
                                                             <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
                                                         @endif
                                                     @endif
-                                                @else
-                                                    @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
-                                                        @if($data->status == "active")
-                                                            <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
-                                                        @else
-                                                            <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
-                                                        @endif
-                                                    @endif
+                                                @endif
 
+                                                @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
                                                     @if($data->status == "active")
-                                                        <li><a href="#" class="change-server-modal" data-row='{{json_encode($data)}}'>Cambiar Servidor</a></li>
+                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
+                                                    @else
+                                                        <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Habilitar</a></li>
                                                     @endif
                                                 @endif
 

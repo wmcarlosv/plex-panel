@@ -206,7 +206,7 @@ class ApiController extends Controller
                 if(empty($the_data[0]->invited_id)){
                     $data = [
                         'success'=>false,
-                        'message'=>"Ocurrio un error al momento de realizar el cambio de servidor, por favor utilice la opcion de reparar cuenta para solventar este problema!!"
+                        'message'=>"Ocurrio un error al momento de habilitar la cuenta, por favor utilice la opcion de reparar cuenta para solventar este problema!!"
                         ];
                 }else{
                     if(!empty($server->limit_accounts)){
