@@ -151,9 +151,6 @@
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
-                                                @if($data->pin)
-                                                    <img src="{{ asset('images/iphone.png') }}" style="width:25px; height: 25px; display: inline; background: transparent !important;" alt="Iphone">
-                                                @endif
                                             </td>
                                         @endif
                                         @foreach($dataType->browseRows as $row)
@@ -171,7 +168,6 @@
                                                 @endif
                                             @endif
                                             <td>
-
                                                 @if (isset($row->details->view_browse))
                                                     @include($row->details->view_browse, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $data->{$row->field}, 'view' => 'browse', 'options' => $row->details])
                                                 @elseif (isset($row->details->view))
@@ -312,6 +308,12 @@
                                                 @else
                                                     @include('voyager::multilingual.input-hidden-bread-browse')
                                                     <span>{{ $data->{$row->field} }}</span>
+                                                @endif
+
+                                                @if($row->field == "customer_belongsto_server_relationship")
+                                                    @if($data->pin)
+                                                        <img src="{{ asset('images/iphone.png') }}" style="width:25px; height: 25px; display: inline; background: transparent !important;" alt="Iphone">
+                                                    @endif
                                                 @endif
                                             </td>
                                         @endforeach
