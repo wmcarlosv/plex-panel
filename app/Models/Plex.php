@@ -130,11 +130,15 @@ class Plex {
 
         $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
         $data = simplexml_load_string($response);
-        $ownerId = $data->Invite->attributes()->{'id'};
-        $friend = $data->Invite->attributes()->{'friend'};
-        $home = $data->Invite->attributes()->{'home'};
-        $server = $data->Invite->attributes()->{'server'};
-        $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+        
+        if(!empty($data->Invite)){
+            $ownerId = $data->Invite->attributes()->{'id'};
+            $friend = $data->Invite->attributes()->{'friend'};
+            $home = $data->Invite->attributes()->{'home'};
+            $server = $data->Invite->attributes()->{'server'};
+            $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+        }
+
         $this->resetCustomization($data_user['user']['authToken'], uniqid());
     }
 
