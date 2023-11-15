@@ -23,6 +23,7 @@ use App\Models\Demo;
 use App\Models\Customer;
 use App\Http\Controllers\Voyager\CustomerController;
 use App\Models\Domain;
+use Session;
 
 class DemoController extends VoyagerBaseController
 {
@@ -469,6 +470,10 @@ class DemoController extends VoyagerBaseController
         }
 
         event(new BreadDataAdded($dataType, $data));
+
+        $la_data = Demo::findorfail($data->id);
+
+        Session::flash('modal',$la_data);
 
         if (!$request->has('_tagging')) {
             if (auth()->user()->can('browse', $data)) {
