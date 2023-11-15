@@ -539,8 +539,10 @@ class CustomerController extends VoyagerBaseController
                     }
                 }
 
-                $server->accounts_count = (count($plex_data) + 1);
-                $server->save();
+                DB::table("servers")->where('id',$server->id)->update([
+                    "accounts_count"=>(count($plex_data) + 1)
+                ]);
+                
             }
         }
 
@@ -615,8 +617,9 @@ class CustomerController extends VoyagerBaseController
         
                 $this->plex->provider->removeFriend($data->invited_id);
 
-                $server->accounts_count = (count($plex_data) - 1);
-                $server->save();
+                DB::table("servers")->where('id',$server->id)->update([
+                    "accounts_count"=>(count($plex_data) + 1)
+                ]);
             }
 
             // Check permission
@@ -1270,6 +1273,9 @@ class CustomerController extends VoyagerBaseController
                DB::table('users')->where('id',$user->id)->update([
                     'total_credits'=>($current_credit - intval($duration->months))
                ]);
+
+               $customer->duration_id = $duration->id;
+               $customer->save();
            }
         }
         

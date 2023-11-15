@@ -185,6 +185,9 @@
                                 <label for="">Servidor:</label>
                                 <select name="plexserver" required class="form-control">
                                     <option value="">-</option>
+                                    @if($dataTypeContent->server->status == 0)
+                                        <option value="{{$dataTypeContent->server->id}}" selected>{{$dataTypeContent->server->name_and_local_name}}</option>
+                                    @endif
                                     @foreach($servers as $server)
                                         <option value="{{$server->id}}" @if($dataTypeContent->server_id == $server->id) selected='selected' @endif>{{$server->name_and_local_name}}</option>
                                     @endforeach
