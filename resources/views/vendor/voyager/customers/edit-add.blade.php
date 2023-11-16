@@ -213,7 +213,7 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Confirmar</button>
+                            <button type="button" class="btn btn-success" id="btn-confirmar">Confirmar</button>
                             <button type="button" class="btn btn-danger" id="cancel_extend_modal">Cancelar</button>
                         </div>
                     </div>
@@ -370,6 +370,11 @@
                 $("input[name='password']").val(generateStrongPassword());
             });
 
+            $("#btn-confirmar").click(function(){
+                $(this).attr("disabled", true).text("Cargando...");
+                $("#extend_form").submit();
+            });
+
             $("select[name='duration']").change(function(){
                 if($(this).val()){
                     let ms = $(this).children("option:selected").attr("data-months");
@@ -467,7 +472,7 @@
                 $("input[name='email'], input[name='password']").attr("readonly","readonly");
 
                 $("#extend_membership").click(function(){
-                    $("#extend_modal").modal('show');
+                    $("#extend_modal").modal({backdrop: 'static', keyboard: false},'show');
                 });
 
                 $("#cancel_extend_modal").click(function(){
