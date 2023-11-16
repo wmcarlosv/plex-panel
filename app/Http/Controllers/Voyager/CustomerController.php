@@ -606,19 +606,12 @@ class CustomerController extends VoyagerBaseController
                 $server = Server::findorfail($data->server_id);
                 $this->plex->setServerCredentials($server->url, $server->token);
 
-                /*$plex_data = $this->plex->provider->getFriends();
-                if(!is_array($plex_data)){
-                    $redirect = redirect()->back();
-                    return $redirect->with([
-                        'message'    => __('Existen problemas en el servidor, por favor verifica que la url del mismo, el puerto y tambien el token sean los correctos!!'),
-                        'alert-type' => 'error',
-                    ]);
-                }*/
+                $plex_data = $this->plex->provider->getFriends();
         
                 $this->plex->provider->removeFriend($data->invited_id);
 
                 DB::table("servers")->where('id',$server->id)->update([
-                    "accounts_count"=>(count($plex_data) + 1)
+                    "accounts_count"=>(count($plex_data) - 1)
                 ]);
             }
 
