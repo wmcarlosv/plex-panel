@@ -542,7 +542,7 @@ class CustomerController extends VoyagerBaseController
                 DB::table("servers")->where('id',$server->id)->update([
                     "accounts_count"=>(count($plex_data) + 1)
                 ]);
-                
+
             }
         }
 
@@ -1146,6 +1146,15 @@ class CustomerController extends VoyagerBaseController
                 'message'    => __('El servidor donde quieres renovar tiene problemas, verifica que el User, Correo o Password sean los Correctos, en tal caso contacte con el administrador del sistema!!'),
                 'alert-type' => 'error',
             ]);
+        }
+
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+            return $redirect->with([
+                'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
+                'alert-type' => 'error',
+            ]);
+           }
         }
 
         if($data->status == 'active'){
