@@ -627,4 +627,21 @@ class Plex {
         $response = file_get_contents($url, false, $context);
         $refresh = simplexml_load_string($response);
     }
+
+    public function changeUserPlexPassword($currentPassword, $newPassword, $user){
+
+        $url = "https://clients.plex.tv/api/v2/user?X-Plex-Product=Plex%20Web&password=".$newPassword."&passwordConfirmation=".$newPassword."&currentPassword=".$currentPassword."&resetDevices=true&X-Plex-Token=".$user['user']['authToken'];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        $change_password = simplexml_load_string(curl_exec($ch));
+
+        if (curl_errno($ch)) {
+            echo 'cURL error: ' . curl_error($ch);
+        }
+        curl_close($ch);
+        return $change_password;
+    }
 }

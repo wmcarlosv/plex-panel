@@ -44,5 +44,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post("convert-iphone",[ApiController::class, 'convert_iphone'])->name('convert_iphone');
     Route::get("remove-iphone/{customer_id}",[ApiController::class, 'remove_iphone'])->name('remove_iphone');
     Route::get("repair-account/{customer_id}",[ApiController::class, 'repair_account'])->name('repair_account');
+    Route::post("change-password-plex-user",[ApiController::class, 'change_password_user_plex'])->name('change_password_user_plex');
     Voyager::routes();
 });

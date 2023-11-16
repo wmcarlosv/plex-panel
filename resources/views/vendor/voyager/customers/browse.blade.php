@@ -360,6 +360,8 @@
                                                 @if($data->status == "active")
                                                     <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
                                                 @endif
+
+                                                <li><a href="#" class="change-password-user-plex" data-row='{{json_encode($data)}}'>Cambiar Clave en Plex</a></li>
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)
@@ -482,6 +484,34 @@
             </div>
         </div>
     </div>
+
+    <!--Modal Change Server-->
+    <div class="modal modal-success" id="change-password-user-plex-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Cambiar Clave Cuenta Plex</h4>
+                </div>
+                <form action="{{ route('change_password_user_plex') }}" id="change-password-form" method="POST">
+                    @method('POST')
+                    @csrf
+                    <input type="hidden" name="chp_customer_id" />
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="">Nueva Clave:</label>
+                            <input type="text" required name="chp_new_password" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-info" type="button" id="change-password-user-plex-generate">Generar Clave</button>
+                        <button class="btn btn-success" id="change-password-button" type="button">Cambiar</button>
+                        <button class="btn btn-danger" type="button" id="change-password-user-plex-cancel">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -507,6 +537,43 @@
 
         onlyNumbers("pin");
 
+        function generateStrongPassword() {
+          const length = 10;
+          const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+          const numberChars = '0123456789';
+          const specialChars = '!@#$%^&*';
+
+          const allChars = uppercaseChars + lowercaseChars + numberChars + specialChars;
+
+          let password = '';
+          //upper
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * uppercaseChars.length);
+            password += uppercaseChars[randomIndex];
+          }
+
+          //lower
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * lowercaseChars.length);
+            password += lowercaseChars[randomIndex];
+          }
+
+          //number
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * numberChars.length);
+            password += numberChars[randomIndex];
+          }
+
+           //special
+          for (let i = 0; i < 1; i++) {
+            const randomIndex = Math.floor(Math.random() * specialChars.length);
+            password += specialChars[randomIndex];
+          }
+
+          return password;
+        }
+
          $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': '{{csrf_token()}}'
@@ -523,6 +590,27 @@
                 removeServerById(server_id);
                 $("#change-server").modal({backdrop: 'static', keyboard: false}, 'show');
             });
+
+            $("body").on("click","a.change-password-user-plex", function(){
+                let row = JSON.parse($(this).attr("data-row"));
+                $("input[name='chp_customer_id']").val(row.id);
+                $("input[name='chp_new_password']").val(generateStrongPassword());
+                $("#change-password-user-plex-modal").modal({ backdrop:'static', keyboard: false }, "show");
+            });
+
+            $("#change-password-user-plex-generate").click(function(){
+                $("input[name='chp_new_password']").val(generateStrongPassword());
+            });
+
+            $("#change-password-user-plex-cancel").click(function(){
+                $("#change-password-user-plex-modal").modal("hide");
+            });
+
+            $("#change-password-button").click(function(){
+                $("#change-password-button").text("Enviando...").attr("disabled", true);
+                $("#change-password-user-plex-generate, #change-password-user-plex-cancel").attr("disabled", true);
+                $("#change-password-form").submit();
+            })
 
             $("body").on("click","a.remove-iphone", function(){
 

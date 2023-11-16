@@ -374,4 +374,33 @@ class ApiController extends Controller
             }
         }
     }
+
+    public function change_password_user_plex(Request $request){
+        $customer = Customer::findorfail($request->chp_customer_id);
+        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+
+        if(!is_array($user)){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'Ocurrio un error al tratar de actualizar la clave de esta cuenta, esto puede ser debido a que le cambiaron el correo o clave a la cuenta directamente desde plex!!',
+                'alert-type'=>'error'
+            ]);
+        }
+        
+        $response = $this->plex->changeUserPlexPassword($customer->password, $request->chp_new_password, $user);
+
+        if($response){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'Ocurrio un error al tratar de actualizar la clave, por favor verifica que el formato sea el corecto, mensaje de plex:"'.(string) $response->error->attributes()->{'message'}.'"',
+                'alert-type'=>'error'
+            ]);
+        }else{
+            $customer->password = $request->chp_new_password;
+            $customer->save();
+
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'La clave fue cambiada de manera exitosa, y tambien se cerro session en todos los dispositivos!',
+                'alert-type'=>'success'
+            ]);
+        }
+    }
 }
