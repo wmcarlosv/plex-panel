@@ -602,18 +602,21 @@ class CustomerController extends VoyagerBaseController
         foreach ($ids as $id) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
-            if(isset($data->invited_id) and !empty($data->invited_id)){
                 $server = Server::findorfail($data->server_id);
                 $this->plex->setServerCredentials($server->url, $server->token);
 
                 $plex_data = $this->plex->provider->getFriends();
-        
-                $this->plex->provider->removeFriend($data->invited_id);
+                
+                if(is_array($plex_data)){
 
-                DB::table("servers")->where('id',$server->id)->update([
-                    "accounts_count"=>(count($plex_data) - 1)
-                ]);
-            }
+                    if(isset($data->invited_id) and !empty($data->invited_id)){
+                        $this->plex->provider->removeFriend($data->invited_id);
+                    }
+                    
+                    DB::table("servers")->where('id',$server->id)->update([
+                        "accounts_count"=>(count($plex_data) - 1)
+                    ]);
+                }
 
             // Check permission
             $this->authorize('delete', $data);
