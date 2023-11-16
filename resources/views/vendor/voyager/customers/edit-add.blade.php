@@ -338,16 +338,18 @@
         $('document').ready(function () {
 
             @if( setting('admin.dynamic_server') )
-                @if($selectedServer)
-                    var newOption = new Option("{{$selectedServer['name']}} ({{$selectedServer['local_name']}})","{{$selectedServer['id']}}", true, true);
-                    // Append it to the select
-                    $('select[name="server_id"]').append(newOption).trigger('change');
-                    $('select[name="server_id"]').css("display","none");
-                    $('select[name="server_id"]').parent().find("span.select2-container").css("display","none");
-                    @if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5)
-                        $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['local_name']}}' />");
-                    @else
-                         $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['name']}} ({{$selectedServer['local_name']}})' />");
+                @if(Auth::user()->role_id != 1 && Auth::user()->role_id !=4)
+                    @if($selectedServer)
+                        var newOption = new Option("{{$selectedServer['name']}} ({{$selectedServer['local_name']}})","{{$selectedServer['id']}}", true, true);
+                        // Append it to the select
+                        $('select[name="server_id"]').append(newOption).trigger('change');
+                        $('select[name="server_id"]').css("display","none");
+                        $('select[name="server_id"]').parent().find("span.select2-container").css("display","none");
+                        @if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5)
+                            $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['local_name']}}' />");
+                        @else
+                             $('select[name="server_id"]').parent().append("<input type='text' class='form-control' readonly value='{{$selectedServer['name']}} ({{$selectedServer['local_name']}})' />");
+                        @endif
                     @endif
                 @endif
             @endif
