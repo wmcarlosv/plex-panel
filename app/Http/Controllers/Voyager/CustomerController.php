@@ -502,7 +502,7 @@ class CustomerController extends VoyagerBaseController
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
         
         if($data){
-
+            $data_login = null;
             $validUser = $this->plex->provider->validateUser($request->email);
 
             if($validUser['response']['status'] == "Valid user"){
@@ -516,6 +516,21 @@ class CustomerController extends VoyagerBaseController
                         'alert-type' => 'error',
                     ]);
                 }
+            }
+
+            if($request->exists_in_plex == "y"){
+                
+                $customer = Customer::findorfail($data->id);
+                $customer->invited_id = $data_login['user']['id'];
+                $customer->plex_user_name = $data_login['user']['username'];
+                $customer->plex_user_token = $data_login['user']['authToken'];
+                $customer->save();
+                $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+
+                return $redirect->with([
+                    'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                    'alert-type' => 'success'
+                ]);
             }
             
             $this->plex->createPlexAccount($request->email, $request->password, $data);
