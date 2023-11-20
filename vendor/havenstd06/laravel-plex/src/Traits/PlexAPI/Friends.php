@@ -76,7 +76,8 @@ trait Friends
 
         $data = [
             'invitedEmail' => $email,
-            'librarySectionIds' => $librariesIds,
+            #'librarySectionIds' => $librariesIds,
+            'library_sections'=>$librariesIds,
             'machineIdentifier' => $machineIdentifier,
             'settings' => $settings->toArray()
         ];
