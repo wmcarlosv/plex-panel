@@ -645,47 +645,16 @@ class Plex {
         return $change_password;
     }
 
-    public function sendOnlyInvitation(Customer $customer, $data_login){
+    public function removeServer($data_user, $ownerId){
+        $opts = [
+            "http" => [
+                "method" => "DELETE",
+                "header" => "X-Plex-Token: ".$data_user['user']['authToken']
+            ]
+        ];
 
-        $invited_id = null;
-        $server_login = $this->loginInPlex($customer->server->url, $customer->server->token);
-
-        $this->setServerCredentials($customer->server->url, $customer->server->token);
-        $librarySectionIds = [];
-        $settings = new FriendRestrictionsSettings(
-            allowChannels: '1',
-            allowSubtitleAdmin: '1',
-            allowSync: '0',
-            allowTuners: '0',
-            filterMovies: '',
-            filterMusic: '',
-            filterTelevision: '',
-        );
-
-        $ownerId = null;
-
-        foreach($this->provider->getPendingInvites() as $invite){
-            if($data_login['user']['id'] == $invite['userId']){
-                $ownerId = $invite['invitedId'];   
-                break;
-            }
-        }
-
-        if($ownerId){
-            $this->plex->getDataInvitation($customer->email, $customer->password, $server_login['user']['id']);
-        }else{
-            $invited = $this->provider->inviteFriend($customer->email, $librarySectionIds, $settings);
-        }
-
-        
-
-        if(is_array($invited)){
-            $invited_id = $invited['invited']['id'];
-            
-        }else{
-            $invited_id = $data_login['user']['id'];
-        }
-
-        return $invited_id;
+        $context = stream_context_create($opts);
+        $response = file_get_contents('https://clients.plex.tv/api/v2/sharings/'.$ownerId, false, $context);
+        $data = simplexml_load_string($response);
     }
 }
