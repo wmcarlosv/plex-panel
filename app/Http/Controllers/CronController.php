@@ -18,6 +18,7 @@ class CronController extends Controller
 
     public function verifySubscriptions(){
             $total = 0;
+            $total_no_invited_id = 0;
             $plex = $this->plex;
 
             $customers = Customer::where('status', 'active')
@@ -36,15 +37,20 @@ class CronController extends Controller
                            DB::table('customers')->where('id',$data->id)->update(['status'=>'inactive']);
                            $total++; 
                         }
+                    }else{
+                        DB::table('customers')->where('id',$data->id)->update(['status'=>'inactive']);
+                        $total_no_invited_id++;
                     }
                 }
             }
 
-            print "Total Cancelados: ".$total."\n";
+            print "Total Cancelados: ".$total."\n Total Sin Invited ID: ".$total_no_invited_id."\n";
 
             $total_demos = 0;
+            $total_demos_no_invited_id = 0;
 
             $demos = Demo::where('end_date','<',now())->limit(5)->get();
+
             foreach($demos as $demo){
                 $server = $demo->server;
                 if(!empty($demo->server->url) and !empty($demo->server->token)){
@@ -55,11 +61,14 @@ class CronController extends Controller
                            DB::table('demos')->where('id',$demo->id)->delete();
                            $total_demos++; 
                         }
+                    }else{
+                        DB::table('demos')->where('id',$demo->id)->delete();
+                        $total_demos_no_invited_id++;
                     }
                 }
             }
 
-            print "Total Demos Cancelados: ".$total_demos."\n";
+            print "Total Demos Cancelados: ".$total_demos."\n Total Demos Sin Invited ID: ".$total_demos_no_invited_id."\n";
     }
 
     public function verifySessions(){

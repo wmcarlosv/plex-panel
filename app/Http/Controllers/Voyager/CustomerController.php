@@ -521,10 +521,12 @@ class CustomerController extends VoyagerBaseController
             if($request->exists_in_plex == "y"){
                 
                 $customer = Customer::findorfail($data->id);
-                $customer->invited_id = $data_login['user']['id'];
+                $invited_id = $this->plex->sendOnlyInvitation($customer, $data_login);
+                $customer->invited_id = $invited_id;
                 $customer->plex_user_name = $data_login['user']['username'];
                 $customer->plex_user_token = $data_login['user']['authToken'];
                 $customer->save();
+                
                 $redirect = redirect()->route("voyager.{$dataType->slug}.index");
 
                 return $redirect->with([
