@@ -386,7 +386,7 @@ class ApiController extends Controller
             ]);
         }
         
-        $response = $this->plex->changeUserPlexPassword($customer->password, $request->chp_new_password, $user);
+        $response = $this->plex->changeUserPlexPassword($request->chp_current_password, $request->chp_new_password, $request->remove_all_devices, $user);
 
         if($response){
             return redirect()->route("voyager.customers.index")->with([

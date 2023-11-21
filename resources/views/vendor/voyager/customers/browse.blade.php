@@ -499,8 +499,21 @@
                     <input type="hidden" name="chp_customer_id" />
                     <div class="modal-body">
                         <div class="form-group">
+                            <label for="">Email:</label>
+                            <input type="text" class="form-control" id="chp_email" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Clave Actual</label>
+                            <input type="text" name="chp_current_password" id="chp_current_password" class="form-control">
+                        </div>
+                        <div class="form-group">
                             <label for="">Nueva Clave:</label>
                             <input type="text" required name="chp_new_password" class="form-control" />
+                        </div>
+                        <div class="checkbox">
+                            <label for="">
+                                <input type="checkbox" name="remove_all_devices"> Remover todas las Sesiones
+                            </label>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -595,6 +608,8 @@
                 let row = JSON.parse($(this).attr("data-row"));
                 $("input[name='chp_customer_id']").val(row.id);
                 $("input[name='chp_new_password']").val(generateStrongPassword());
+                $("#chp_current_password").val(row.password);
+                $("#chp_email").val(row.email);
                 $("#change-password-user-plex-modal").modal({ backdrop:'static', keyboard: false }, "show");
             });
 
