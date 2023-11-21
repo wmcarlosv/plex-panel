@@ -331,7 +331,7 @@
                                                     @endif
                                                 @endif
 
-                                                @if(strtotime($data->date_to) > strtotime(date('Y-m-d')))
+                                                @if(strtotime($data->date_to) >= strtotime(date('Y-m-d')))
                                                     @if($data->status == "active")
                                                         <li><a href="#" class="change-status" data-row='{{json_encode($data)}}'>Inhabilitar</a></li>
                                                     @else

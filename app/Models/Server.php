@@ -29,8 +29,13 @@ class Server extends Model
             $servers = $this->getServerIds();
         }
 
-        if( setting("admin.iphone_only_server") ){
-            $query->where("is_plex_pass",0);
+        if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1 ){
+            
+        }else{
+            if( setting("admin.iphone_only_server") ){
+    
+                $query->where("is_plex_pass",0);
+            }
         }
         
         return $query->where('status',1)->where('is_demo',0)->whereIn('id',$servers);   
