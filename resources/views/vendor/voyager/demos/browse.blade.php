@@ -332,7 +332,7 @@
                 Swal.fire({
                   title: 'Estos son los datos que debes darle al cliente!!',
                   icon: 'info',
-                  html:'<textarea id="field_copy" class="form-control" style="height: 135px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nFecha de Vencimiento: {{date("d-m-Y H:m:s",strtotime($data->date_to))}}</textarea>',
+                  html:'<textarea id="field_copy" class="form-control" style="height: 135px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nFecha de Vencimiento: {{date("d-m-Y H:m:s",strtotime($data->end_date))}}</textarea>',
                   confirmButtonColor: '#5cb85c',
                   confirmButtonText: 'Copiar y Salir',
                   allowOutsideClick:false
