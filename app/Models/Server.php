@@ -77,7 +77,9 @@ class Server extends Model
             $this->name = $this->tmpName;
         }
 
-        $this->user_id = Auth::user()->id;
+        if(empty($this->user_id)){
+           $this->user_id = Auth::user()->id; 
+        }
 
         parent::save();
     }
