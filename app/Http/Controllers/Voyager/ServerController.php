@@ -348,15 +348,20 @@ class ServerController extends VoyagerBaseController
                 $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
             }
         }
-        
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts','libraries'));
+        $libraries_agg = [];
+        $libraries_array_agg = DB::table("server_libraries")->select("library_id")->where("server_id",$id)->get();
+        foreach($libraries_array_agg as $laa){
+            $libraries_agg[] = $laa->library_id;
+        }
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','accounts','libraries','libraries_agg'));
     }
 
     // POST BR(E)AD
     public function update(Request $request, $id)
     {
         $slug = $this->getSlug($request);
-
+        $libraries = [];
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         $this->plex->setServerCredentials($request->url, $request->token);
@@ -420,6 +425,22 @@ class ServerController extends VoyagerBaseController
         $original_data = clone($data);
 
         $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+
+        $libraries = $request->libraries;
+
+        DB::table("server_libraries")->where('server_id',$data->id)->delete();
+        
+        if(isset($libraries) and !empty($libraries)){
+            
+            foreach($libraries as $library){
+                DB::table("server_libraries")->insert([
+                    "server_id"=>$data->id,
+                    "library_id"=>$library
+                ]);
+            }
+        }
+        
 
         // Delete Images
         $this->deleteBreadImages($original_data, $to_remove);

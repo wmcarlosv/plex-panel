@@ -97,6 +97,16 @@
                                 <h3>Cantidad de Cuentas (Panel)</h3>
                                 <h2><span class="label label-success">{{$dataTypeContent->customers->count()}}</span></h2>
                             </div>
+                            @if($edit)
+                                <div class="form-group col-md-12">
+                                    <label for="">Librerias Asignadas</label>
+                                    <select name="libraries[]" class="form-control libraries" multiple>
+                                        @foreach($libraries as $library)
+                                        <option value="{{$library['Section']['id']}}" @if( in_array($library["Section"]["id"],$libraries_agg) ) selected='selected' @endif>{{$library['Section']['title']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
 
                         </div><!-- panel-body -->
 
@@ -199,6 +209,7 @@
         }
 
         $('document').ready(function () {
+            $('select.libraries').select2();
             $('.toggleswitch').bootstrapToggle();
 
             $("input[name='token']").attr("type","password");

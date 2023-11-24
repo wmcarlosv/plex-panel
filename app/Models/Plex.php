@@ -212,6 +212,16 @@ class Plex {
         
     }
 
+    public function getDataServer($url, $token){
+        $server = Server::where('url',$url)->where('token',$token)->first();
+        $libraries = [];
+        $get_libraries = DB::table("server_libraries")->select("library_id")->where("server_id",$server->id)->get();
+        foreach($get_libraries as $gl){
+           $libraries[] = (int) $gl->library_id; 
+        }
+        return $libraries;
+    }
+
     public function createPlexAccount($email, $password, $data){
         $this->setServerCredentials($this->server_email, $this->server_password);
         $customer = Customer::findorfail($data->id);
@@ -277,6 +287,15 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
         $customer->update();
+
+        if(!empty($customer->invited_id)){
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            if(count($update_libraries) > 0){
+                $this->setServerCredentials($this->server_email, $this->server_password);
+                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
+            }
+        }
+        
     }
     
 
@@ -316,6 +335,14 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $demo->plex_user_token = $usr['user']['authToken'];
         $demo->update();
+
+        if(!empty($demo->invited_id)){
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            if(count($update_libraries) > 0){
+                $this->setServerCredentials($this->server_email, $this->server_password);
+                $this->provider->updateFriendLibraries($demo->invited_id, $update_libraries);
+            }
+        }
     }
 
     public function serverRequest($url, $username, $password) {
@@ -500,6 +527,14 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
         $customer->update();
+
+        if(!empty($customer->invited_id)){
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            if(count($update_libraries) > 0){
+                $this->setServerCredentials($this->server_email, $this->server_password);
+                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
+            }
+        }
     }
 
     public function getCorrectProxy(){
@@ -714,6 +749,14 @@ class Plex {
         }
 
         $customer->update();
+
+        if(!empty($customer->invited_id)){
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            if(count($update_libraries) > 0){
+                $this->setServerCredentials($this->server_email, $this->server_password);
+                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
+            }
+        }
     }
 
     public function createPlexAccountNoPasswordNoCredit($email, $data){
@@ -755,6 +798,14 @@ class Plex {
             $customer->invited_id = null;
         }
         $customer->update();
+
+        if(!empty($customer->invited_id)){
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            if(count($update_libraries) > 0){
+                $this->setServerCredentials($this->server_email, $this->server_password);
+                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
+            }
+        }
     }
 
     public function getRealAccountServerData($data_user){
