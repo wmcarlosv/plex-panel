@@ -116,7 +116,12 @@ class ApiController extends Controller
                     'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
                 ];   
             }else{
-                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                if($customer->password != "#5inCl4ve#"){
+                    $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                }else{
+                    $this->plex->createPlexAccountNoPasswordNoCredit($customer->email, $customer);
+                }
+                
                 $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
                 if(empty($the_data[0]->invited_id)){
                     $data = [
@@ -200,7 +205,13 @@ class ApiController extends Controller
                     'message'=>"El servidor a donde quieres mover al cliente, tiene problemas con sus credenciales, por favor verificalas y vuelve a intentar!!"
                 ];   
             }else{
-                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+
+                if($customer->password != "#5inCl4ve#"){
+                    $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                }else{
+                    $this->plex->createPlexAccountNoPasswordNoCredit($customer->email, $customer);
+                }
+                
                 $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
 
                 if(empty($the_data[0]->invited_id)){
@@ -354,10 +365,20 @@ class ApiController extends Controller
             //Remove Plex
             if(!empty($customer->invited_id)){
                 $this->plex->provider->removeFriend($customer->invited_id);
-                $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                if($customer->password != "#5inCl4ve#"){
+                    $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                }else{
+                    $this->plex->createPlexAccountNoPasswordNoCredit($customer->email, $customer);
+                }
+                
             }else{
                 //Add Plex
-                $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                if($customer->password != "#5inCl4ve#"){
+                    $this->plex->createPlexAccount($customer->email, $customer->password, $customer);
+                }else{
+                    $this->plex->createPlexAccountNoPassword($customer->email, $customer);
+                }
+                
             }
 
             $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
@@ -377,7 +398,7 @@ class ApiController extends Controller
 
     public function change_password_user_plex(Request $request){
         $customer = Customer::findorfail($request->chp_customer_id);
-        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+        $user = $this->plex->loginInPlex($customer->email, $request->chp_current_password);
 
         if(!is_array($user)){
             return redirect()->route("voyager.customers.index")->with([

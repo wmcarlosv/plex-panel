@@ -339,7 +339,7 @@
                                                     @endif
                                                 @endif
 
-                                                @if($data->status == "active")
+                                                @if($data->status == "active" && $data->password != "#5inCl4ve#")
                                                     @if( setting('admin.iphone_for_all') )
                                                             @if(empty($data->pin))
                                                                 <li><a href="#" class="convert-iphone" data-row='{{json_encode($data)}}'>Convertir a Iphone</a></li>
@@ -360,8 +360,9 @@
                                                 @if($data->status == "active")
                                                     <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
                                                 @endif
-
-                                                <li><a href="#" class="change-password-user-plex" data-row='{{json_encode($data)}}'>Cambiar Clave en Plex</a></li>
+                                                @if($data->password !="#5inCl4ve#")
+                                                    <li><a href="#" class="change-password-user-plex" data-row='{{json_encode($data)}}'>Cambiar Clave en Plex</a></li>
+                                                @endif
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)

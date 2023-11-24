@@ -505,25 +505,41 @@ class CustomerController extends VoyagerBaseController
             $data_login = null;
             $validUser = $this->plex->provider->validateUser($request->email);
 
-            if($validUser['response']['status'] == "Valid user"){
-                $data_login = $this->plex->loginInPlex($request->email, $request->password);
-                if(!is_array($data_login)){
-                    Customer::findorfail($data->id)->delete();
+            if($request->not_password == "n"){
+                if($validUser['response']['status'] == "Valid user"){
+                    $data_login = $this->plex->loginInPlex($request->email, $request->password);
+                    if(!is_array($data_login)){
+                        Customer::findorfail($data->id)->delete();
+                        $redirect = redirect()->back();
+
+                        return $redirect->with([
+                            'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                            'alert-type' => 'error',
+                        ]);
+                    }
+                }
+            }else{
+                if($validUser['response']['status'] != "Valid user"){
                     $redirect = redirect()->back();
 
                     return $redirect->with([
-                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                        'message'    => __('El correo proporcionaod es invalido, por favor ingrese un correo valido!!'),
                         'alert-type' => 'error',
                     ]);
                 }
             }
 
             if($request->exists_in_plex == "y"){
+
                 $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
                 $this->plex->removeServer($data_login, $owner['user']['id']);
             }
             
-            $this->plex->createPlexAccount($request->email, $request->password, $data);
+            if($request->not_password == "y"){
+                $this->plex->createPlexAccountNoPassword($request->email, $data);
+            }else{
+                $this->plex->createPlexAccount($request->email, $request->password, $data);
+            }
 
             $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
 
@@ -1189,19 +1205,31 @@ class CustomerController extends VoyagerBaseController
                     }
 
                     $validUser = $this->plex->provider->validateUser($data->email);
-
-                    if($validUser['response']['status'] == "Valid user"){
-                        $data_login = $this->plex->loginInPlex($data->email, $data->password);
-                        if(!is_array($data_login)){
+                    if($data->password != "#5inCl4ve#"){
+                        if($validUser['response']['status'] == "Valid user"){
+                            $data_login = $this->plex->loginInPlex($data->email, $data->password);
+                            if(!is_array($data_login)){
+                                return $redirect->with([
+                                    'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                                    'alert-type' => 'error',
+                                ]);
+                            }
+                        }
+                    }else{
+                        if($validUser['response']['status'] != "Valid user"){
                             return $redirect->with([
-                                'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                                'message'    => __('El correo que intantas agregar es invalido, por favor agrega un correo valido!!'),
                                 'alert-type' => 'error',
                             ]);
                         }
                     }
 
                     $this->plex->setServerCredentials($server->url, $server->token);
-                    $this->plex->createPlexAccount($data->email, $data->password, $data);
+                    if($data->password != "#5inCl4ve#"){
+                        $this->plex->createPlexAccount($data->email, $data->password, $data);
+                    }else{
+                        $this->plex->createPlexAccountNoPassword($data->email, $data);
+                    }
 
                     $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
 
@@ -1242,18 +1270,30 @@ class CustomerController extends VoyagerBaseController
             }
 
             $validUser = $this->plex->provider->validateUser($data->email);
-
-            if($validUser['response']['status'] == "Valid user"){
-                $data_login = $this->plex->loginInPlex($data->email, $data->password);
-                if(!is_array($data_login)){
+            if($data->password != "#5inCl4ve#"){
+                if($validUser['response']['status'] == "Valid user"){
+                    $data_login = $this->plex->loginInPlex($data->email, $data->password);
+                    if(!is_array($data_login)){
+                        return $redirect->with([
+                            'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                            'alert-type' => 'error',
+                        ]);
+                    }
+                }
+            }else{
+                if($validUser['response']['status'] != "Valid user"){
                     return $redirect->with([
-                        'message'    => __('Ya la cuenta existe en plex, pero la clave es Erronea, por favor ingresa otro correo o coloca la clave correctamente!!'),
+                        'message'    => __('El correo que intantas agregar es invalido, por favor agrega un correo valido!!'),
                         'alert-type' => 'error',
                     ]);
                 }
             }
 
-            $this->plex->createPlexAccount($data->email, $data->password, $data);
+            if($data->password != "#5inCl4ve#"){
+                $this->plex->createPlexAccount($data->email, $data->password, $data);
+            }else{
+                $this->plex->createPlexAccountNoPassword($data->email, $data);
+            }
 
             $the_data = DB::table('customers')->select('invited_id')->where('id',$data->id)->get();
 

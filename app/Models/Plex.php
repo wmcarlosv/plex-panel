@@ -683,7 +683,10 @@ class Plex {
             filterTelevision: '',
         );
 
+        $invited = null;
+
         if($response['response']['status'] == "Valid user"){
+            $this->provider->cancelInvite($email);
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             if(is_array($invited)){
                 $customer->plex_user_name = $invited['invited']['username'];
@@ -710,6 +713,47 @@ class Plex {
            
         }
 
+        $customer->update();
+    }
+
+    public function createPlexAccountNoPasswordNoCredit($email, $data){
+
+        $this->setServerCredentials($this->server_email, $this->server_password);
+        
+        $customer = Customer::findorfail($data->id);
+        $duration = Duration::findorfail($data->duration_id);
+
+        $response = $this->provider->validateUser($email);
+
+        $librarySectionIds = [];
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        $invited = null;
+
+        if($response['response']['status'] == "Valid user"){
+            $this->provider->cancelInvite($email);
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            if(is_array($invited)){
+                $customer->plex_user_name = $invited['invited']['username'];
+                $customer->invited_id = $invited['invited']['id'];
+            }else{
+                $customer->plex_user_name = null;
+                $customer->invited_id = null;
+            }
+            
+        }else{
+            $customer->plex_user_name = null;
+            $customer->invited_id = null;
+        }
         $customer->update();
     }
 }
