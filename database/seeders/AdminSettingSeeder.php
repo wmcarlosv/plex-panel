@@ -118,6 +118,19 @@ class AdminSettingSeeder extends Seeder
             ])->save();
         }
 
+        $setting = $this->findSetting('admin.add_account_not_password_for_all');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Agregar Cuentas Sin Clave Para Todos',
+                'value'        => false,
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
     }
 
     protected function findSetting($key)

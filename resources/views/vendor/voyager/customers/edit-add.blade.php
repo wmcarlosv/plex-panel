@@ -53,19 +53,29 @@
                             @php
                                 $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
                             @endphp
-
-                            @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
-                                @if(!$edit)
-                                    <div class="form-group col-md-12">
-                                        <label for="" class="control-label">Agregar sin Clave?</label>
-                                        <select name="not_password" id="not_password" class="form-control">
-                                            <option value="y">Si</option>
-                                            <option value="n" selected="selected">No</option>
-                                        </select>
-                                    </div>
+                            @if( setting('admin.add_account_not_password_for_all') )
+                                <div class="form-group col-md-12">
+                                    <label for="" class="control-label">Agregar sin Clave?</label>
+                                    <select name="not_password" id="not_password" class="form-control">
+                                        <option value="y">Si</option>
+                                        <option value="n" selected="selected">No</option>
+                                    </select>
+                                </div>  
+                            @else
+                                @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                    @if(!$edit)
+                                        <div class="form-group col-md-12">
+                                            <label for="" class="control-label">Agregar sin Clave?</label>
+                                            <select name="not_password" id="not_password" class="form-control">
+                                                <option value="y">Si</option>
+                                                <option value="n" selected="selected">No</option>
+                                            </select>
+                                        </div>
+                                    @endif
                                 @endif
                             @endif
                             
+
                             @foreach($dataTypeRows as $row)
                                 <!-- GET THE DISPLAY OPTIONS -->
                                 @php
