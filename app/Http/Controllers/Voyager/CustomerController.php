@@ -540,7 +540,7 @@ class CustomerController extends VoyagerBaseController
                 $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
                 $data_exists = $this->plex->removeServerNoPassword($owner, $data->server, $data);
                 if(count($data_exists) > 0){
-                    
+
                     DB::table('customers')->where("id",$data->id)->update([
                         'invited_id'=>$data_exists['id'],
                         'plex_user_name'=>$data_exists['username']
@@ -648,6 +648,8 @@ class CustomerController extends VoyagerBaseController
 
                     if(isset($data->invited_id) and !empty($data->invited_id)){
                         $this->plex->provider->removeFriend($data->invited_id);
+                        $data_user = $this->plex->loginInPlex($server->url, $server->token);
+                        $this->plex->removeServer($data_user, $data->invited_id);
                     }
                     
                     DB::table("servers")->where('id',$server->id)->update([
