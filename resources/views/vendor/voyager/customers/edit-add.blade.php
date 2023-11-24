@@ -105,8 +105,20 @@
                             @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
                                 @if(!$edit)
                                     <div class="form-group col-md-12">
-                                        <label for="" class="control-label">Ya Existe en Plex?</label>
+                                        <label for="" class="control-label">Ya Existe en mi Servidor Plex?</label>
                                         <select name="exists_in_plex" class="form-control">
+                                            <option value="y">Si</option>
+                                            <option value="n" selected="selected">No</option>
+                                        </select>
+                                    </div>
+                                @endif
+                            @endif
+
+                            @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                @if(!$edit)
+                                    <div class="form-group col-md-12">
+                                        <label for="" class="control-label">Agregar sin Clave?</label>
+                                        <select name="not_password" id="not_password" class="form-control">
                                             <option value="y">Si</option>
                                             <option value="n" selected="selected">No</option>
                                         </select>
@@ -347,6 +359,26 @@
         }
 
         $('document').ready(function () {
+            $("#not_password").change(function(){
+                let value = $(this).val();
+                if(value == "y"){
+                    $("input[name='password']").val("#5inCl4ve#").parent().hide();
+                    $("select[name='exists_in_plex']").val('n').parent().hide();
+                }else{
+                    $("input[name='password']").val("").parent().show();
+                    $("select[name='exists_in_plex']").val('n').parent().show();
+                }
+            });
+
+            $("select[name='exists_in_plex']").change(function(){
+                let value = $(this).val();
+                if(value == "y"){
+                    $("#not_password").parent().hide();
+                }else{
+                    $("#not_password").parent().show();
+                }
+            });
+
 
             @if( setting('admin.dynamic_server') )
                 @if(Auth::user()->role_id != 1 && Auth::user()->role_id !=4)

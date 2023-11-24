@@ -661,4 +661,55 @@ class Plex {
         $response = file_get_contents('https://clients.plex.tv/api/v2/sharings/'.$ownerId, false, $context);
         $data = simplexml_load_string($response);
     }
+
+    public function createPlexAccountNoPassword($email, $data){
+
+        $this->setServerCredentials($this->server_email, $this->server_password);
+        
+        $customer = Customer::findorfail($data->id);
+        $duration = Duration::findorfail($data->duration_id);
+
+        $response = $this->provider->validateUser($email);
+
+        $librarySectionIds = [];
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        if($response['response']['status'] == "Valid user"){
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            if(is_array($invited)){
+                $customer->plex_user_name = $invited['invited']['username'];
+                $customer->invited_id = $invited['invited']['id'];
+            }else{
+                $customer->plex_user_name = null;
+                $customer->invited_id = null;
+            }
+            
+        }else{
+            $customer->plex_user_name = null;
+            $customer->invited_id = null;
+        }
+
+        if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
+
+           if(!empty($customer->invited_id)){
+               $user = User::findorfail(Auth::user()->id);
+               $current_credit = $user->total_credits;
+               DB::table('users')->where('id',$user->id)->update([
+                    'total_credits'=>($current_credit - intval($duration->months))
+               ]);
+           }
+           
+        }
+
+        $customer->update();
+    }
 }
