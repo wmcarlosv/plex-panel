@@ -341,6 +341,8 @@ class ServerController extends VoyagerBaseController
         $libraries = [];
 
         if(is_array($accounts)){
+            $owner = $this->plex->loginInPlex($server->url, $server->token);
+            $accounts = $this->plex->getRealAccountServerData($owner);
             $libraries_array = $this->plex->provider->getServerDetail();
             if(is_array($libraries_array)){
                 $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
@@ -369,8 +371,11 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
+        $owner = $this->plex->loginInPlex($request->url, $request->token);
+        $accounts = $this->plex->getRealAccountServerData($owner);
+
     
-        $request->merge(['accounts_count'=>count($plex_data)]);
+        $request->merge(['accounts_count'=>count($accounts)]);
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
@@ -504,7 +509,10 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
-        $request->merge(['accounts_count'=>count($plex_data)]);
+        $owner = $this->plex->loginInPlex($request->url, $request->token);
+        $accounts = $this->plex->getRealAccountServerData($owner);
+
+        $request->merge(['accounts_count'=>count($accounts)]);
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));

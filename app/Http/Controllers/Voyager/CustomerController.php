@@ -536,6 +536,9 @@ class CustomerController extends VoyagerBaseController
             }
             
             if($request->not_password == "y"){
+
+                $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
+                $this->plex->removeServerNoPassword($owner, $data->server, $data);
                 $this->plex->createPlexAccountNoPassword($request->email, $data);
             }else{
                 $this->plex->createPlexAccount($request->email, $request->password, $data);

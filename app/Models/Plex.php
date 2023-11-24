@@ -756,4 +756,53 @@ class Plex {
         }
         $customer->update();
     }
+
+    public function getRealAccountServerData($data_user){
+        $data_array = [];
+        $contador = 0;
+        $url = "https://clients.plex.tv/api/users?X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$data_user['user']['authToken'];
+        $opts = [
+            "http" => [
+                "method" => "GET"
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+        $response = file_get_contents($url, false, $context);
+        $data = simplexml_load_string($response);
+        foreach($data->User as $user){
+            $data_array[$contador]['id'] = (int)$user->attributes()->{'id'};
+            $data_array[$contador]['username'] = (string)$user->attributes()->{'username'};
+            $data_array[$contador]['email'] = (string)$user->attributes()->{'email'};
+            $contador++;
+        }
+
+        return $data_array;
+    }
+
+    public function removeServerNoPassword($owner, $server, $customer){
+        $this->setServerCredentials($server->url, $server->token);
+
+        $accounts = $this->getRealAccountServerData($owner);
+        $data = [];
+        
+        foreach($accounts as $account){
+            if($customer->email == $account['email']){
+                $data = $account;
+                break;
+            }
+        }
+
+
+        $opts = [
+            "http" => [
+                "method" => "DELETE",
+                "header" => "X-Plex-Token: ".$owner['user']['authToken']
+            ]
+        ];
+
+        $context = stream_context_create($opts);
+        $response = file_get_contents('https://clients.plex.tv/api/v2/sharings/'.$data['id'], false, $context);
+        $data = simplexml_load_string($response);
+    }
 }

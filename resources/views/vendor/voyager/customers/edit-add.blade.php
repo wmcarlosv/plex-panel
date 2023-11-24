@@ -389,6 +389,10 @@
                 }
             });
 
+            @if(Auth::user()->role_id = 1 || Auth::user()->role_id ==4)
+                $("input[name='to']").removeAttr("readonly");
+            @endif
+            
 
             @if( setting('admin.dynamic_server') )
                 @if(Auth::user()->role_id != 1 && Auth::user()->role_id !=4)
