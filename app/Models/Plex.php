@@ -832,6 +832,7 @@ class Plex {
     }
 
     public function removeServerNoPassword($owner, $server, $customer){
+
         $this->setServerCredentials($server->url, $server->token);
 
         $accounts = $this->getRealAccountServerData($owner);
@@ -845,8 +846,8 @@ class Plex {
         }
 
 
-        if(count($data) > 0){
-            
+        /*if(count($data) > 0){
+
             $opts = [
                 "http" => [
                     "method" => "DELETE",
@@ -857,6 +858,8 @@ class Plex {
             $context = stream_context_create($opts);
             $response = file_get_contents('https://clients.plex.tv/api/v2/sharings/'.$data['id'], false, $context);
             $data = simplexml_load_string($response);
-        }
+        }*/
+
+        return $data;
     }
 }

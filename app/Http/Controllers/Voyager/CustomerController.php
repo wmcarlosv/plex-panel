@@ -538,8 +538,18 @@ class CustomerController extends VoyagerBaseController
             if($request->not_password == "y"){
 
                 $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
-                $this->plex->removeServerNoPassword($owner, $data->server, $data);
-                $this->plex->createPlexAccountNoPassword($request->email, $data);
+                $data_exists = $this->plex->removeServerNoPassword($owner, $data->server, $data);
+                if(count($data_exists) > 0){
+                    
+                    DB::table('customers')->where("id",$data->id)->update([
+                        'invited_id'=>$data_exists['id'],
+                        'plex_user_name'=>$data_exists['username']
+                    ]);
+
+                }else{
+                    $this->plex->createPlexAccountNoPassword($request->email, $data);
+                }
+                
             }else{
                 $this->plex->createPlexAccount($request->email, $request->password, $data);
             }
