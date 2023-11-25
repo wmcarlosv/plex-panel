@@ -229,7 +229,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = [];
+        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -287,17 +287,7 @@ class Plex {
         
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
-        $customer->update();
-
-        if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
-
-            if(count($update_libraries) > 0){
-                $this->setServerCredentials($this->server_email, $this->server_password);
-                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
-            }
-        }
-        
+        $customer->update();        
     }
     
 
@@ -307,7 +297,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = [];
+        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -337,14 +327,6 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $demo->plex_user_token = $usr['user']['authToken'];
         $demo->update();
-
-        if(!empty($demo->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
-            if(count($update_libraries) > 0){
-                $this->setServerCredentials($this->server_email, $this->server_password);
-                $this->provider->updateFriendLibraries($demo->invited_id, $update_libraries);
-            }
-        }
     }
 
     public function serverRequest($url, $username, $password) {
@@ -487,7 +469,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = [];
+        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -530,14 +512,6 @@ class Plex {
         $usr = $this->loginInPlex($email, $password);
         $customer->plex_user_token = $usr['user']['authToken'];
         $customer->update();
-
-        if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
-            if(count($update_libraries) > 0){
-                $this->setServerCredentials($this->server_email, $this->server_password);
-                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
-            }
-        }
     }
 
     public function getCorrectProxy(){
@@ -709,7 +683,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = [];
+        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -752,14 +726,6 @@ class Plex {
         }
 
         $customer->update();
-
-        if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
-            if(count($update_libraries) > 0){
-                $this->setServerCredentials($this->server_email, $this->server_password);
-                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
-            }
-        }
     }
 
     public function createPlexAccountNoPasswordNoCredit($email, $data){
@@ -771,7 +737,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = [];
+        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -801,14 +767,6 @@ class Plex {
             $customer->invited_id = null;
         }
         $customer->update();
-
-        if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
-            if(count($update_libraries) > 0){
-                $this->setServerCredentials($this->server_email, $this->server_password);
-                $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
-            }
-        }
     }
 
     public function getRealAccountServerData($data_user){
