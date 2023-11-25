@@ -342,7 +342,10 @@ class ServerController extends VoyagerBaseController
 
         if(is_array($accounts)){
             $owner = $this->plex->loginInPlex($server->url, $server->token);
-            $accounts = $this->plex->getRealAccountServerData($owner);
+            if(is_array($owner)){
+                $accounts = $this->plex->getRealAccountServerData($owner);  
+            }
+            
             $libraries_array = $this->plex->provider->getServerDetail();
             if(is_array($libraries_array)){
                 $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
