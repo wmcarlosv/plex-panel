@@ -212,10 +212,10 @@ class Plex {
         
     }
 
-    public function getDataServer($url, $token){
+    public function getDataServer($url, $token, $data){
         $server = Server::where('url',$url)->where('token',$token)->first();
         $libraries = [];
-        $get_libraries = DB::table("server_libraries")->select("library_id")->where("server_id",$server->id)->get();
+        $get_libraries = DB::table("server_libraries")->select("library_id")->where("server_id",$data->server->id)->get();
         foreach($get_libraries as $gl){
            $libraries[] = (int) $gl->library_id; 
         }
@@ -289,7 +289,8 @@ class Plex {
         $customer->update();
 
         if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
+
             if(count($update_libraries) > 0){
                 $this->setServerCredentials($this->server_email, $this->server_password);
                 $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
@@ -337,7 +338,7 @@ class Plex {
         $demo->update();
 
         if(!empty($demo->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
             if(count($update_libraries) > 0){
                 $this->setServerCredentials($this->server_email, $this->server_password);
                 $this->provider->updateFriendLibraries($demo->invited_id, $update_libraries);
@@ -529,7 +530,7 @@ class Plex {
         $customer->update();
 
         if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
             if(count($update_libraries) > 0){
                 $this->setServerCredentials($this->server_email, $this->server_password);
                 $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
@@ -751,7 +752,7 @@ class Plex {
         $customer->update();
 
         if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
             if(count($update_libraries) > 0){
                 $this->setServerCredentials($this->server_email, $this->server_password);
                 $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
@@ -800,7 +801,7 @@ class Plex {
         $customer->update();
 
         if(!empty($customer->invited_id)){
-            $update_libraries = $this->getDataServer($this->server_email, $this->server_password);
+            $update_libraries = $this->getDataServer($this->server_email, $this->server_password, $data);
             if(count($update_libraries) > 0){
                 $this->setServerCredentials($this->server_email, $this->server_password);
                 $this->provider->updateFriendLibraries($customer->invited_id, $update_libraries);
