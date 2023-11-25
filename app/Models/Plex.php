@@ -286,7 +286,12 @@ class Plex {
         }
         
         $usr = $this->loginInPlex($email, $password);
-        $customer->plex_user_token = $usr['user']['authToken'];
+        if(is_array($usr)){
+            $customer->plex_user_token = $usr['user']['authToken'];
+        }else{
+            $customer->plex_user_token = null;
+        }
+        
         $customer->update();        
     }
     
@@ -325,7 +330,12 @@ class Plex {
         $this->getDataInvitation($email, $password, $invited['ownerId']);
 
         $usr = $this->loginInPlex($email, $password);
-        $demo->plex_user_token = $usr['user']['authToken'];
+        if(is_array($usr)){
+            $demo->plex_user_token = $usr['user']['authToken'];
+        }else{
+            $demo->plex_user_token = null;
+        }
+        
         $demo->update();
     }
 
@@ -510,7 +520,12 @@ class Plex {
         }
         
         $usr = $this->loginInPlex($email, $password);
-        $customer->plex_user_token = $usr['user']['authToken'];
+        if(is_array($usr)){
+            $customer->plex_user_token = $usr['user']['authToken'];
+        }else{
+            $customer->plex_user_token = null;
+        }
+        
         $customer->update();
     }
 
