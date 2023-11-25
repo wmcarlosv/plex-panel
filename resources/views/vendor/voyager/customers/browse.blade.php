@@ -836,13 +836,13 @@
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([
+                        "iDisplayLength"=> 10,
+                        "aLengthMenu"=>[[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
                         "dom"=>"Bfrtip",
                         "buttons"=>[
-                            "copyHtml5",
-                            "excelHtml5",
-                            "csvHtml5",
-                            "pdfHtml5"
+                            ["extend"=>"csv", "text"=>'<i class="fas fa-file-csv fa-1x"> Exportar a CSV</i>']
                         ],
+                        "iDisplayLength"=> -1,
                         "order" => $orderColumn,
                         "language" => __('voyager::datatable'),
                         "columnDefs" => [
@@ -851,6 +851,10 @@
                     ],
                     config('voyager.dashboard.data_tables', []))
                 , true) !!});
+
+                $('#sort').change(function() {
+                  table.search($(this).val()).draw();
+                });
             @else
                 $('#search-input select').select2({
                     minimumResultsForSearch: Infinity
