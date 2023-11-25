@@ -531,6 +531,7 @@
 @section('css')
 @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
     <link rel="stylesheet" href="{{ voyager_asset('lib/css/responsive.dataTables.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 @endif
 @stop
 
@@ -540,6 +541,11 @@
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>
     @endif
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script>
 
         function onlyNumbers(id){
@@ -830,6 +836,13 @@
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([
+                        "dom"=>"Bfrtip",
+                        "buttons"=>[
+                            "copyHtml5",
+                            "excelHtml5",
+                            "csvHtml5",
+                            "pdfHtml5"
+                        ],
                         "order" => $orderColumn,
                         "language" => __('voyager::datatable'),
                         "columnDefs" => [
