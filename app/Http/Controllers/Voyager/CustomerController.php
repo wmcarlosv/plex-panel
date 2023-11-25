@@ -649,7 +649,10 @@ class CustomerController extends VoyagerBaseController
                     if(isset($data->invited_id) and !empty($data->invited_id)){
                         $this->plex->provider->removeFriend($data->invited_id);
                         $data_user = $this->plex->loginInPlex($server->url, $server->token);
-                        $this->plex->removeServer($data_user, $data->invited_id);
+                        if(is_array($data_user)){
+                           $this->plex->removeServer($data_user, $data->invited_id); 
+                        }
+                        
                     }
                     
                     DB::table("servers")->where('id',$server->id)->update([
