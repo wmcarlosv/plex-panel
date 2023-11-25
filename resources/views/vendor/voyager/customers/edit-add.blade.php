@@ -395,7 +395,7 @@
             
 
             @if( setting('admin.dynamic_server') )
-                @if(Auth::user()->role_id != 1 && Auth::user()->role_id !=4)
+                @if(Auth::user()->role_id != 1 || Auth::user()->role_id !=4)
                     @if($selectedServer)
                         var newOption = new Option("{{$selectedServer['name']}} ({{$selectedServer['local_name']}})","{{$selectedServer['id']}}", true, true);
                         // Append it to the select
