@@ -840,7 +840,8 @@
                         "aLengthMenu"=>[[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
                         "dom"=>"Bfrtip",
                         "buttons"=>[
-                            ["extend"=>"csv", "text"=>'<i class="fas fa-file-csv fa-1x"> Exportar a CSV</i>']
+                            "excelHtml5",
+                            "csvHtml5"
                         ],
                         "iDisplayLength"=> -1,
                         "order" => $orderColumn,
