@@ -212,8 +212,7 @@ class Plex {
         
     }
 
-    public function getDataServer($url, $token, $data){
-        $server = Server::where('url',$url)->where('token',$token)->first();
+    public function getDataServer($data){
         $libraries = [];
         $get_libraries = DB::table("server_libraries")->select("library_id")->where("server_id",$data->server->id)->get();
         foreach($get_libraries as $gl){
@@ -229,7 +228,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
+        $librarySectionIds = $this->getDataServer($data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -302,7 +301,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
+        $librarySectionIds = $this->getDataServer($data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -479,7 +478,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
+        $librarySectionIds = $this->getDataServer($data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -698,7 +697,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
+        $librarySectionIds = $this->getDataServer($data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
@@ -752,7 +751,7 @@ class Plex {
 
         $response = $this->provider->validateUser($email);
 
-        $librarySectionIds = $this->getDataServer($this->server_email, $this->server_password, $data);
+        $librarySectionIds = $this->getDataServer($data);
 
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',

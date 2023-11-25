@@ -74,12 +74,25 @@ trait Friends
 
         $this->apiEndPoint = "api/v2/shared_servers";
 
-        $data = [
+        if(env("WITH_OTHER")){
+            $data = [
+                'invitedEmail' => $email,
+                'library_sections' => $librariesIds,
+                //'librarySectionIds'=>$librariesIds,
+                'machineIdentifier' => $machineIdentifier,
+                'settings' => $settings->toArray()
+            ];
+        }else{
+            $data = [
             'invitedEmail' => $email,
-            'library_sections' => $librariesIds,
-            'machineIdentifier' => $machineIdentifier,
-            'settings' => $settings->toArray()
-        ];
+                //'library_sections' => $librariesIds,
+                'librarySectionIds'=>$librariesIds,
+                'machineIdentifier' => $machineIdentifier,
+                'settings' => $settings->toArray()
+            ];
+        }
+
+        
 
         $this->options['json'] = $data;
 
