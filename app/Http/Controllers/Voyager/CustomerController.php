@@ -523,7 +523,7 @@ class CustomerController extends VoyagerBaseController
                     $redirect = redirect()->back();
 
                     return $redirect->with([
-                        'message'    => __('El correo proporcionaod es invalido, por favor ingrese un correo valido!!'),
+                        'message'    => __('El correo proporcionado es invalido, por favor ingrese un correo valido!!'),
                         'alert-type' => 'error',
                     ]);
                 }

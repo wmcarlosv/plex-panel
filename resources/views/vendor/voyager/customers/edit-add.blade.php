@@ -73,6 +73,7 @@
                                         </div>
                                     @endif
                                 @endif
+                                <input type="hidden" name="not_password" value="n" />
                             @endif
                             
 
