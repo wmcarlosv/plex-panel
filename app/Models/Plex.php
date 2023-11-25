@@ -242,6 +242,7 @@ class Plex {
         );
 
         if($response['response']['status'] == "Valid user"){
+            $this->provider->cancelInvite($email);
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             if(is_array($invited)){
                 $customer->plex_user_name = $invited['invited']['username'];
@@ -499,6 +500,7 @@ class Plex {
         );
 
         if($response['response']['status'] == "Valid user"){
+            $this->provider->cancelInvite($email);
             $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
             if(is_array($invited)){
                 $customer->plex_user_name = $invited['invited']['username'];
