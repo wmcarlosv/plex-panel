@@ -197,7 +197,7 @@ class Plex {
                 'server_url'        => $server_url,
                 'token'             => $token,
                 'client_identifier' => uniqid(),
-                'product'           => 'havenstd06/laravel-plex',
+                'product'           => 'CarlosVargas/panel-plex',
                 'version'           => '1.0.0',
                 'validate_ssl'      => false,
             ];
