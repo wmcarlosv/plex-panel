@@ -125,6 +125,19 @@
                                     @endif
                                 </div>
                             @endforeach
+
+                            @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                @if(!$edit)
+                                    <div class="form-group col-md-12">
+                                        <label for="" class="control-label"></label>
+                                        <select name="exists_in_plex" class="form-control">
+                                            <option value="y">Si</option>
+                                            <option value="n" selected="selected">No</option>
+                                        </select>
+                                    </div>
+                                @endif
+                            @endif
+
                             @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
                                 @if(!$edit)
                                     <div class="form-group col-md-12">

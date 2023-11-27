@@ -390,7 +390,7 @@ class ServerController extends VoyagerBaseController
 
         $model = app($dataType->model_name);
 
-        $model->name = $this->plex->name;
+        $model->tmpName = $this->plex->name;
         $query = $model->query();
         if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
             $query = $query->{$dataType->scope}();
