@@ -389,8 +389,6 @@ class ServerController extends VoyagerBaseController
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
         $model = app($dataType->model_name);
-
-        $model->tmpName = $this->plex->name;
         $query = $model->query();
         if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
             $query = $query->{$dataType->scope}();
@@ -400,7 +398,7 @@ class ServerController extends VoyagerBaseController
         }
 
         $data = $query->findOrFail($id);
-
+        $data->tmpName = $this->plex->name;
         if(!empty($request->limit_accounts)){
             $tope = intval($request->limit_accounts) - intval($data->customers->count());
             if($tope<=0){
