@@ -106,7 +106,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($dataTypeContent as $data)
-                                    <tr>
+                                    <tr @if(empty($data->invited_id) and $data->status == "active") style="background: #e1b6b6 !important;" @endif>
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">

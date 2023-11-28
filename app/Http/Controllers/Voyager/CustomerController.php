@@ -658,6 +658,7 @@ class CustomerController extends VoyagerBaseController
                 if(is_array($plex_data)){
 
                     if(isset($data->invited_id) and !empty($data->invited_id)){
+                        $this->plex->provider->cancelInvite($data->email);
                         $this->plex->provider->removeFriend($data->invited_id);
                         $data_user = $this->plex->loginInPlex($server->url, $server->token);
                         if(is_array($data_user)){
