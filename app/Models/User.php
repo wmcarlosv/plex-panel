@@ -25,7 +25,7 @@ class User extends \TCG\Voyager\Models\User
         'password',
     ];
 
-    public $additional_attributes = ['name_email_creator'];
+    public $additional_attributes = ['name_email_creator','name_and_role'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -99,6 +99,10 @@ class User extends \TCG\Voyager\Models\User
 
     public function getNameEmailCreatorAttribute(){
         return $this->name." - ".$this->email;
+    }
+
+    public function getNameAndRoleAttribute(){
+        return $this->name." (".$this->role->name.")";
     }
 
     public function role(){

@@ -357,6 +357,10 @@
                                                     @endif
                                                 @endif
 
+                                                @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                                    <li><a href="#" class="asigned-user-data" data-row='{{json_encode($data)}}'>Asignar a Usuario</a></li>
+                                                @endif
+
                                                 @if($data->status == "active")
                                                     <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
                                                 @endif
@@ -421,6 +425,38 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+        <!--Modal asing-user-->
+    <div class="modal modal-success" id="asing-user" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Asignar Usuario</h4>
+                </div>
+                <form action="{{ route('change_user') }}" id="form-asing-user" method="POST">
+                    @method("POST")
+                    @csrf
+                    <input type="hidden" name="user_asigned_customer_id" id="user_asigned_customer_id" />
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="">Usuario:</label>
+                            <select id="user_asigned_id" name="user_asigned_id" required class="form-control">
+                                <option value="">Seleccione</option>
+                                @foreach($users_asigned as $ua)
+                                    <option value="{{$ua->id}}">{{$ua->name_and_role}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success" type="submit" id="asing-user-save">Cambiar</button>
+                        <button class="btn btn-danger" type="button" id="asing-user-cancel">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
     <!--Modal Change Server-->
@@ -620,6 +656,29 @@
                 $("#change-password-user-plex-modal").modal({ backdrop:'static', keyboard: false }, "show");
             });
 
+            $("body").on("click","a.asigned-user-data", function(){
+                let row = JSON.parse($(this).attr("data-row"));
+                removeUserById(row.user_id);
+                $("#user_asigned_customer_id").val(row.id);
+                $("#asing-user").modal({ backdrop:'static', keyboard: false }, "show");
+            });
+
+            $("#asing-user-cancel").click(function(){
+                $("#asing-user").modal("hide");
+            });
+
+            $("#form-asing-user").submit(function(){
+                $("#asing-user").modal("hide");
+                Swal.fire({
+                  title: 'Advertencia',
+                  text: "Estamos Realizando el Cambio!!",
+                  icon: 'warning',
+                  showConfirmButton:false,
+                  allowOutsideClick: false,
+                  confirmButtonText: 'Yes, delete it!'
+                });
+            });
+
             $("#change-password-user-plex-generate").click(function(){
                 $("input[name='chp_new_password']").val(generateStrongPassword());
             });
@@ -684,6 +743,14 @@
 
             function removeServerById(id){
                 $("#server_id").children("option").each(function(){
+                    if(id == $(this).val()){
+                        $(this).remove();
+                    }
+                });
+            }
+
+            function removeUserById(id){
+                $("#user_asigned_id").children("option").each(function(){
                     if(id == $(this).val()){
                         $(this).remove();
                     }

@@ -466,7 +466,27 @@ class DemoController extends VoyagerBaseController
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
         if($data){
-            $this->plex->createPlexAccountDemo($request->email, $request->password, $data);
+
+            if($request->not_password == "y"){
+
+                $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
+                $data_exists = $this->plex->removeServerNoPassword($owner, $data->server, $data);
+                if(count($data_exists) > 0){
+
+                    DB::table('demos')->where("id",$data->id)->update([
+                        'invited_id'=>$data_exists['id'],
+                        'plex_user_name'=>$data_exists['username']
+                    ]);
+
+                }else{
+                    $this->plex->createPlexAccountNoPasswordNoCreditDemo($request->email, $data);
+                }
+                
+            }else{
+                $this->plex->createPlexAccountDemo($request->email, $request->password, $data);
+            }
+
+            
         }
 
         event(new BreadDataAdded($dataType, $data));

@@ -192,6 +192,16 @@ class CustomerController extends VoyagerBaseController
             $servers_pp = Server::where('status',1)->where("is_plex_pass",1)->server()->get();
         }
 
+        $users_asigned = [];
+
+        if(Auth::user()->role_id == 1){
+            $users_asigned = User::all();
+        }
+
+        if(Auth::user()->role_id == 4){
+            $users_asigned = User::whereIn("role_id",[5,3,4])->where("parent_user_id",Auth::user()->id)->get();
+        }
+
         return Voyager::view($view, compact(
             'actions',
             'dataType',
@@ -209,7 +219,8 @@ class CustomerController extends VoyagerBaseController
             'showSoftDeleted',
             'showCheckboxColumn',
             'servers',
-            'servers_pp'
+            'servers_pp',
+            'users_asigned'
         ));
     }
     //***************************************
@@ -529,11 +540,11 @@ class CustomerController extends VoyagerBaseController
                 }
             }
 
-            if($request->exists_in_plex == "y"){
+            /*if($request->exists_in_plex == "y"){
 
                 $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
                 $this->plex->removeServer($data_login, $owner['user']['id']);
-            }
+            }*/
             
             if($request->not_password == "y"){
 

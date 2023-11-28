@@ -225,11 +225,8 @@ class Plex {
         $this->setServerCredentials($this->server_email, $this->server_password);
         $customer = Customer::findorfail($data->id);
         $duration = Duration::findorfail($data->duration_id);
-
         $response = $this->provider->validateUser($email);
-
         $librarySectionIds = $this->getDataServer($data);
-
         $settings = new FriendRestrictionsSettings(
             allowChannels: '1',
             allowSubtitleAdmin: '1',
@@ -783,6 +780,43 @@ class Plex {
         $customer->update();
     }
 
+    public function createPlexAccountNoPasswordNoCreditDemo($email, $data){
+
+        $this->setServerCredentials($this->server_email, $this->server_password);
+        $demo = Demo::findorfail($data->id);
+        $response = $this->provider->validateUser($email);
+        $librarySectionIds = $this->getDataServer($data);
+
+        $settings = new FriendRestrictionsSettings(
+            allowChannels: '1',
+            allowSubtitleAdmin: '1',
+            allowSync: '0',
+            allowTuners: '0',
+            filterMovies: '',
+            filterMusic: '',
+            filterTelevision: '',
+        );
+
+        $invited = null;
+
+        if($response['response']['status'] == "Valid user"){
+            $this->provider->cancelInvite($email);
+            $invited = $this->provider->inviteFriend($email, $librarySectionIds, $settings);
+            if(is_array($invited)){
+                $demo->plex_user_name = $invited['invited']['username'];
+                $demo->invited_id = $invited['invited']['id'];
+            }else{
+                $demo->plex_user_name = null;
+                $demo->invited_id = null;
+            }
+            
+        }else{
+            $demo->plex_user_name = null;
+            $demo->invited_id = null;
+        }
+        $demo->update();
+    }
+
     public function getRealAccountServerData($data_user){
         $data_array = [];
         $contador = 0;
@@ -820,20 +854,20 @@ class Plex {
             }
         }
 
+        return $data;
+    }
 
-        /*if(count($data) > 0){
-
-            $opts = [
-                "http" => [
-                    "method" => "DELETE",
-                    "header" => "X-Plex-Token: ".$owner['user']['authToken']
-                ]
-            ];
-
-            $context = stream_context_create($opts);
-            $response = file_get_contents('https://clients.plex.tv/api/v2/sharings/'.$data['id'], false, $context);
-            $data = simplexml_load_string($response);
-        }*/
+    public function getRealUsersInPlex(Customer $customer){
+        $owner = $this->loginInPlex($this->server_email, $this->server_password);
+        $accounts = $this->getRealAccountServerData($owner);
+        $data = [];
+        
+        foreach($accounts as $account){
+            if($customer->email == $account['email']){
+                $data = $account;
+                break;
+            }
+        }
 
         return $data;
     }

@@ -12,6 +12,7 @@ use DB;
 use File;
 use App\Models\Proxy;
 use Session;
+use App\Models\User;
 
 class ApiController extends Controller
 {
@@ -423,5 +424,48 @@ class ApiController extends Controller
                 'alert-type'=>'success'
             ]);
         }
+    }
+
+    public function change_user(Request $request){
+
+        $user = User::findorfail($request->user_asigned_id);
+        $customer = Customer::findorfail($request->user_asigned_customer_id);
+        $duration = Duration::findorfail($customer->duration_id);
+
+        if($user->role_id == 3 || $user->role_id == 5){
+           if($user->total_credits == 0 || $user->total_credits < $duration->months){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'    => __('El usuario que intenta asignar no cuenta con los creditos suficientes!!'),
+                'alert-type' => 'error',
+            ]);
+           }
+        }
+
+        $this->removeCredit($customer, $duration, $user);
+
+        $customer->user_id = $user->id;
+        $customer->update();
+
+        return redirect()->route("voyager.customers.index")->with([
+            'message'=>'La asignacion del usuario se realizo de manera satisfactoria!!',
+            'alert-type'=>'success'
+        ]);
+    }
+
+    public function removeCredit(Customer $customer, Duration $duration, $user){
+
+        if($user->role_id == 3 || $user->role_id == 5){
+           if(!empty($customer->invited_id)){
+               $user = User::findorfail($user->id);
+               $current_credit = $user->total_credits;
+               DB::table('users')->where('id',$user->id)->update([
+                    'total_credits'=>($current_credit - intval($duration->months))
+               ]);
+
+               $customer->duration_id = $duration->id;
+               $customer->save();
+           }
+        }
+        
     }
 }
