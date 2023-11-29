@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Auth;
 use App\Models\User;
+use DB;
 
 class Customer extends Model
 {
@@ -41,5 +42,10 @@ class Customer extends Model
         }
 
         return $query;
+    }
+
+    public static function verifyCustomer($invited_id){
+        $data = DB::table("customers")->where('invited_id', $invited_id)->get();
+        return $data;
     }
 }

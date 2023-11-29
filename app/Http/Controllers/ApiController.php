@@ -468,4 +468,35 @@ class ApiController extends Controller
         }
         
     }
+
+    public function import_from_plex(Request $request){
+        $accounts = $request->accounts_for_import;
+        $contador = 0;
+        foreach($accounts as $account){
+
+            $acc = json_decode($account, true);
+            $date_from = $request->input('date_from_'.$acc['id']);
+            $date_to = $request->input('date_to_'.$acc['id']);
+            if(!empty($date_from) and !empty($date_to)){
+
+                $customer = new Customer();
+                $customer->email = $acc['email'];
+                $customer->plex_user_name = $acc['username'];
+                $customer->invited_id = $acc['id'];
+                $customer->date_from = $date_from;
+                $customer->date_to = $date_to;
+                $customer->duration_id = 2;
+                $customer->password = "#5inCl4ve#";
+                $customer->server_id = $request->server_id;
+                $customer->save();
+                $contador++;
+            }
+        }
+
+        $redirect = redirect()->back();
+        return $redirect->with([
+            'message'    => __('Se Importaron '.$contador.' cuentas de manera exitosa!!'),
+            'alert-type' => 'success',
+        ]);
+    }
 }

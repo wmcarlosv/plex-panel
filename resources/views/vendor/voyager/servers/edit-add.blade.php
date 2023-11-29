@@ -117,7 +117,8 @@
                             @yield('submit-buttons')
                             @if($edit)
                                 @if(is_array($accounts))
-                                    <button class="btn btn-success" type="button" id="update-libraries-button">Actualizar Librerias</button>
+                                    <button class="btn btn-success" type="button" id="update-libraries-button">Refrescar Librerias</button>
+                                    <button class="btn btn-warning" type="button" id="view-plex-accounts">Ver Cuentas en Plex</button>
                                 @endif
                             @endif
                         </div>
@@ -163,7 +164,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"
                                 aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Actualizar Librerias</h4>
+                        <h4 class="modal-title">Refrescar Librerias</h4>
                     </div>
 
                     <div class="modal-body">
@@ -177,6 +178,82 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success" id="save-update-libraries">Actualizar</button>
                         <button type="button" class="btn btn-danger" id="cancel-update-libraries">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade modal-success" id="view-plex-accounts-modal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Cuentas en el Servidor</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <button class="btn btn-success" type="button" id="import-from-plex-to-panel">Importar al Panel</button>
+                        <br />
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <th><input type="checkbox" id="check_all"></th>
+                                <th>Email</th>
+                                <th>Plex UserName</th>
+                                <th>Inicio</th>
+                                <th>Fin</th>
+                                <th>Estado</th>
+                            </thead>
+                            <tbody>
+                                <form action="{{ route('import_from_plex') }}" method="POST" id="form-accounts-import">
+                                    @method('post')
+                                    @csrf
+                                    <input type="hidden" name="server_id" value="{{$dataTypeContent->id}}" />
+                                    @foreach($accounts as $account)
+                                        @php
+                                            $customer = \App\Models\Customer::verifyCustomer($account['id']);
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                @if($customer->count() <= 0)
+                                                    <input type="checkbox" class="check_individual" data-id="{{$account['id']}}" name="accounts_for_import[]" value="{{json_encode($account)}}">
+                                                @endif
+                                            </td>
+                                            <td>{{ $account['email'] }}</td>
+                                            <td>{{ $account['username'] }}</td>
+                                            <td>
+                                                @if($customer->count() <= 0)
+                                                    <input type="date" class="form-control" value="{{date('Y-m-d')}}" name="date_from_{{$account['id']}}">
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($customer->count() <= 0)
+                                                    <input type="date" class="form-control" name="date_to_{{$account['id']}}" />
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($customer->count() > 0)
+                                                    @if($customer[0]->invited_id == $account['id'])
+                                                        @if($customer[0]->status == 'active')
+                                                            <span class="label label-success">Ya Existe</span>
+                                                        @else
+                                                            <span class="label label-danger">Existe en Plex y esta Inactivo</span>
+                                                        @endif
+                                                    @endif
+                                                @else
+                                                    <span class="label label-warning">No Existe</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </form>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" id="cancel-view-plex-accounts">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -209,6 +286,7 @@
         }
 
         $('document').ready(function () {
+
             $('select.libraries').select2();
             $('.toggleswitch').bootstrapToggle();
 
@@ -220,6 +298,30 @@
 
             $("#cancel-update-libraries").click(function(){
                 $("#update-libraries-modal").modal('hide');
+            });
+
+            $("#view-plex-accounts").click(function(){
+                $("#view-plex-accounts-modal").modal({backdrop: 'static', keyboard: false}, 'show');
+            });
+
+            $("#cancel-view-plex-accounts").click(function(){
+                $("#view-plex-accounts-modal").modal("hide");
+            });
+
+            $("#check_all").click(function(){
+                $("input[name='accounts_for_import[]").not(this).prop('checked', this.checked);
+            });
+
+            $("#import-from-plex-to-panel").click(function(){
+                var count = $("input[name='accounts_for_import[]']:checked").length;
+                if(count > 0){
+                    if(confirm("Estas seguro de realizar la importacion?")){
+                        $("#form-accounts-import").submit();
+                        $(this).attr("disabled").text("Importando Cuentas...");
+                    } 
+                }else{
+                    alert("Debes Seleccionar al menos una cuenta para importar!!");
+                }
             });
 
             $("#save-update-libraries").click(function(){
