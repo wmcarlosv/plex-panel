@@ -539,12 +539,6 @@ class CustomerController extends VoyagerBaseController
                     ]);
                 }
             }
-
-            /*if($request->exists_in_plex == "y"){
-
-                $owner = $this->plex->loginInPlex($data->server->url, $data->server->token);
-                $this->plex->removeServer($data_login, $owner['user']['id']);
-            }*/
             
             if($request->not_password == "y"){
 

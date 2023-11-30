@@ -387,7 +387,6 @@ class ServerController extends VoyagerBaseController
         $owner = $this->plex->loginInPlex($request->url, $request->token);
         $accounts = $this->plex->getRealAccountServerData($owner);
 
-    
         $request->merge(['accounts_count'=>count($accounts)]);
 
         // Compatibility with Model binding.

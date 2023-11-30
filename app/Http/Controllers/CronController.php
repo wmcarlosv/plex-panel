@@ -74,4 +74,8 @@ class CronController extends Controller
     public function verifySessions(){
         $this->plex->getSessionsAllServers();
     }
+
+    public function updateServerData(){
+        
+    }
 }
