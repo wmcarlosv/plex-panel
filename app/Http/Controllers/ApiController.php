@@ -507,7 +507,7 @@ class ApiController extends Controller
         $this->plex->setServerCredentials($server->url, $server->token);
 
         $sessions = $this->plex->provider->getNowPlaying();
-        
+
         if(is_array($sessions)){
             if(intval($sessions['MediaContainer']['size']) > 0){
                 $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
@@ -520,7 +520,7 @@ class ApiController extends Controller
 
                     $data[$cont]['player'] = [
                         'ip'=>$session['Player']['address'],
-                        'device'=>$session['Player']['title']
+                        'device'=>!empty($session['Player']['title']) ? $session['Player']['title'] : $session['Player']['product']
                     ];
 
                     $data[$cont]['media'] = [
