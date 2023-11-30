@@ -309,6 +309,37 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+    <div class="modal fade modal-success" id="active-sessions-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Sesiones Activas</h4>
+                </div>
+
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <th>Cover</th>
+                            <th>Titulo</th>
+                            <th>Dispostivo</th>
+                            <th>Usuario</th>
+                        </thead>
+                        <tbody id="load-sessions">
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="cancel-active-sessions">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -324,6 +355,31 @@
     @endif
     <script>
         $(document).ready(function () {
+
+            $("body").on('click','a.view-active-sessions', function(){
+                let server_id = $(this).attr("data-id");
+                let html = "";
+                $("#load-sessions").html("<tr><td colspan='4'><center>Cargando Sesiones...</center></td></tr>");
+                
+                $.get("/api/get-active-sessions/"+server_id, function(response){
+                    let sessions = response;
+                    if(parseInt(sessions.length) > 0){
+                        for(let i=0;i < sessions.length;i++){
+                            html+="<tr><td><img src='"+sessions[i].media.cover+"' class='img-thumbnail' style='width:150px; height:150px;' /></td><td><b>"+sessions[i].media.title+"</b></td><td>"+sessions[i].player.ip+" / "+sessions[i].player.device+"</td><td><img src='"+sessions[i].user.avatar+"' style='width:50px; height:50px;' /> "+sessions[i].user.name+"</td></tr>";
+                        }
+                        $("#load-sessions").html(html);
+                    }else{
+                        $("#load-sessions").html("<tr><td colspan='4'><center>No se encontraron sesiones activas en este Servidor</center></td></tr>");
+                    }
+                });
+
+                $("#active-sessions-modal").modal({backdrop:'static', keyboard:false}, 'show');
+            });
+
+            $("#cancel-active-sessions").click(function(){
+                $("#active-sessions-modal").modal("hide");
+            });
+
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([

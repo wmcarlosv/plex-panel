@@ -341,16 +341,21 @@ class ServerController extends VoyagerBaseController
         $libraries = [];
 
         if(is_array($accounts)){
-            $owner = $this->plex->loginInPlex($server->url, $server->token);
-            if(is_array($owner)){
-                $accounts = $this->plex->getRealAccountServerData($owner);  
-            }
-            
-            $libraries_array = $this->plex->provider->getServerDetail();
-            if(is_array($libraries_array)){
-                $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
+            if(count($accounts) > 0){
+                $owner = $this->plex->loginInPlex($server->url, $server->token);
+                if(is_array($owner)){
+                    $accounts = $this->plex->getRealAccountServerData($owner);  
+                }
+                
+                $libraries_array = $this->plex->provider->getServerDetail();
+                if(is_array($libraries_array)){
+                    if(intval($libraries_array['MediaContainer']['size']) > 0){
+                        $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
+                    }
+                }
             }
         }
+
         $libraries_agg = [];
         $libraries_array_agg = DB::table("server_libraries")->select("library_id")->where("server_id",$id)->get();
         foreach($libraries_array_agg as $laa){

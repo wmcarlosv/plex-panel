@@ -505,28 +505,32 @@ class ApiController extends Controller
         $data = [];
         $cont = 0;
         $this->plex->setServerCredentials($server->url, $server->token);
+
         $sessions = $this->plex->provider->getNowPlaying();
         
-        $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
+        if(is_array($sessions)){
+            if(intval($sessions['MediaContainer']['size']) > 0){
+                $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
+                foreach($sessions['MediaContainer']['Metadata'] as $session){
 
-        foreach($sessions['MediaContainer']['Metadata'] as $session){
+                    $data[$cont]['user'] = [
+                        'avatar'=> $session['User']['thumb'],
+                        'name'=> $session['User']['title']
+                    ];
 
-            $data[$cont]['user'] = [
-                'avatar'=> $session['User']['thumb'],
-                'name'=> $session['User']['title']
-            ];
+                    $data[$cont]['player'] = [
+                        'ip'=>$session['Player']['address'],
+                        'device'=>$session['Player']['title']
+                    ];
 
-            $data[$cont]['player'] = [
-                'ip'=>$session['Player']['address'],
-                'device'=>$session['Player']['title']
-            ];
+                    $data[$cont]['media'] = [
+                        'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
+                        'cover'=>$server_url.$session['art']."?X-Plex-Token=".$this->plex->serverData['token']
+                    ];
 
-            $data[$cont]['media'] = [
-                'title'=>$session['originalTitle'],
-                'cover'=>$server_url.$session['art']."?X-Plex-Token=".$this->plex->serverData['token']
-            ];
-
-            $cont++;
+                    $cont++;
+                }
+            }            
         }
 
         return response()->json($data);

@@ -331,12 +331,14 @@
                 
                 $.get("/api/get-active-sessions/"+server_id, function(response){
                     let sessions = response;
-
-                    for(let i=0;i < sessions.length;i++){
-                        html+="<tr><td><img src='"+sessions[i].media.cover+"' class='img-thumbnail' style='width:150px; height:150px;' /></td><td><b>"+sessions[i].media.title+"</b></td><td>"+sessions[i].player.ip+" / "+sessions[i].player.device+"</td><td><img src='"+sessions[i].user.avatar+"' style='width:50px; height:50px;' /> "+sessions[i].user.name+"</td></tr>";
+                    if(parseInt(sessions.length) > 0){
+                        for(let i=0;i < sessions.length;i++){
+                            html+="<tr><td><img src='"+sessions[i].media.cover+"' class='img-thumbnail' style='width:150px; height:150px;' /></td><td><b>"+sessions[i].media.title+"</b></td><td>"+sessions[i].player.ip+" / "+sessions[i].player.device+"</td><td><img src='"+sessions[i].user.avatar+"' style='width:50px; height:50px;' /> "+sessions[i].user.name+"</td></tr>";
+                        }
+                        $("#load-sessions").html(html);
+                    }else{
+                        $("#load-sessions").html("<tr><td colspan='4'><center>No se encontraron sesiones activas en este Servidor</center></td></tr>");
                     }
-
-                    $("#load-sessions").html(html);
                 });
 
                 $("#active-sessions-modal").modal({backdrop:'static', keyboard:false}, 'show');
