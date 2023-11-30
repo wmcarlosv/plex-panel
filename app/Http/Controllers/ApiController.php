@@ -499,4 +499,36 @@ class ApiController extends Controller
             'alert-type' => 'success',
         ]);
     }
+
+    public function get_active_sessions($server_id){
+        $server = Server::findorfail($server_id);
+        $data = [];
+        $cont = 0;
+        $this->plex->setServerCredentials($server->url, $server->token);
+        $sessions = $this->plex->provider->getNowPlaying();
+        
+        $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
+
+        foreach($sessions['MediaContainer']['Metadata'] as $session){
+
+            $data[$cont]['user'] = [
+                'avatar'=> $session['User']['thumb'],
+                'name'=> $session['User']['title']
+            ];
+
+            $data[$cont]['player'] = [
+                'ip'=>$session['Player']['address'],
+                'device'=>$session['Player']['title']
+            ];
+
+            $data[$cont]['media'] = [
+                'title'=>$session['originalTitle'],
+                'cover'=>$server_url.$session['art']."?X-Plex-Token=".$this->plex->serverData['token']
+            ];
+
+            $cont++;
+        }
+
+        return response()->json($data);
+    }
 }

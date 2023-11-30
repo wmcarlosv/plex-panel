@@ -21,3 +21,4 @@ Route::post('login-customer',[ApiController::class, 'loginCustomer']);
 Route::post('get-libraries', [ApiController::class, 'getLibraries']);
 Route::post('get-library', [ApiController::class, 'getLibrary']);
 Route::post('search-library', [ApiController::class, 'searchLibrary']);
+Route::get('get-active-sessions/{server_id}', [ApiController::class, 'get_active_sessions']); 

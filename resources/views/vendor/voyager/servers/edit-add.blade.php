@@ -119,6 +119,7 @@
                                 @if(is_array($accounts))
                                     <button class="btn btn-success" type="button" id="update-libraries-button">Refrescar Librerias</button>
                                     <button class="btn btn-warning" type="button" id="view-plex-accounts">Ver Cuentas en Plex</button>
+                                    <button class="btn btn-info" type="button" id="active-sessions">Ver Sesiones Activas</button>
                                 @endif
                             @endif
                         </div>
@@ -258,6 +259,37 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade modal-success" id="active-sessions-modal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Sesiones Activas</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <th>Cover</th>
+                                <th>Titulo</th>
+                                <th>Dispostivo</th>
+                                <th>Usuario</th>
+                            </thead>
+                            <tbody id="load-sessions">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" id="cancel-active-sessions">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 @stop
 
@@ -291,6 +323,28 @@
             $('.toggleswitch').bootstrapToggle();
 
             $("input[name='token']").attr("type","password");
+
+            $("#active-sessions").click(function(){
+                let server_id = '{{$dataTypeContent->id}}';
+                let html = "";
+                $("#load-sessions").html("<tr><td colspan='4'><center>Cargando Sesiones...</center></td></tr>");
+                
+                $.get("/api/get-active-sessions/"+server_id, function(response){
+                    let sessions = response;
+
+                    for(let i=0;i < sessions.length;i++){
+                        html+="<tr><td><img src='"+sessions[i].media.cover+"' class='img-thumbnail' style='width:150px; height:150px;' /></td><td><b>"+sessions[i].media.title+"</b></td><td>"+sessions[i].player.ip+" / "+sessions[i].player.device+"</td><td><img src='"+sessions[i].user.avatar+"' style='width:50px; height:50px;' /> "+sessions[i].user.name+"</td></tr>";
+                    }
+
+                    $("#load-sessions").html(html);
+                });
+
+                $("#active-sessions-modal").modal({backdrop:'static', keyboard:false}, 'show');
+            });
+
+            $("#cancel-active-sessions").click(function(){
+                $("#active-sessions-modal").modal("hide");
+            });
 
             $("#update-libraries-button").click(function(){
                 $("#update-libraries-modal").modal({backdrop: 'static', keyboard: false}, 'show');
