@@ -321,7 +321,13 @@ class ServerController extends VoyagerBaseController
 
         $server = $dataTypeContent;
         $this->plex->setServerCredentials($server->url, $server->token);
-        $accounts = $this->plex->provider->getFriends();
+
+        $accounts = [];
+
+        $owner = $this->plex->loginInPlex($server->url, $server->token);
+        if(is_array($owner)){
+            $accounts = $this->plex->getRealAccountServerData($owner);  
+        }
 
         // Check permission
         $this->authorize('edit', $dataTypeContent);
@@ -340,19 +346,11 @@ class ServerController extends VoyagerBaseController
 
         $libraries = [];
 
-        if(is_array($accounts)){
-            if(count($accounts) > 0){
-                $owner = $this->plex->loginInPlex($server->url, $server->token);
-                if(is_array($owner)){
-                    $accounts = $this->plex->getRealAccountServerData($owner);  
-                }
-                
-                $libraries_array = $this->plex->provider->getServerDetail();
-                if(is_array($libraries_array)){
-                    if(intval($libraries_array['MediaContainer']['size']) > 0){
-                        $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
-                    }
-                }
+        $libraries_array = $this->plex->provider->getServerDetail();
+
+        if(is_array($libraries_array)){
+            if(intval($libraries_array['MediaContainer']['size']) > 0){
+                $libraries = $this->plex->provider->getServerDetail()['MediaContainer']['children'][0]['Server']['children'];
             }
         }
 
@@ -384,6 +382,8 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
+        $accounts = [];
+        
         $owner = $this->plex->loginInPlex($request->url, $request->token);
         $accounts = $this->plex->getRealAccountServerData($owner);
 
@@ -535,7 +535,10 @@ class ServerController extends VoyagerBaseController
             ]);
         }
 
+        $accounts = [];
+
         $owner = $this->plex->loginInPlex($request->url, $request->token);
+
         $accounts = $this->plex->getRealAccountServerData($owner);
 
         $request->merge(['accounts_count'=>count($accounts)]);
