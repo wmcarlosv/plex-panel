@@ -71,9 +71,9 @@
                                                 <option value="n" selected="selected">No</option>
                                             </select>
                                         </div>
-                                    @else
-                                        <input type="hidden" name="not_password" value="n" />
                                     @endif
+                                @else
+                                    <input type="hidden" name="not_password" value="n" />
                                 @endif
                                 
                             @endif
