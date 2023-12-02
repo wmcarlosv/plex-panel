@@ -118,7 +118,6 @@ class Plex {
 
     public function getDataInvitation($email, $password, $ownerId){
         $data_user = $this->loginInPlex($email, $password);
-
         $opts = [
             "http" => [
                 "method" => "GET",
@@ -131,12 +130,26 @@ class Plex {
         $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
         $data = simplexml_load_string($response);
         
-        if(!empty($data->Invite)){
-            $ownerId = $data->Invite->attributes()->{'id'};
-            $friend = $data->Invite->attributes()->{'friend'};
-            $home = $data->Invite->attributes()->{'home'};
-            $server = $data->Invite->attributes()->{'server'};
-            $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+        if(!empty($data)){
+            if(is_array($data->Invite)){
+                foreach($data->Invite as $invt){
+
+                    $ownerId = $invt->attributes()->{'id'};
+                    $friend = $invt->attributes()->{'friend'};
+                    $home = $invt->attributes()->{'home'};
+                    $server = $invt->attributes()->{'server'};
+
+                    $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+                }
+            }else{
+
+                $ownerId = $data->Invite->attributes()->{'id'};
+                $friend = $data->Invite->attributes()->{'friend'};
+                $home = $data->Invite->attributes()->{'home'};
+                $server = $data->Invite->attributes()->{'server'};
+                $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+
+            }
         }
 
         $this->resetCustomization($data_user['user']['authToken'], uniqid());
@@ -549,6 +562,7 @@ class Plex {
 
         $url = "https://plex.tv/api/home/users?invitedEmail=".$customer->plex_user_name;
         $ch = curl_init($url);
+        $validated = true;
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_USERPWD, $server->url . ':' . $server->token);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/xml'));
@@ -561,11 +575,20 @@ class Plex {
         }
         curl_close($ch);
 
-        $this->setServerCredentials($server->url, $server->token);
-        $dataOwner = $this->loginInPlex($server->url, $server->token);
-        $this->getDataInvitationHomeUser($customer->email, $customer->password, $dataOwner['user']['id']);
-        $userPin = $this->loginInPlex($customer->email, $customer->password);
-        $this->setHomeUserPin($userPin,$pin);
+        if(!empty($user)){
+            if((int)$user->attributes()->{'code'} == '403'){
+                $validated = false;
+            }   
+        }
+
+        if($validated){
+            $this->setServerCredentials($server->url, $server->token);
+            $dataOwner = $this->loginInPlex($server->url, $server->token);
+            $this->getDataInvitationHomeUser($customer->email, $customer->password, $dataOwner['user']['id']);
+            $userPin = $this->loginInPlex($customer->email, $customer->password);
+            $this->setHomeUserPin($userPin,$pin);
+        }
+        return $validated;
     }
 
     public function getDataInvitationHomeUser($email, $password, $ownerId){
@@ -579,6 +602,7 @@ class Plex {
         ];
 
         $context = stream_context_create($opts);
+
 
         $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
         $data = simplexml_load_string($response);

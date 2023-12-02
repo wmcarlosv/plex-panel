@@ -286,6 +286,15 @@ class ApiController extends Controller
         $server = Server::findorfail($request->server_pp_id);
         $pin = $request->pin;
         
+        $isValid = $this->plex->createHomeUser($server, $customer, $pin);
+
+        if(!$isValid){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'Ocurrio un error a tratar de convertir esta cuenta en iphone, posiblemente sobrepasate el limite de 15 usuarios como usuarios administrados!!',
+                'alert-type'=>'error'
+            ]);
+        }
+
         if($customer->server_id != $server->id){
             //Eliminamos del server anterior
             $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
@@ -295,7 +304,7 @@ class ApiController extends Controller
             $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
         }
 
-        $this->plex->createHomeUser($server, $customer, $pin);
+        
 
         $customer->server_id = $server->id;
         $customer->pin = $pin;
