@@ -879,6 +879,7 @@
                                 setTimeout(() => location.reload(), 3000);
 
                             }else{
+                                $("#change-server").modal("hide");
                                 Swal.fire(
                                   'Alert',
                                   data.message,
