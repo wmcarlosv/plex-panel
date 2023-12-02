@@ -102,11 +102,13 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->id);
         $server_to = Server::findorfail($request->server_id);
 
+        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+
         if(!is_array($user)){
-            return redirect()->route("voyager.customers.index")->with([
+            $data =[
                 'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                'alert-type'=>'error'
-            ]);
+                'success'=>false
+            ];
         }
 
         if(isset($customer->invited_id) and !empty($customer->invited_id)){
@@ -193,13 +195,15 @@ class ApiController extends Controller
         $server = Server::findorfail($customer->server_id);
         $data = [];
 
+        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+
         if(!is_array($user)){
-            return redirect()->route("voyager.customers.index")->with([
+            $data = [
                 'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                'alert-type'=>'error'
-            ]);
+                'success'=>false
+            ];
         }
-        
+
         if($customer->status == "active"){
             $this->plex->setServerCredentials($server->url, $server->token);
             $this->plex->provider->removeFriend($customer->invited_id);
