@@ -372,6 +372,15 @@ class ApiController extends Controller
 
         }else{
 
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            
+            if(!is_array($user)){
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
+                    'alert-type'=>'error'
+                ]);
+            }
+
             //Remove Plex
             if(!empty($customer->invited_id)){
                 $this->plex->provider->removeFriend($customer->invited_id);
