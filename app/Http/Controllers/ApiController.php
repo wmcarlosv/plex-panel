@@ -285,6 +285,15 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->pp_customer_id);
         $server = Server::findorfail($request->server_pp_id);
         $pin = $request->pin;
+
+        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            
+        if(!is_array($user)){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
+                'alert-type'=>'error'
+            ]);
+        }
         
         $isValid = $this->plex->createHomeUser($server, $customer, $pin);
 
@@ -373,7 +382,7 @@ class ApiController extends Controller
         }else{
 
             $user = $this->plex->loginInPlex($customer->email, $customer->password);
-            
+
             if(!is_array($user)){
                 return redirect()->route("voyager.customers.index")->with([
                     'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
