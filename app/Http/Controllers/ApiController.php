@@ -109,6 +109,7 @@ class ApiController extends Controller
                 'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
                 'success'=>false
             ];
+            return response()->json($data);
         }
 
         if(isset($customer->invited_id) and !empty($customer->invited_id)){
@@ -202,6 +203,7 @@ class ApiController extends Controller
                 'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
                 'success'=>false
             ];
+            return response()->json($data);
         }
 
         if($customer->status == "active"){
