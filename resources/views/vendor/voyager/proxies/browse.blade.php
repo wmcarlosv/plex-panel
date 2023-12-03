@@ -78,8 +78,8 @@
                                 @endif
                             </form>
                         @endif
-                        <div class="table-responsive">
-                            <table id="dataTable" class="table table-hover">
+                        <!--<div class="table-responsive">-->
+                            <table id="dataTable" class="table table-hover display nowrap" style="width:100%;">
                                 <thead>
                                     <tr>
                                         @if($showCheckboxColumn)
@@ -267,7 +267,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
+                        <!--</div>-->
                         @if ($isServerSide)
                             <div class="pull-left">
                                 <div role="status" class="show-res" aria-live="polite">{{ trans_choice(
@@ -344,6 +344,7 @@
 @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
     <link rel="stylesheet" href="{{ voyager_asset('lib/css/responsive.dataTables.min.css') }}">
 @endif
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 @stop
 
 @section('javascript')
@@ -351,6 +352,7 @@
     @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>
     @endif
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function () {
 

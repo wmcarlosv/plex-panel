@@ -1174,9 +1174,36 @@ class CustomerController extends VoyagerBaseController
 
     public function extend_membership(Request $request){
         $data = Customer::findorfail($request->customer_id);
-        $duration = Duration::findorfail($request->duration);
-
         $redirect = redirect()->back();
+
+        $this->plex->setServerCredentials($data->server->url, $data->server->token);
+
+        if($data->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($data->email, $data->password);
+            if(!is_array($user)){
+                return $redirect->with([
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'alert-type'=>"error"
+                ]);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($data->email);
+            if(is_array($user)){
+                if($user['response']['status'] != "Valid user"){
+                    return $redirect->with([
+                        'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                        'alert-type'=>"error"
+                    ]);
+                }
+            }else{
+                return $redirect->with([
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'alert-type'=>"error"
+                ]);
+            }
+        }
+
+        $duration = Duration::findorfail($request->duration);
 
         $server = Server::findorfail($request->plexserver);
 
@@ -1218,7 +1245,6 @@ class CustomerController extends VoyagerBaseController
 
                     $this->plex->setServerCredentials($old_server->url, $old_server->token);
                     $this->plex->provider->removeFriend($data->invited_id);
-
                     if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
                        if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
                         return $redirect->with([

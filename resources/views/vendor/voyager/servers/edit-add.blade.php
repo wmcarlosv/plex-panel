@@ -201,7 +201,7 @@
                             <thead>
                                 <th><input type="checkbox" id="check_all"></th>
                                 <th>Email</th>
-                                <th>Plex UserName</th>
+                                <!--<th>Plex UserName</th>-->
                                 <th>Inicio</th>
                                 <th>Fin</th>
                                 <th>Estado</th>
@@ -222,15 +222,19 @@
                                                 @endif
                                             </td>
                                             <td>{{ $account['email'] }}</td>
-                                            <td>{{ $account['username'] }}</td>
+                                            <!--<td>{{ $account['username'] }}</td>-->
                                             <td>
                                                 @if($customer->count() <= 0)
                                                     <input type="date" class="form-control" value="{{date('Y-m-d')}}" name="date_from_{{$account['id']}}">
+                                                @else
+                                                    <center>{{date('d/m/Y',strtotime($customer[0]->date_from))}}</center>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if($customer->count() <= 0)
                                                     <input type="date" class="form-control" name="date_to_{{$account['id']}}" />
+                                                @else
+                                                    <center>{{date('d/m/Y',strtotime($customer[0]->date_to))}}</center>
                                                 @endif
                                             </td>
                                             <td>

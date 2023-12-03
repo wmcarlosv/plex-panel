@@ -102,14 +102,27 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->id);
         $server_to = Server::findorfail($request->server_id);
 
-        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+        $this->plex->provider->setServerCredentials($server_to->url, $server_to->token);
 
-        if(!is_array($user)){
-            $data =[
-                'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                'success'=>false
-            ];
-            return response()->json($data);
+        if($customer->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            if(!is_array($user)){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($customer->email);
+
+            if($user['response']['status'] != "Valid user"){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
         }
 
         if(isset($customer->invited_id) and !empty($customer->invited_id)){
@@ -196,14 +209,35 @@ class ApiController extends Controller
         $server = Server::findorfail($customer->server_id);
         $data = [];
 
-        $user = $this->plex->loginInPlex($customer->email, $customer->password);
+        $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
 
-        if(!is_array($user)){
-            $data = [
-                'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                'success'=>false
-            ];
-            return response()->json($data);
+        if($customer->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            if(!is_array($user)){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($customer->email);
+            if(is_array($user)){
+                if($user['response']['status'] != "Valid user"){
+                    $data =[
+                        'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                        'success'=>false
+                    ];
+                    return response()->json($data);
+                }
+            }else{
+                $data = [
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
+            
         }
 
         if($customer->status == "active"){
@@ -307,13 +341,25 @@ class ApiController extends Controller
         $server = Server::findorfail($request->server_pp_id);
         $pin = $request->pin;
 
-        $user = $this->plex->loginInPlex($customer->email, $customer->password);
-            
-        if(!is_array($user)){
-            return redirect()->route("voyager.customers.index")->with([
-                'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                'alert-type'=>'error'
-            ]);
+        if($customer->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            if(!is_array($user)){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($customer->email);
+
+            if($user['response']['status'] != "Valid user"){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
         }
         
         $isValid = $this->plex->createHomeUser($server, $customer, $pin);
@@ -390,6 +436,35 @@ class ApiController extends Controller
     public function repair_account($customer_id){
         $customer = Customer::findorfail($customer_id);
         $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+        $user = null;
+
+        if($customer->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            if(!is_array($user)){
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'alert-type'=>"error"
+                ]);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($customer->email);
+            if(is_array($user)){
+                if($user['response']['status'] != "Valid user"){
+
+                    return redirect()->route("voyager.customers.index")->with([
+                        'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                        'alert-type'=>"error"
+                    ]);
+                }
+            }else{
+
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'alert-type'=>"error"
+                ]);
+            }
+            
+        }
 
         $plex_data = $this->plex->provider->getAccounts();
 
@@ -401,15 +476,6 @@ class ApiController extends Controller
             ]);
 
         }else{
-
-            $user = $this->plex->loginInPlex($customer->email, $customer->password);
-
-            if(!is_array($user)){
-                return redirect()->route("voyager.customers.index")->with([
-                    'message'=>'Error al intentar reparar la cuenta, verifique que el email y la clave sean las correctas para esta cuenta!!',
-                    'alert-type'=>'error'
-                ]);
-            }
 
             //Remove Plex
             if(!empty($customer->invited_id)){
@@ -447,13 +513,26 @@ class ApiController extends Controller
 
     public function change_password_user_plex(Request $request){
         $customer = Customer::findorfail($request->chp_customer_id);
-        $user = $this->plex->loginInPlex($customer->email, $request->chp_current_password);
 
-        if(!is_array($user)){
-            return redirect()->route("voyager.customers.index")->with([
-                'message'=>'Ocurrio un error al tratar de actualizar la clave de esta cuenta, esto puede ser debido a que le cambiaron el correo o clave a la cuenta directamente desde plex!!',
-                'alert-type'=>'error'
-            ]);
+        if($customer->password != "#5inCl4ve#"){
+            $user = $this->plex->loginInPlex($customer->email, $customer->password);
+            if(!is_array($user)){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
+        }else{
+            $user = $this->plex->provider->validateUser($customer->email);
+
+            if($user['response']['status'] != "Valid user"){
+                $data =[
+                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'success'=>false
+                ];
+                return response()->json($data);
+            }
         }
         
         $response = $this->plex->changeUserPlexPassword($request->chp_current_password, $request->chp_new_password, $request->remove_all_devices, $user);
@@ -525,21 +604,27 @@ class ApiController extends Controller
             $acc = json_decode($account, true);
             $date_from = $request->input('date_from_'.$acc['id']);
             $date_to = $request->input('date_to_'.$acc['id']);
+
             if(!empty($date_from) and !empty($date_to)){
 
-                $customer = new Customer();
-                $customer->email = $acc['email'];
-                $customer->plex_user_name = $acc['username'];
-                $customer->invited_id = $acc['id'];
-                $customer->date_from = $date_from;
-                $customer->date_to = $date_to;
-                $customer->duration_id = 2;
-                $customer->password = "#5inCl4ve#";
-                $customer->server_id = $request->server_id;
-                $customer->save();
-                $contador++;
+                $verifyAccount = Customer::where("email", $acc['email'])->get();
+
+                if( $verifyAccount->count() == 0 ){
+                   $customer = new Customer();
+                    $customer->email = $acc['email'];
+                    $customer->plex_user_name = $acc['username'];
+                    $customer->invited_id = $acc['id'];
+                    $customer->date_from = $date_from;
+                    $customer->date_to = $date_to;
+                    $customer->duration_id = 2;
+                    $customer->password = "#5inCl4ve#";
+                    $customer->server_id = $request->server_id;
+                    $customer->save();
+                    $contador++; 
+                }
             }
         }
+
 
         $redirect = redirect()->back();
         return $redirect->with([

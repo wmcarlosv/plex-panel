@@ -42,7 +42,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
-                    <div class="panel-body">
+                    <div class="panel-body" style="min-height: 400px;">
                         @if ($isServerSide)
                             <form method="get" class="form-search">
                                 <div id="search-input">
@@ -74,8 +74,8 @@
                                 @endif
                             </form>
                         @endif
-                        <div class="table-responsive">
-                            <table id="dataTable" class="table table-hover">
+                        <!--<div class="table-responsive">-->
+                            <table id="dataTable" class="table table-hover display nowrap" style="width:100%">
                                 <thead>
                                     <tr>
                                         @if($showCheckboxColumn)
@@ -318,11 +318,11 @@
                                             </td>
                                         @endforeach
                                         <td class="no-sort no-click bread-actions">
-                                            <div class="dropdown" style="display: inline !important;">
+                                            <div class="dropdown" id="menu-content" style="display: inline !important;">
                                               <a class="btn btn-success dropdown-toggle" title="Mas Opciones" id="dropdownMenu1" data-toggle="dropdown">
                                                 <i class="voyager-list-add"></i>
                                               </a>
-                                              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                              <ul class="dropdown-menu dropdown-menu-right" id="menu-list" aria-labelledby="dropdownMenu1">
                                                 @if(setting('admin.extra_options_limited'))
                                                     @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3 || Auth::user()->role_id == 4)
                                                         @if($data->status == "active")
@@ -379,7 +379,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
+                        <!--</div>-->
                         @if ($isServerSide)
                             <div class="pull-left">
                                 <div role="status" class="show-res" aria-live="polite">{{ trans_choice(
@@ -565,10 +565,11 @@
 @stop
 
 @section('css')
-@if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
-    <link rel="stylesheet" href="{{ voyager_asset('lib/css/responsive.dataTables.min.css') }}">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-@endif
+    @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
+        <link rel="stylesheet" href="{{ voyager_asset('lib/css/responsive.dataTables.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    @endif
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
 @stop
 
 @section('javascript')
@@ -576,6 +577,7 @@
     @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>
     @endif
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -905,6 +907,7 @@
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([
+                        "responsive"=>true,
                         "iDisplayLength"=> 10,
                         "aLengthMenu"=>[[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
                         "dom"=>"Bfrtip",

@@ -106,7 +106,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($dataTypeContent as $data)
-                                    <tr @if(empty($data->invited_id) and $data->status == "active") style="background: #e1b6b6 !important;" @endif>
+                                    <tr>
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
@@ -319,7 +319,6 @@
 @stop
 
 @section('javascript')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- DataTables -->
     @if(!$dataType->server_side && config('dashboard.data_tables.responsive'))
         <script src="{{ voyager_asset('lib/js/dataTables.responsive.min.js') }}"></script>
@@ -327,26 +326,6 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function () {
-            @if(Session::get('modal'))
-                @php 
-                    $data = Session::get('modal');
-                @endphp
-                Swal.fire({
-                  title: 'Estos son los datos que debes darle al cliente!!',
-                  icon: 'info',
-                  html:'<textarea id="field_copy" class="form-control" style="height: 135px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nFecha de Vencimiento: {{date("d-m-Y H:m:s",strtotime($data->end_date))}}</textarea>',
-                  confirmButtonColor: '#5cb85c',
-                  confirmButtonText: 'Copiar y Salir',
-                  allowOutsideClick:false
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    $("#field_copy").select();
-                    document.execCommand('copy');
-                  }
-                });
-            @endif
-
-
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([
