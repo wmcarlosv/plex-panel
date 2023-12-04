@@ -322,7 +322,7 @@
                                               <a class="btn btn-success dropdown-toggle" title="Mas Opciones" id="dropdownMenu1" data-toggle="dropdown">
                                                 <i class="voyager-list-add"></i>
                                               </a>
-                                              <ul class="dropdown-menu dropdown-menu-right" id="menu-list" aria-labelledby="dropdownMenu1">
+                                              <ul class="dropdown-menu dropdown-menu-left" id="menu-list" aria-labelledby="dropdownMenu1">
                                                 @if(setting('admin.extra_options_limited'))
                                                     @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3 || Auth::user()->role_id == 4)
                                                         @if($data->status == "active")
