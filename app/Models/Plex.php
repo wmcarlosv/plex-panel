@@ -738,6 +738,7 @@ class Plex {
             if(is_array($invited)){
                 $customer->plex_user_name = $invited['invited']['username'];
                 $customer->invited_id = $invited['invited']['id'];
+                $customer->plex_user_id = $invited['inviteToken'];
             }else{
                 $customer->plex_user_name = null;
                 $customer->invited_id = null;
@@ -792,6 +793,7 @@ class Plex {
             if(is_array($invited)){
                 $customer->plex_user_name = $invited['invited']['username'];
                 $customer->invited_id = $invited['invited']['id'];
+                $customer->plex_user_id = $invited['inviteToken'];
             }else{
                 $customer->plex_user_name = null;
                 $customer->invited_id = null;
@@ -829,6 +831,7 @@ class Plex {
             if(is_array($invited)){
                 $demo->plex_user_name = $invited['invited']['username'];
                 $demo->invited_id = $invited['invited']['id'];
+                $demo->plex_user_token = $invited['inviteToken'];
             }else{
                 $demo->plex_user_name = null;
                 $demo->invited_id = null;
@@ -894,5 +897,28 @@ class Plex {
         }
 
         return $data;
+    }
+
+    public function activateDevice($pin, Customer $customer){
+        $response['success'] = false;
+        $user = $this->loginInPlex($customer->email, $customer->password);
+        if(is_array($user)){
+            $url = "https://plex.tv/api/v2/pins/link?X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$user['user']['authToken']."&X-Plex-Product=Plex%20SSO&code=".$pin;
+            
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            $data = simplexml_load_string(curl_exec($ch));
+            curl_close($ch);
+            if(isset($data) and !empty($data)){
+                $response['message'] = (string) $data->error->attributes()->{'message'};
+            }else{
+                $response['success'] = true;
+            }
+        }
+
+        return $response;
     }
 }

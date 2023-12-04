@@ -47,5 +47,6 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post("change-password-plex-user",[ApiController::class, 'change_password_user_plex'])->name('change_password_user_plex');
     Route::post("change-user",[ApiController::class, 'change_user'])->name('change_user');
     Route::post("import-from-plex",[ApiController::class, 'import_from_plex'])->name('import_from_plex');
+    Route::post("activate-device", [ApiController::class, 'activate_device'])->name('activate_device');
     Voyager::routes();
 });

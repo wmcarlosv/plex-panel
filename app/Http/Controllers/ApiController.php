@@ -668,4 +668,24 @@ class ApiController extends Controller
 
         return response()->json($data);
     }
+
+    public function activate_device(Request $request){
+
+        $customer = Customer::findorfail($request->customer_id);
+        $code = $request->code;
+        $response = $this->plex->activateDevice($code, $customer);
+
+        if($response['success']){
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>'Cuenta activada en el dispositivo de manera satisfactoria!!',
+                'alert-type'=>'success'
+            ]);
+        }else{
+            return redirect()->route("voyager.customers.index")->with([
+                'message'=>$response['message'],
+                'alert-type'=>'error'
+            ]);
+        }
+    }
+
 }
