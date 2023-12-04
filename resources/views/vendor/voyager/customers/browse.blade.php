@@ -892,19 +892,35 @@
                 @php 
                     $data = Session::get('modal');
                 @endphp
-                Swal.fire({
-                  title: 'Estos son los datos que debes darle al cliente!!',
-                  icon: 'info',
-                  html:'<textarea id="field_copy" class="form-control" style="height: 135px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
-                  confirmButtonColor: '#5cb85c',
-                  confirmButtonText: 'Copiar y Salir',
-                  allowOutsideClick:false
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    $("#field_copy").select();
-                    document.execCommand('copy');
-                  }
-                });
+                @if($data->password == "#5inCl4ve#")
+                    Swal.fire({
+                      title: 'Estos son los datos que debes darle al cliente!!',
+                      icon: 'info',
+                      html:'<textarea id="field_copy" class="form-control" style="height: 200px; width: 403px;" readonly>Correo: {{$data->email}}\nEnlace Activacion: https://plex.tv/pms/home/users/accept.html?invite_token={{$data->plex_user_id}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
+                      confirmButtonColor: '#5cb85c',
+                      confirmButtonText: 'Copiar y Salir',
+                      allowOutsideClick:false
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        $("#field_copy").select();
+                        document.execCommand('copy');
+                      }
+                    });
+                @else
+                    Swal.fire({
+                      title: 'Estos son los datos que debes darle al cliente!!',
+                      icon: 'info',
+                      html:'<textarea id="field_copy" class="form-control" style="height: 150px; width: 403px;" readonly>Correo: {{$data->email}}\nClave: {{$data->password}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
+                      confirmButtonColor: '#5cb85c',
+                      confirmButtonText: 'Copiar y Salir',
+                      allowOutsideClick:false
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        $("#field_copy").select();
+                        document.execCommand('copy');
+                      }
+                    });
+                @endif
             @endif
 
             $("#change-server-save").click(function(){
