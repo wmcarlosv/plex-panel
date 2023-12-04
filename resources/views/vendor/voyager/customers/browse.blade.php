@@ -366,8 +366,8 @@
                                                 @endif
                                                 @if($data->password !="#5inCl4ve#")
                                                     <li><a href="#" class="change-password-user-plex" data-row='{{json_encode($data)}}'>Cambiar Clave en Plex</a></li>
+                                                    <li><a href="#" class="activate-device" data-row='{{json_encode($data)}}'>Activar Cuenta en Dispositivo</a></li>
                                                 @endif
-                                                <li><a href="#" class="activate-device" data-row='{{json_encode($data)}}'>Activar Cuenta en Dispositivo</a></li>
                                               </ul>
                                             </div>
                                             @foreach($actions as $action)

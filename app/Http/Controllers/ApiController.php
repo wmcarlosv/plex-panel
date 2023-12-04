@@ -102,7 +102,7 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->id);
         $server_to = Server::findorfail($request->server_id);
 
-        $this->plex->provider->setServerCredentials($server_to->url, $server_to->token);
+        $this->plex->setServerCredentials($server_to->url, $server_to->token);
 
         if($customer->password != "#5inCl4ve#"){
             $user = $this->plex->loginInPlex($customer->email, $customer->password);
@@ -674,7 +674,6 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->customer_id);
         $code = $request->code;
         $response = $this->plex->activateDevice($code, $customer);
-
         if($response['success']){
             return redirect()->route("voyager.customers.index")->with([
                 'message'=>'Cuenta activada en el dispositivo de manera satisfactoria!!',

@@ -901,7 +901,14 @@ class Plex {
 
     public function activateDevice($pin, Customer $customer){
         $response['success'] = false;
-        $user = $this->loginInPlex($customer->email, $customer->password);
+
+        if($customer->password == "#5inCl4ve#"){
+             $this->setServerCredentials($customer->server->url, $customer->server->token);
+             $user = $this->provider->validateUser($customer->email);
+        }else{
+             $user = $this->loginInPlex($customer->email, $customer->password);
+        }   
+        
         if(is_array($user)){
             $url = "https://plex.tv/api/v2/pins/link?X-Plex-Client-Identifier=".uniqid()."&X-Plex-Token=".$user['user']['authToken']."&X-Plex-Product=Plex%20SSO&code=".$pin;
             
@@ -917,6 +924,8 @@ class Plex {
             }else{
                 $response['success'] = true;
             }
+        }else{
+            $response['message'] = "Ocurrio un Error al activar, por favor verifia que las credenciales del usuario sean las correctas!!";
         }
 
         return $response;
