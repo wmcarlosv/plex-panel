@@ -20,7 +20,6 @@ use App\Models\User;
 use App\Models\Server;
 use App\Models\Duration;
 use App\Models\Domain;
-
 use App\Models\Plex;
 use Session;
 
@@ -665,6 +664,8 @@ class CustomerController extends VoyagerBaseController
                         "accounts_count"=>(count($plex_data) - 1)
                     ]);
                 }
+
+                $this->plex->addMovement("Eliminando Cliente",$data);
 
             // Check permission
             $this->authorize('delete', $data);

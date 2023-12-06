@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Movement extends Model
+{
+    use HasFactory;
+
+    protected $table = "movements";
+
+    public static function getAllMovements(){
+        $data = Movement::all();
+        return $data;
+    }
+}

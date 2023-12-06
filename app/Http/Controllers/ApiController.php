@@ -13,6 +13,7 @@ use File;
 use App\Models\Proxy;
 use Session;
 use App\Models\User;
+use App\Models\Movement;
 
 class ApiController extends Controller
 {
@@ -248,10 +249,14 @@ class ApiController extends Controller
             $customer->invited_id = null;
             $customer->status = "inactive";
             $customer->save();
+
+            $this->plex->addMovement("Inactivacion de Cuenta",$customer);
+
             $data = [
                 'success'=>true,
                 'message'=>'Cliente Inhabhilitado con Exito!!'
             ];
+            
         }else{
             $this->plex->setServerCredentials($server->url, $server->token);
             $plex_data = $this->plex->provider->getAccounts();

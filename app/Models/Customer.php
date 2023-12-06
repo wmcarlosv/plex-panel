@@ -14,6 +14,9 @@ class Customer extends Model
 
     protected $table = 'customers';
 
+    public function user(){
+        return $this->belongsTo("App\Models\User");
+    }
 
     public function save($options = []){
         if(empty($this->user_id)){
@@ -46,6 +49,11 @@ class Customer extends Model
 
     public static function verifyCustomer($invited_id){
         $data = DB::table("customers")->where('invited_id', $invited_id)->get();
+        return $data;
+    }
+
+    public static function getNextExpiredAccounts(){
+        $data = Customer::where('status','active')->get();
         return $data;
     }
 }

@@ -559,6 +559,7 @@ class ComposerStaticInit09e3f56191d83ca3be2c00592aabd947
     );
 
     public static $classMap = array (
+        'App\\Actions\\ViewActiveSessionsAction' => __DIR__ . '/../..' . '/app/Actions/ViewActiveSessionsAction.php',
         'App\\Console\\Commands\\CheckCustomers' => __DIR__ . '/../..' . '/app/Console/Commands/CheckCustomers.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
@@ -595,6 +596,7 @@ class ComposerStaticInit09e3f56191d83ca3be2c00592aabd947
         'App\\Models\\Demo' => __DIR__ . '/../..' . '/app/Models/Demo.php',
         'App\\Models\\Domain' => __DIR__ . '/../..' . '/app/Models/Domain.php',
         'App\\Models\\Duration' => __DIR__ . '/../..' . '/app/Models/Duration.php',
+        'App\\Models\\Movement' => __DIR__ . '/../..' . '/app/Models/Movement.php',
         'App\\Models\\Plex' => __DIR__ . '/../..' . '/app/Models/Plex.php',
         'App\\Models\\Proxy' => __DIR__ . '/../..' . '/app/Models/Proxy.php',
         'App\\Models\\Role' => __DIR__ . '/../..' . '/app/Models/Role.php',

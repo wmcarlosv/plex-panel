@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Actions\\ViewActiveSessionsAction' => $baseDir . '/app/Actions/ViewActiveSessionsAction.php',
     'App\\Console\\Commands\\CheckCustomers' => $baseDir . '/app/Console/Commands/CheckCustomers.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
@@ -42,6 +43,7 @@ return array(
     'App\\Models\\Demo' => $baseDir . '/app/Models/Demo.php',
     'App\\Models\\Domain' => $baseDir . '/app/Models/Domain.php',
     'App\\Models\\Duration' => $baseDir . '/app/Models/Duration.php',
+    'App\\Models\\Movement' => $baseDir . '/app/Models/Movement.php',
     'App\\Models\\Plex' => $baseDir . '/app/Models/Plex.php',
     'App\\Models\\Proxy' => $baseDir . '/app/Models/Proxy.php',
     'App\\Models\\Role' => $baseDir . '/app/Models/Role.php',

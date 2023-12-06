@@ -13,6 +13,7 @@ use App\Models\Session;
 use Auth;
 use DB;
 use App\Models\Proxy;
+use App\Models\Movement;
 
 class Plex {
 
@@ -286,8 +287,15 @@ class Plex {
                DB::table('users')->where('id',$user->id)->update([
                     'total_credits'=>($current_credit - intval($duration->months))
                ]);
+
+               $this->addMovement("Creacion de Cuenta",$customer, intval($duration->months));
            }
            
+        }else{
+            if(!empty($customer->invited_id)){
+                $this->addMovement("Creacion de Cuenta",$customer);
+            }
+            
         }
 
         if(is_array($invited)){
@@ -346,6 +354,8 @@ class Plex {
         }
         
         $demo->update();
+
+        $this->addMovement("Creacion de Cuenta Demo",$demo);
     }
 
     public function serverRequest($url, $username, $password) {
@@ -536,6 +546,8 @@ class Plex {
         }
         
         $customer->update();
+
+        $this->addMovement("Creacion de Cuenta Sin Afectar Creditos",$customer);
     }
 
     public function getCorrectProxy(){
@@ -757,8 +769,13 @@ class Plex {
                DB::table('users')->where('id',$user->id)->update([
                     'total_credits'=>($current_credit - intval($duration->months))
                ]);
+               $this->addMovement("Creacion de Cuenta Sin Clave",$customer, intval($duration->months));
            }
            
+        }else{
+            if(!empty($customer->invited_id)){
+                $this->addMovement("Creacion de Cuenta Sin Clave",$customer);
+            }
         }
 
         $customer->update();
@@ -804,6 +821,8 @@ class Plex {
             $customer->invited_id = null;
         }
         $customer->update();
+
+        $this->addMovement("Creacion de Cuenta Sin Clave Sin Afectar Creditos",$customer);
     }
 
     public function createPlexAccountNoPasswordNoCreditDemo($email, $data){
@@ -842,6 +861,8 @@ class Plex {
             $demo->invited_id = null;
         }
         $demo->update();
+
+        $this->addMovement("Creacion de Cuenta Demo Sin Clave",$demo);
     }
 
     public function getRealAccountServerData($data_user){
@@ -929,5 +950,16 @@ class Plex {
         }
 
         return $response;
+    }
+
+    public function addMovement($description, $data, $credits=0){
+        $movement = new Movement();
+        $movement->user = Auth::user()->name." ".Auth::user()->email." (".Auth::user()->role->name.")";
+        $movement->customer = $data->name." ".$data->email;
+        $movement->description = $description;
+        $movement->credits = $credits;
+        $movement->movement_time = date('Y-m-d H:i:s');
+        $movement->server = $data->server->name." - ".$data->server->local_name;
+        $movement->save();
     }
 }
