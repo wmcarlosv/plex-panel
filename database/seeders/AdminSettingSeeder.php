@@ -131,6 +131,20 @@ class AdminSettingSeeder extends Seeder
             ])->save();
         }
 
+
+    $setting = $this->findSetting('admin.account_expiration_days');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Dias de Aviso de Expiracion de Cuentas',
+                'value'        => 0,
+                'details'      => '',
+                'type'         => 'text',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
     }
 
     protected function findSetting($key)
