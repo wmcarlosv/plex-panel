@@ -483,6 +483,13 @@ class CustomerController extends VoyagerBaseController
         $duration = Duration::findorfail($request->duration_id);
         $server = Server::findorfail($request->server_id); 
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         $this->plex->setServerCredentials($server->url, $server->token);
 
         $plex_data = $this->plex->provider->getFriends();
@@ -496,7 +503,7 @@ class CustomerController extends VoyagerBaseController
         
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $amount){
             $redirect = redirect()->back();
 
             return $redirect->with([
@@ -1206,6 +1213,13 @@ class CustomerController extends VoyagerBaseController
 
         $duration = Duration::findorfail($request->duration);
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         $server = Server::findorfail($request->plexserver);
 
         $old_server = Server::findorfail($data->server_id);
@@ -1221,7 +1235,7 @@ class CustomerController extends VoyagerBaseController
         }
 
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+           if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $amount){
             return $redirect->with([
                 'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
                 'alert-type' => 'error',
@@ -1247,7 +1261,7 @@ class CustomerController extends VoyagerBaseController
                     $this->plex->setServerCredentials($old_server->url, $old_server->token);
                     $this->plex->provider->removeFriend($data->invited_id);
                     if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-                       if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+                       if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $amount){
                         return $redirect->with([
                             'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
                             'alert-type' => 'error',
@@ -1312,7 +1326,7 @@ class CustomerController extends VoyagerBaseController
         }else{
 
             if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
-               if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $duration->months){
+               if(Auth::user()->total_credits == 0 || Auth::user()->total_credits < $amount){
                 return $redirect->with([
                     'message'    => __('No tienes sufientes creditos, para seguir creando clientes por favor recarga tus creditos!!'),
                     'alert-type' => 'error',
@@ -1370,12 +1384,19 @@ class CustomerController extends VoyagerBaseController
 
     public function removeCredit(Customer $customer, Duration $duration){
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            if(!empty($customer->invited_id)){
                $user = User::findorfail(Auth::user()->id);
                $current_credit = $user->total_credits;
                DB::table('users')->where('id',$user->id)->update([
-                    'total_credits'=>($current_credit - intval($duration->months))
+                    'total_credits'=>($current_credit - intval($amount))
                ]);
 
                $customer->duration_id = $duration->id;
@@ -1384,4 +1405,5 @@ class CustomerController extends VoyagerBaseController
         }
         
     }
+
 }

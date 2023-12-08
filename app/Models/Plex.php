@@ -239,6 +239,14 @@ class Plex {
         $this->setServerCredentials($this->server_email, $this->server_password);
         $customer = Customer::findorfail($data->id);
         $duration = Duration::findorfail($data->duration_id);
+
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         $response = $this->provider->validateUser($email);
         $librarySectionIds = $this->getDataServer($data);
         $settings = new FriendRestrictionsSettings(
@@ -285,10 +293,10 @@ class Plex {
                $user = User::findorfail(Auth::user()->id);
                $current_credit = $user->total_credits;
                DB::table('users')->where('id',$user->id)->update([
-                    'total_credits'=>($current_credit - intval($duration->months))
+                    'total_credits'=>($current_credit - intval($amount))
                ]);
 
-               $this->addMovement("Creacion de Cuenta",$customer, intval($duration->months));
+               $this->addMovement("Creacion de Cuenta",$customer, intval($amount));
            }
            
         }else{
@@ -728,6 +736,13 @@ class Plex {
         $customer = Customer::findorfail($data->id);
         $duration = Duration::findorfail($data->duration_id);
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         $response = $this->provider->validateUser($email);
 
         $librarySectionIds = $this->getDataServer($data);
@@ -767,9 +782,9 @@ class Plex {
                $user = User::findorfail(Auth::user()->id);
                $current_credit = $user->total_credits;
                DB::table('users')->where('id',$user->id)->update([
-                    'total_credits'=>($current_credit - intval($duration->months))
+                    'total_credits'=>($current_credit - intval($amount))
                ]);
-               $this->addMovement("Creacion de Cuenta Sin Clave",$customer, intval($duration->months));
+               $this->addMovement("Creacion de Cuenta Sin Clave",$customer, intval($amount));
            }
            
         }else{
