@@ -198,7 +198,7 @@ class CustomerController extends VoyagerBaseController
         }
 
         if(Auth::user()->role_id == 4){
-            $users_asigned = User::whereIn("role_id",[5,3,4])->where("parent_user_id",Auth::user()->id)->get();
+            $users_asigned = User::whereIn("role_id",[5,3])->get();
         }
 
         return Voyager::view($view, compact(
