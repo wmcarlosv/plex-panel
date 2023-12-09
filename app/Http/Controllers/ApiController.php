@@ -564,8 +564,15 @@ class ApiController extends Controller
         $customer = Customer::findorfail($request->user_asigned_customer_id);
         $duration = Duration::findorfail($customer->duration_id);
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         if($user->role_id == 3 || $user->role_id == 5){
-           if($user->total_credits == 0 || $user->total_credits < $duration->months){
+           if($user->total_credits == 0 || $user->total_credits < $amount){
             return redirect()->route("voyager.customers.index")->with([
                 'message'    => __('El usuario que intenta asignar no cuenta con los creditos suficientes!!'),
                 'alert-type' => 'error',
@@ -586,12 +593,19 @@ class ApiController extends Controller
 
     public function removeCredit(Customer $customer, Duration $duration, $user){
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         if($user->role_id == 3 || $user->role_id == 5){
            if(!empty($customer->invited_id)){
                $user = User::findorfail($user->id);
                $current_credit = $user->total_credits;
                DB::table('users')->where('id',$user->id)->update([
-                    'total_credits'=>($current_credit - intval($duration->months))
+                    'total_credits'=>($current_credit - intval($amount))
                ]);
 
                $customer->duration_id = $duration->id;
