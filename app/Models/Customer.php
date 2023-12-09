@@ -53,7 +53,13 @@ class Customer extends Model
     }
 
     public static function getNextExpiredAccounts(){
-        $data = Customer::where('status','active')->get();
+        $data = [];
+        if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1){
+            $data = Customer::where('status','active')->get();
+        }else{
+            $data = Customer::where('status','active')->where('user_id',Auth::user()->id)->get();
+        }
+        
         return $data;
     }
 }

@@ -13,49 +13,55 @@
     <div class="page-content">
         @include('voyager::alerts')
         @include('voyager::dimmers')
-        @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
+        
             <div class="analytics-container">
                 <div class="row">
                     <div class="col-md-12">
+
                         <ul class="nav nav-tabs">
-                            <li class="active">
-                                <a href="#movements" data-toggle="tab">Movimientos</a>
-                            </li>
+                            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
+                                <li class="active">
+                                    <a href="#movements" data-toggle="tab">Movimientos</a>
+                                </li>
+                            @endif
                              <li>
                                 <a href="#expired_accounts" data-toggle="tab">Cuentas por Vencer</a>
                             </li>
                         </ul>
+
                         <div class="tab-content">
-                            <div id="movements" class="tab-pane fade active in">
-                                <div class="panel pane-default">
-                                    <div class="panel-body">
-                                        <h3>Movimientos</h3>
-                                        <hr />
-                                        <table class="table table-bordered table-striped data-table">
-                                            <thead>
-                                                <th>Usuario</th>
-                                                <th>Cliente</th>
-                                                <th>Servidor</th>
-                                                <th>Description</th>
-                                                <th>Creditos Descontados</th>
-                                                <th>Fecha</th>
-                                            </thead>
-                                            <tbody>
-                                                @foreach(\App\Models\Movement::getAllMovements() as $movement)
-                                                    <tr>
-                                                        <td>{{$movement->user}}</td>
-                                                        <td>{{$movement->customer}}</td>
-                                                        <td>{{ $movement->server }}</td>
-                                                        <td>{{$movement->description}}</td>
-                                                        <td>{{$movement->credits}}</td>
-                                                        <td>{{date('d-m-Y H:i:s',strtotime($movement->movement_time))}}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
+                                <div id="movements" class="tab-pane fade active in">
+                                    <div class="panel pane-default">
+                                        <div class="panel-body">
+                                            <h3>Movimientos</h3>
+                                            <hr />
+                                            <table class="table table-bordered table-striped data-table">
+                                                <thead>
+                                                    <th>Usuario</th>
+                                                    <th>Cliente</th>
+                                                    <th>Servidor</th>
+                                                    <th>Description</th>
+                                                    <th>Creditos Descontados</th>
+                                                    <th>Fecha</th>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach(\App\Models\Movement::getAllMovements() as $movement)
+                                                        <tr>
+                                                            <td>{{$movement->user}}</td>
+                                                            <td>{{$movement->customer}}</td>
+                                                            <td>{{ $movement->server }}</td>
+                                                            <td>{{$movement->description}}</td>
+                                                            <td>{{$movement->credits}}</td>
+                                                            <td>{{date('d-m-Y H:i:s',strtotime($movement->movement_time))}}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                             <div id="expired_accounts" class="tab-pane">
                                 <div class="panel pane-default">
                                     <div class="panel-body">
@@ -97,7 +103,7 @@
                     </div>
                 </div>
             </div>
-        @endif
+
     </div>
 @stop
 
