@@ -1246,6 +1246,7 @@ class CustomerController extends VoyagerBaseController
         if($data->status == 'active'){
             if($data->server_id == $request->plexserver){
                 $data->date_to = $request->to;
+                $data->duration_id = $duration->id;
                 $data->save();
 
                 $this->removeCredit($data, $duration);
@@ -1307,6 +1308,7 @@ class CustomerController extends VoyagerBaseController
 
                     $data->server_id = $request->plexserver;
                     $data->date_to = $request->to;
+                    $data->duration_id = $duration->id;
                     $data->save();
 
                     $this->removeCredit($data, $duration);
@@ -1372,6 +1374,7 @@ class CustomerController extends VoyagerBaseController
             $data->server_id = $request->plexserver;
             $data->date_to = $request->to;
             $data->status = "active";
+            $data->duration_id = $duration->id;
             $data->save();
 
             return $redirect->with([
