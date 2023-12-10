@@ -388,11 +388,22 @@ class Plex {
         $encontrado = false;
         if(empty($xml_response->error)){
             $data = $xml_response->Server;
+            $indice = 0;
+            foreach($data as $serv){
+                $owned = (int)$serv->attributes()->{'owned'};
+                if($owned == 1){
+                    $data = $xml_response->Server[$indice];
+                    break;
+                }
+                $indice++;
+            }
+
             $size = (int) $xml_response->attributes()->{'size'};
             if($size!=0){
-                if($size > 1){
+                
+                /*if($size > 1){
                     $data = $xml_response->Server[$size-1];
-                }
+                }*/
 
                 $response_data['name'] = (string) $data->attributes()->{'name'};
                 $response_data['address'] = (string) $data->attributes()->{'address'};
