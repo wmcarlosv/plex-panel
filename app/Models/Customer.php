@@ -33,11 +33,11 @@ class Customer extends Model
 
         $role = Auth::user()->role_id;
 
-        if($role == 3 || $role == 5){
+        if($role == 5){
             $query->where('user_id',Auth::user()->id);
         }
 
-        if($role == 6){
+        if($role == 3){
             $childers = User::where('parent_user_id',Auth::user()->id)->pluck('id')->toArray();
             $query->where(function($query) use ($childers){
                 $query->whereIn('user_id',$childers);  

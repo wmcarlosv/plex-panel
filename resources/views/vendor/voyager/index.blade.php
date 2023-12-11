@@ -27,6 +27,9 @@
                              <li>
                                 <a href="#expired_accounts" data-toggle="tab">Cuentas por Vencer</a>
                             </li>
+                            <li>
+                                <a href="#server_sessions" data-toggle="tab">Sesiones Activas</a>
+                            </li>
                         </ul>
 
                         <div class="tab-content">
@@ -36,14 +39,16 @@
                                         <div class="panel-body">
                                             <h3>Movimientos</h3>
                                             <hr />
-                                            <table class="table table-bordered table-striped data-table">
+                                            <table id="movements-table" class="table table-hover display nowrap data-table" style="width:100%">
                                                 <thead>
-                                                    <th>Usuario</th>
-                                                    <th>Cliente</th>
-                                                    <th>Servidor</th>
-                                                    <th>Description</th>
-                                                    <th>Creditos Descontados</th>
-                                                    <th>Fecha</th>
+                                                    <tr>
+                                                        <th>Usuario</th>
+                                                        <th>Cliente</th>
+                                                        <th>Servidor</th>
+                                                        <th>Description</th>
+                                                        <th>Creditos Descontados</th>
+                                                        <th>Fecha</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach(\App\Models\Movement::getAllMovements() as $movement)
@@ -67,13 +72,15 @@
                                     <div class="panel-body">
                                         <h3>Cuentas por Vencer</h3>
                                         <hr />
-                                        <table class="table table-bordered table-striped data-table">
+                                        <table id="expireds" class="table table-hover display nowrap data-table" style="width:100%">
                                             <thead>
-                                                <th>Vendedor</th>
-                                                <th>Cliente</th>
-                                                <th>Servidor</th>
-                                                <th>Dias Restantes</th>
-                                                <th>Fecha Fin</th>
+                                                <tr>
+                                                    <th>Vendedor</th>
+                                                    <th>Cliente</th>
+                                                    <th>Servidor</th>
+                                                    <th>Dias Restantes</th>
+                                                    <th>Fecha Fin</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
                                                 @if(setting('admin.account_expiration_days') > 0)
@@ -99,6 +106,39 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div id="server_sessions" class="tab-pane">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="">Servidor</label>
+                                                    <select id="select-servers" class="form-control">
+                                                        <option value="">Seleccione</option>
+                                                        @foreach(\App\Models\Server::getServersAssigneds() as $server)
+                                                            <option value="{{$server->id}}">{{$server->name_and_local_name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table class="table table-bordered table-striped" id="sessiones_table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cover</th>
+                                                    <th>Titulo</th>
+                                                    <th>Dispostivo</th>
+                                                    <th>Usuario</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="load-sessions">
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>      
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -111,7 +151,42 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function(){
-            $(".data-table").DataTable();
+            $("#expireds").DataTable({
+                "responsive":true,
+                "order":[
+                    [3, "asc"]
+                ]
+            });
+
+            $("#movements-table").DataTable({
+                "responsive":true,
+                "order":[
+                    [5,"desc"]
+                ]
+            });
+
+            $("#sessiones_table").DataTable();
+
+            $("#select-servers").change(function(){
+                let server_id = $(this).val();
+
+                let html = "";
+
+                $("#load-sessions").html("<tr><td colspan='4'><center>Cargando Sesiones...</center></td></tr>");
+                
+                $.get("/api/get-active-sessions/"+server_id, function(response){
+                    let sessions = response;
+                    if(parseInt(sessions.length) > 0){
+                        for(let i=0;i < sessions.length;i++){
+                            html+="<tr><td><img src='"+sessions[i].media.cover+"' class='img-thumbnail' style='width:150px; height:150px;' /></td><td><b>"+sessions[i].media.title+"</b></td><td>"+sessions[i].player.ip+" / "+sessions[i].player.device+"</td><td><img src='"+sessions[i].user.avatar+"' style='width:50px; height:50px;' /> "+sessions[i].user.name+"</td></tr>";
+                        }
+                        $("#load-sessions").html(html);
+                    }else{
+                        $("#load-sessions").html("<tr><td colspan='4'><center>No se encontraron sesiones activas en este Servidor</center></td></tr>");
+                    }
+                });
+
+            });
         });
     </script>
     @if(isset($google_analytics_client_id) && !empty($google_analytics_client_id))

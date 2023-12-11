@@ -79,7 +79,7 @@
                                 <thead>
                                     <tr>
                                         @if($showCheckboxColumn)
-                                            <th class="dt-not-orderable">
+                                            <th class="dt-not-orderable" style="width:10px;">
                                                 <input type="checkbox" class="select_all">
                                             </th>
                                         @endif
@@ -149,7 +149,7 @@
                                     @foreach($dataTypeContent as $data)
                                     <tr @if(empty($data->invited_id) and $data->status == "active") style="background: #e1b6b6 !important;" @endif>
                                         @if($showCheckboxColumn)
-                                            <td>
+                                            <td  style="width:10px;">
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
                                             </td>
                                         @endif
