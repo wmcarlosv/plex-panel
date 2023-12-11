@@ -18,7 +18,7 @@
                 <div class="row">
                     <div class="col-md-12">
 
-                        <ul class="nav nav-tabs">
+                        <ul class="nav nav-tabs" id="myTabs">
                             @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
                                 <li class="active">
                                     <a href="#movements" data-toggle="tab">Movimientos</a>
@@ -151,6 +151,7 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function(){
+            ('#myTabs a:first').tab('show');
             $("#expireds").DataTable({
                 "responsive":true,
                 "order":[
