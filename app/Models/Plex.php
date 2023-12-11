@@ -400,11 +400,6 @@ class Plex {
 
             $size = (int) $xml_response->attributes()->{'size'};
             if($size!=0){
-                
-                /*if($size > 1){
-                    $data = $xml_response->Server[$size-1];
-                }*/
-
                 $response_data['name'] = (string) $data->attributes()->{'name'};
                 $response_data['address'] = (string) $data->attributes()->{'address'};
                 $response_data['port'] = (string) $data->attributes()->{'port'};

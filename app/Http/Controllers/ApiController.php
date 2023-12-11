@@ -457,7 +457,7 @@ class ApiController extends Controller
                 if($user['response']['status'] != "Valid user"){
 
                     return redirect()->route("voyager.customers.index")->with([
-                        'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                        'message'=>'la cuenta que intenta Reparar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                         'alert-type'=>"error"
                     ]);
                 }
@@ -471,6 +471,8 @@ class ApiController extends Controller
             
         }
 
+        $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
+
         $plex_data = $this->plex->provider->getAccounts();
 
         if(!is_array($plex_data)){
@@ -481,7 +483,7 @@ class ApiController extends Controller
             ]);
 
         }else{
-
+            
             //Remove Plex
             if(!empty($customer->invited_id)){
                 $this->plex->provider->removeFriend($customer->invited_id);
