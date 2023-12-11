@@ -151,7 +151,9 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function(){
-            ('#myTabs a:first').tab('show');
+
+            $('#myTabs a:first').tab('show');
+
             $("#expireds").DataTable({
                 "responsive":true,
                 "order":[
