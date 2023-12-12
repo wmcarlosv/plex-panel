@@ -393,10 +393,11 @@ class Plex {
                 $owned = (int)$serv->attributes()->{'owned'};
                 if($owned == 1){
                     $data = $xml_response->Server[$indice];
-                    break;
                 }
                 $indice++;
             }
+
+
 
             $size = (int) $xml_response->attributes()->{'size'};
             if($size!=0){
