@@ -132,9 +132,7 @@
                                                     <th>Usuario</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="load-sessions">
-                                                
-                                            </tbody>
+                                            <tbody id="load-sessions"></tbody>
                                         </table>
                                     </div>      
                                 </div>

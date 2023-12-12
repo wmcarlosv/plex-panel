@@ -253,6 +253,16 @@
                                             </td>
                                         @endforeach
                                         <td class="no-sort no-click bread-actions">
+                                            <div class="dropdown" id="menu-content" style="display: inline !important;">
+                                              <a class="btn btn-success dropdown-toggle" title="Mas Opciones" id="dropdownMenu1" data-toggle="dropdown">
+                                                <i class="voyager-list-add"></i> Mas Acciones
+                                              </a>
+                                              <ul class="dropdown-menu dropdown-menu-left" id="menu-list" aria-labelledby="dropdownMenu1">
+                                                @if($data->password !="#5inCl4ve#")
+                                                    <li><a href="#" class="activate-device" data-row='{{json_encode($data)}}'>Activar Cuenta en Dispositivo</a></li>
+                                                @endif
+                                              </ul>
+                                            </div>
                                             @foreach($actions as $action)
                                                 @if (!method_exists($action, 'massAction'))
                                                     @include('voyager::bread.partials.actions', ['action' => $action])
@@ -309,6 +319,34 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+
+    <!--Activate Device Modal-->
+    <div class="modal modal-success" id="activate-device-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Activar Cuenta en Dispostivo</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('activate_device') }}" id="activate-device-form" method="POST">
+                        @method("POST")
+                        @csrf
+                        <input type="hidden" name="customer_id" id="activate_device_customer_id" />
+                        <div class="form-group">
+                            <label for="">Codigo</label>
+                            <input type="text" maxlength="4" minlength="4" id="code_activate_device" id="" class="form-control" name="code" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" type="button" id="activate-device-save">Activar</button>
+                    <button class="btn btn-danger" type="button" id="activate-device-cancel">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('css')
@@ -327,6 +365,30 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script>
         $(document).ready(function () {
+
+
+            $("body").on("click","a.activate-device", function(){
+
+                let row = JSON.parse($(this).attr("data-row"));
+                $("#activate_device_customer_id").val(row.id);
+
+                $("#activate-device-modal").modal({backdrop: 'static', keyboard: false}, 'show');
+            });
+
+            $("#activate-device-cancel").click(function(){
+                $("#activate-device-modal").modal("hide");
+            });
+
+            $("#activate-device-save").click(function(){
+                let code = $("#code_activate_device").val();
+                if(code.length == 4){
+                    $(this).text("Activando...").attr("disabled", true);
+                    $("#activate-device-form").submit();
+                }else{
+                    alert("El Codigo debe ser de 4 Digitos entre letras y numeros!!");
+                }
+            });
+
             @if(Session::get('modal'))
                 @php 
                     $data = Session::get('modal');

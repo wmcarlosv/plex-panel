@@ -941,14 +941,14 @@ class Plex {
         return $data;
     }
 
-    public function activateDevice($pin, Customer $customer){
+    public function activateDevice($pin, $data){
         $response['success'] = false;
 
-        if($customer->password == "#5inCl4ve#"){
-             $this->setServerCredentials($customer->server->url, $customer->server->token);
-             $user = $this->provider->validateUser($customer->email);
+        if($data->password == "#5inCl4ve#"){
+             $this->setServerCredentials($data->server->url, $data->server->token);
+             $user = $this->provider->validateUser($data->email);
         }else{
-             $user = $this->loginInPlex($customer->email, $customer->password);
+             $user = $this->loginInPlex($data->email, $data->password);
         }   
         
         if(is_array($user)){

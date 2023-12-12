@@ -14,6 +14,7 @@ use App\Models\Proxy;
 use Session;
 use App\Models\User;
 use App\Models\Movement;
+use App\Models\Demo;
 
 class ApiController extends Controller
 {
@@ -691,17 +692,23 @@ class ApiController extends Controller
     }
 
     public function activate_device(Request $request){
-
-        $customer = Customer::findorfail($request->customer_id);
+        $data = Customer::find($request->customer_id);
+        if(!$data){
+            $data = Demo::find($request->customer_id);
+        }
+        
         $code = $request->code;
-        $response = $this->plex->activateDevice($code, $customer);
+        $response = $this->plex->activateDevice($code, $data);
+
+        $redirect = redirect()->back();
+
         if($response['success']){
-            return redirect()->route("voyager.customers.index")->with([
+            return $redirect->with([
                 'message'=>'Cuenta activada en el dispositivo de manera satisfactoria!!',
                 'alert-type'=>'success'
             ]);
         }else{
-            return redirect()->route("voyager.customers.index")->with([
+            return $redirect->with([
                 'message'=>$response['message'],
                 'alert-type'=>'error'
             ]);
