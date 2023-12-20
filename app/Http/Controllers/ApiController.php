@@ -448,7 +448,7 @@ class ApiController extends Controller
             $user = $this->plex->loginInPlex($customer->email, $customer->password);
             if(!is_array($user)){
                 return redirect()->route("voyager.customers.index")->with([
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'message'=>'la cuenta que intenta reparar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                     'alert-type'=>"error"
                 ]);
             }
@@ -465,7 +465,7 @@ class ApiController extends Controller
             }else{
 
                 return redirect()->route("voyager.customers.index")->with([
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'message'=>'la cuenta que intenta reparar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                     'alert-type'=>"error"
                 ]);
             }
