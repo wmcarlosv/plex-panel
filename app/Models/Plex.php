@@ -501,7 +501,7 @@ class Plex {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
-        dd($response);
+
         if (curl_errno($ch)) {
             echo 'cURL Error: ' . curl_error($ch);
         }

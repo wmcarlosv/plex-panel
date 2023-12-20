@@ -111,7 +111,13 @@ trait Servers
     public function getServerDetail(?string $machineIdentifier = null): StreamInterface|array|string
     {
         if (! $machineIdentifier) {
-            $machineIdentifier = $this->getServerIdentity()['MediaContainer']['machineIdentifier'];
+            $data = $this->getServerIdentity();
+            if(is_array($data)){
+                $machineIdentifier = $this->getServerIdentity()['MediaContainer']['machineIdentifier'];
+            }else{
+                $machineIdentifier = "";
+            }
+            
         }
 
         if (! isset($machineIdentifier)) {
