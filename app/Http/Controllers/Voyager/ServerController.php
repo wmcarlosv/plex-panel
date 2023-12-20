@@ -345,14 +345,7 @@ class ServerController extends VoyagerBaseController
         }
 
         $libraries = [];
-
-        $libraries_array = [];
-        
-        try{
-            $libraries_array = $this->plex->provider->getServerDetail();
-        } catch(Exception $e){
-            $libraries_array = [];
-        }
+        $libraries_array = $this->plex->provider->getServerDetail();
 
         if(is_array($libraries_array)){
             if(intval($libraries_array['MediaContainer']['size']) > 0){

@@ -48,15 +48,18 @@ class Plex {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $this->proxy = $this->getCorrectProxy();
+        if(setting("admin.active_proxies")){
 
-        if($this->proxy){
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL , 1);
-            curl_setopt($ch, CURLOPT_PROXY, $this->proxy->ip);         
-            curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxy->port);
+            $this->proxy = $this->getCorrectProxy();
+
+            if($this->proxy){
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL , 1);
+                curl_setopt($ch, CURLOPT_PROXY, $this->proxy->ip);         
+                curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxy->port);
+            }
         }
-
+        
         $response = curl_exec($ch);
 
         //Check for errors.
@@ -405,6 +408,7 @@ class Plex {
                 $response_data['address'] = (string) $data->attributes()->{'address'};
                 $response_data['port'] = (string) $data->attributes()->{'port'};
                 $response_data['scheme'] = (string) $data->attributes()->{'scheme'};
+                $response_data['machine'] = (string) $data->attributes()->{'machineIdentifier'};
                 $devices = simplexml_load_string($this->serverRequest("https://plex.tv/devices.xml", $user, $password));
 
                 foreach($devices->Device as $device){

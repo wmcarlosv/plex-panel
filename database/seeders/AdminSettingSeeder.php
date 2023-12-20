@@ -145,6 +145,19 @@ class AdminSettingSeeder extends Seeder
             ])->save();
         }
 
+    $setting = $this->findSetting('admin.active_proxies');
+
+    if (!$setting->exists) {
+        $setting->fill([
+            'display_name' => 'Activar Uso de Proxy',
+            'value'        => false,
+            'details'      => '',
+            'type'         => 'checkbox',
+            'order'        => 1,
+            'group'        => 'Admin',
+        ])->save();
+    }
+
     }
 
     protected function findSetting($key)
