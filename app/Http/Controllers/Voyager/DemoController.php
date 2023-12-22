@@ -1100,12 +1100,19 @@ class DemoController extends VoyagerBaseController
 
     public function removeCredit(Customer $customer, Duration $duration){
 
+        $amount = $duration->months;
+        if(!empty($duration->amount)){
+            if($duration->amount > 0){
+                $amount = intval($duration->amount);
+            }
+        }
+
         if(Auth::user()->role_id == 3 || Auth::user()->role_id == 5){
            if(!empty($customer->invited_id)){
                $user = User::findorfail(Auth::user()->id);
                $current_credit = $user->total_credits;
                DB::table('users')->where('id',$user->id)->update([
-                    'total_credits'=>($current_credit - intval($duration->months))
+                    'total_credits'=>($current_credit - intval($amount))
                ]);
            }
         }
