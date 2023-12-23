@@ -208,7 +208,7 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="">Servidor:</label>
-                                <select name="plexserver" required class="form-control">
+                                <!--<select name="plexserver" required class="form-control">
                                     <option value="">-</option>
                                     @if($dataTypeContent->server->status == 0)
                                         <option value="{{$dataTypeContent->server->id}}" selected>{{$dataTypeContent->server->name_and_local_name}}</option>
@@ -216,7 +216,9 @@
                                     @foreach($servers as $server)
                                         <option value="{{$server->id}}" @if($dataTypeContent->server_id == $server->id) selected='selected' @endif>{{$server->name_and_local_name}}</option>
                                     @endforeach
-                                </select>
+                                </select>-->
+                                <input type="text" class="form-control" readonly value="{{$dataTypeContent->server->name}}" />
+                                <input type="hidden" name="plexserver" value="{{$dataTypeContent->server_id}}" />
                             </div>
                             <div class="form-group">
                                 <label for="">Duracion:</label>
