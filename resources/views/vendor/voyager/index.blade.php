@@ -175,7 +175,7 @@
 
                 $("#load-sessions").html("<tr><td colspan='4'><center>Cargando Sesiones...</center></td></tr>");
                 
-                $.get("/api/get-active-sessions/"+server_id, function(response){
+                $.get("/api/get-active-sessions/"+server_id+"/{{Auth::user()->id}}", function(response){
                     let sessions = response;
                     if(parseInt(sessions.length) > 0){
                         for(let i=0;i < sessions.length;i++){

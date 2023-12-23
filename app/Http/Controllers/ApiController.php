@@ -15,6 +15,7 @@ use Session;
 use App\Models\User;
 use App\Models\Movement;
 use App\Models\Demo;
+use Auth;
 
 class ApiController extends Controller
 {
@@ -655,37 +656,78 @@ class ApiController extends Controller
         ]);
     }
 
-    public function get_active_sessions($server_id){
+    public function get_active_sessions($server_id, $user_id=null){
         $server = Server::findorfail($server_id);
         $data = [];
         $cont = 0;
+        $user = null;
         $this->plex->setServerCredentials($server->url, $server->token);
+
+        $customers = [];
 
         $sessions = $this->plex->provider->getNowPlaying();
 
-        if(is_array($sessions)){
-            if(intval($sessions['MediaContainer']['size']) > 0){
-                $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
-                foreach($sessions['MediaContainer']['Metadata'] as $session){
+        if($user_id){
+            $customers = Customer::where('status','active')->where('user_id',$user_id)->pluck('plex_user_name')->toArray();
+            $user = User::findorfail($user_id);
 
-                    $data[$cont]['user'] = [
-                        'avatar'=> $session['User']['thumb'],
-                        'name'=> $session['User']['title']
-                    ];
+            if(is_array($sessions)){
+                if(intval($sessions['MediaContainer']['size']) > 0){
+                    $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
 
-                    $data[$cont]['player'] = [
-                        'ip'=>$session['Player']['address'],
-                        'device'=>!empty($session['Player']['title']) ? $session['Player']['title'] : $session['Player']['product']
-                    ];
+                    foreach($sessions['MediaContainer']['Metadata'] as $session){
 
-                    $data[$cont]['media'] = [
-                        'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
-                        'cover'=>$server_url.$session['art']."?X-Plex-Token=".$this->plex->serverData['token']
-                    ];
+                        if($user->role_id != 1 && $user->role_id != 4){
+                            if( !in_array($session['User']['title'], $customers) ){
+                                continue;
+                            }
+                        }
 
-                    $cont++;
-                }
-            }            
+                        $data[$cont]['user'] = [
+                            'avatar'=> $session['User']['thumb'],
+                            'name'=> $session['User']['title']
+                        ];
+
+                        $data[$cont]['player'] = [
+                            'ip'=>$session['Player']['address'],
+                            'device'=>!empty($session['Player']['title']) ? $session['Player']['title'] : $session['Player']['product']
+                        ];
+
+                        $data[$cont]['media'] = [
+                            'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
+                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token']
+                        ];
+
+                        $cont++;
+                    }
+                }            
+            }
+
+        }else{
+            if(is_array($sessions)){
+                if(intval($sessions['MediaContainer']['size']) > 0){
+                    $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
+                    foreach($sessions['MediaContainer']['Metadata'] as $session){
+
+                        $data[$cont]['user'] = [
+                            'avatar'=> $session['User']['thumb'],
+                            'name'=> $session['User']['title']
+                        ];
+
+                        $data[$cont]['player'] = [
+                            'ip'=>$session['Player']['address'],
+                            'device'=>!empty($session['Player']['title']) ? $session['Player']['title'] : $session['Player']['product']
+                        ];
+
+                        $data[$cont]['media'] = [
+                            'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
+                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token']
+                        ];
+
+                        $cont++;
+                    }
+                }            
+            }
         }
 
         return response()->json($data);

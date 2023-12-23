@@ -123,7 +123,7 @@ class Server extends Model
     }
 
     public static function getServersAssigneds(){
-        $data = Server::where('status',1)->server()->get();
+        $data = Server::where('status',1)->get();
         return $data;
     }
 }
