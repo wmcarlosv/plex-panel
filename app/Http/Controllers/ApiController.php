@@ -676,7 +676,7 @@ class ApiController extends Controller
                     $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
 
                     foreach($sessions['MediaContainer']['Metadata'] as $session){
-                        $panel_user = Customer::where('plex_user_name',$session['User']['title'])->first();
+
                         if($user->role_id != 1 && $user->role_id != 4){
                             if( !in_array($session['User']['title'], $customers) ){
                                 continue;
@@ -695,8 +695,7 @@ class ApiController extends Controller
 
                         $data[$cont]['media'] = [
                             'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
-                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token'],
-                            'panel_user'=>(isset($panel_user) and !empty($panel_user)) ? $panel_user->name: ""
+                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token']
                         ];
 
                         $cont++;
@@ -709,7 +708,7 @@ class ApiController extends Controller
                 if(intval($sessions['MediaContainer']['size']) > 0){
                     $server_url = $this->plex->serverData['scheme']."://".$this->plex->serverData['address'].":".$this->plex->serverData['port'];
                     foreach($sessions['MediaContainer']['Metadata'] as $session){
-                        $panel_user = Customer::where('plex_user_name',$session['User']['title'])->first();
+
                         $data[$cont]['user'] = [
                             'avatar'=> $session['User']['thumb'],
                             'name'=> $session['User']['title']
@@ -722,8 +721,7 @@ class ApiController extends Controller
 
                         $data[$cont]['media'] = [
                             'title'=>!empty($session['originalTitle']) ? $session['originalTitle']: $session['title'],
-                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token'],
-                            'panel_user'=>(isset($panel_user) and !empty($panel_user)) ? $panel_user->name: ""
+                            'cover'=>$server_url.(isset($session['art']) ? $session['art'] : $session['thumb'])."?X-Plex-Token=".$this->plex->serverData['token']
                         ];
 
                         $cont++;
