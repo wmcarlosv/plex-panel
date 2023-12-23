@@ -1404,7 +1404,11 @@ class CustomerController extends VoyagerBaseController
 
                $customer->duration_id = $duration->id;
                $customer->save();
+
+               $this->plex->addMovement("Extendiendo Membresia",$customer, $amount);
            }
+        }else{
+            $this->plex->addMovement("Extendiendo Membresia",$customer)
         }
         
     }
