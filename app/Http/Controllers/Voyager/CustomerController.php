@@ -1408,7 +1408,7 @@ class CustomerController extends VoyagerBaseController
                $this->plex->addMovement("Extendiendo Membresia",$customer, $amount);
            }
         }else{
-            $this->plex->addMovement("Extendiendo Membresia",$customer)
+            $this->plex->addMovement("Extendiendo Membresia",$customer);
         }
         
     }
