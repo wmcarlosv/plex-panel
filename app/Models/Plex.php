@@ -980,8 +980,8 @@ class Plex {
 
     public function addMovement($description, $data, $credits=0){
         $movement = new Movement();
-        $movement->user = Auth::user()->name." ".Auth::user()->email." (".Auth::user()->role->name.")";
-        $movement->customer = $data->name." ".$data->email;
+        $movement->user = Auth::user()->name." (".Auth::user()->role->name.")";
+        $movement->customer = $data->email;
         $movement->description = $description;
         $movement->credits = $credits;
         $movement->movement_time = date('Y-m-d H:i:s');

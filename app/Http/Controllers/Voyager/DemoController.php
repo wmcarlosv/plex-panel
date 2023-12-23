@@ -1114,8 +1114,12 @@ class DemoController extends VoyagerBaseController
                DB::table('users')->where('id',$user->id)->update([
                     'total_credits'=>($current_credit - intval($amount))
                ]);
+
+               $this->plex->addMovement("Convirtiendo demo a Cliente", $customer, $amount);
            }
-        }
+        }else{
+            $this->plex->addMovement("Convirtiendo demo a Cliente", $customer);
+        }   
         
     }
 }
