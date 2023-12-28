@@ -146,7 +146,7 @@ class Plex {
                     $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
                 }
             }else{
-
+                //dd($data);
                 $ownerId = $data->Invite->attributes()->{'id'};
                 $friend = $data->Invite->attributes()->{'friend'};
                 $home = $data->Invite->attributes()->{'home'};
@@ -613,19 +613,26 @@ class Plex {
         }
 
         if($validated){
-            $this->setServerCredentials($server->url, $server->token);
+            //$this->setServerCredentials($server->url, $server->token);
             $dataOwner = $this->loginInPlex($server->url, $server->token);
-            $this->getDataInvitationHomeUser($customer->email, $customer->password, $dataOwner['user']['id']);
-            $userPin = $this->loginInPlex($customer->email, $customer->password);
-            $this->setHomeUserPin($userPin,$pin);
+            //dd($dataOwner);
+            $this->setServerCredentials($server->url, $server->token);
+            $valid = $this->getDataInvitationHomeUser($customer->email, $customer->password, $dataOwner['user']['id']);
+            if($valid){
+                $userPin = $this->loginInPlex($customer->email, $customer->password);
+                $this->setServerCredentials($server->url, $server->token);
+                $this->setHomeUserPin($userPin,$pin);
+            }else{
+                $validated = false;
+            }
         }
         return $validated;
     }
 
     public function getDataInvitationHomeUser($email, $password, $ownerId){
+        $valid = false;
         $data_user = $this->loginInPlex($email, $password);
-
-        $opts = [
+        $opts = [  
             "http" => [
                 "method" => "GET",
                 "header" => "X-Plex-Token: ".$data_user['user']['authToken']
@@ -633,16 +640,20 @@ class Plex {
         ];
 
         $context = stream_context_create($opts);
-
-
         $response = file_get_contents('https://plex.tv/api/invites/requests', false, $context);
         $data = simplexml_load_string($response);
-        $ownerId = $data->Invite->attributes()->{'id'};
-        $friend = $data->Invite->attributes()->{'friend'};
-        $home = $data->Invite->attributes()->{'home'};
-        $server = $data->Invite->attributes()->{'server'};
-        $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
-        $this->resetCustomization($data_user['user']['authToken'], uniqid());
+
+        if(property_exists($data, 'Invite')){;
+            $ownerId = $data->Invite->attributes()->{'id'};
+            $friend = $data->Invite->attributes()->{'friend'};
+            $home = $data->Invite->attributes()->{'home'};
+            $server = $data->Invite->attributes()->{'server'};
+            $this->accept_invitation($data_user['user']['authToken'], $ownerId, $friend, $home, $server);
+            $this->resetCustomization($data_user['user']['authToken'], uniqid());
+            $valid = true;
+        }
+
+        return $valid;   
     }
 
     public function setHomeUserPin($user,$pin=""){
