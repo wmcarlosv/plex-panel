@@ -383,8 +383,7 @@ class ApiController extends Controller
             $this->plex->setServerCredentials($customer->server->url, $customer->server->token);
             $this->plex->provider->removeFriend($customer->invited_id);
             //Insertamos en el server Nuevo
-            $this->plex->setServerCredentials($server->url, $server->token);
-            $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+            $this->plex->createPlexAccountNotCredit($server->url, $server->token, $customer);
         }
 
         
