@@ -525,21 +525,19 @@ class ApiController extends Controller
         if($customer->password != "#5inCl4ve#"){
             $user = $this->plex->loginInPlex($customer->email, $customer->password);
             if(!is_array($user)){
-                $data =[
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
-                    'success'=>false
-                ];
-                return response()->json($data);
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'La cuenta que intenta cambiar la clave es invalida!!',
+                    'alert-type'=>'error'
+                ]);
             }
         }else{
             $user = $this->plex->provider->validateUser($customer->email);
 
             if($user['response']['status'] != "Valid user"){
-                $data =[
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
-                    'success'=>false
-                ];
-                return response()->json($data);
+                return redirect()->route("voyager.customers.index")->with([
+                    'message'=>'La cuenta que intenta cambiar la clave es invalida!!',
+                    'alert-type'=>'error'
+                ]);
             }
         }
         
