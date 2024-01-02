@@ -253,7 +253,7 @@
             $("#table-customersbyserver").DataTable({
                 "responsive":true,
                 "order":[
-                    [1,"desc"]
+                    [2,"desc"]
                 ]
             });
 
