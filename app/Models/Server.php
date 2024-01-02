@@ -128,7 +128,7 @@ class Server extends Model
     }
 
     public static function getCustomersByServer(){
-        $data = Server::with('customers','customers.user','customers.user.role')->where('status',1)->whereRelation('customers','customers.status','active')->get();
+        $data = Server::with('customers','customers.user','customers.user.role')->whereRelation('customers','customers.status','active')->get();
         return $data;
     }
 }
