@@ -154,6 +154,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Servidor</th>
+                                                        <th>Estado</th>
                                                         <th>Cantidad de Clientes</th>
                                                         <th>-</th>
                                                     </tr>
@@ -162,6 +163,7 @@
                                                     @foreach(\App\Models\Server::getCustomersByServer() as $server)
                                                     <tr>
                                                         <td>{{$server->name}}</td>
+                                                        <td>{{($server->status == 1) ? 'Activo': 'Inactivo'}}</td>
                                                         <td>{{$server->customers->count()}}</td>
                                                         <td>
                                                             <button  type="button" class="btn btn-success view-customers-button" data-customers="{{json_encode($server->customers)}}" data-server="{{$server->name_and_local_name}}">Ver Listado de Cuentas</button>
