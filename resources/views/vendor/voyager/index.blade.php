@@ -30,6 +30,13 @@
                             <li>
                                 <a href="#server_sessions" data-toggle="tab">Sesiones Activas</a>
                             </li>
+
+                            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
+                                <li>
+                                    <a href="#customersbyserver" data-toggle="tab">Clientes X Servidor</a>
+                                </li>
+                            @endif
+
                         </ul>
 
                         <div class="tab-content">
@@ -39,7 +46,7 @@
                                         <div class="panel-body">
                                             <h3>Movimientos</h3>
                                             <hr />
-                                            <table id="movements-table" class="table table-hover display nowrap data-table" style="width:100%">
+                                            <table id="movements-table" class="table table-hover display nowrap" style="width:100%">
                                                 <thead>
                                                     <tr>
                                                         <th>Usuario</th>
@@ -72,7 +79,7 @@
                                     <div class="panel-body">
                                         <h3>Cuentas por Vencer</h3>
                                         <hr />
-                                        <table id="expireds" class="table table-hover display nowrap data-table" style="width:100%">
+                                        <table id="expireds" class="table table-hover display nowrap" style="width:100%">
                                             <thead>
                                                 <tr>
                                                     <th>Vendedor</th>
@@ -137,11 +144,68 @@
                                     </div>      
                                 </div>
                             </div>
+                            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 4)
+                                <div id="customersbyserver" class="tab-pane">
+                                    <div class="panel pane-default">
+                                        <div class="panel-body">
+                                            <h3>Clientes x Servidor</h3>
+                                            <hr />
+                                            <table class="table table-hover display nowrap" id="table-customersbyserver" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Servidor</th>
+                                                        <th>Cantidad de Clientes</th>
+                                                        <th>-</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach(\App\Models\Server::getCustomersByServer() as $server)
+                                                    <tr>
+                                                        <td>{{$server->name}}</td>
+                                                        <td>{{$server->customers->count()}}</td>
+                                                        <td>
+                                                            <button  type="button" class="btn btn-success view-customers-button" data-customers="{{json_encode($server->customers)}}" data-server="{{$server->name_and_local_name}}">Ver Listado de Cuentas</button>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>                                
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
 
+    </div>
+
+
+    <div class="modal modal-success" id="view-customers-modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Listado de Cuentas "<span id="server_name">Servidor</span>"</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <th>Vendedor</th>
+                            <th>Cliente</th>
+                            <th>Fecha Fin</th>
+                        </thead>
+                        <tbody id="load-view-customers">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 @stop
 
@@ -151,6 +215,22 @@
         $(document).ready(function(){
 
             $('#myTabs a:first').tab('show');
+
+            $("body").on('click','button.view-customers-button', function(){
+                let customers = JSON.parse($(this).attr("data-customers"));
+                let server = $(this).attr("data-server");
+                $("#server_name").text(server);
+
+                $("#load-view-customers").empty();
+
+                $.each(customers, function(e,v){
+                    $("#load-view-customers").append("<tr><td>"+v.user.name+" ("+v.user.role.name+") </td><td>"+v.email+" "+(v.name ? v.name:'')+"</td><td>"+v.date_to+"</td></tr>");
+                });
+
+                $("#view-customers-modal").modal('show');
+            });
+
+            $("table.data-table").DataTable();
 
             $("#expireds").DataTable({
                 "responsive":true,
@@ -167,6 +247,13 @@
             });
 
             $("#sessiones_table").DataTable();
+
+            $("#table-customersbyserver").DataTable({
+                "responsive":true,
+                "order":[
+                    [1,"desc"]
+                ]
+            });
 
             $("#select-servers").change(function(){
                 let server_id = $(this).val();
