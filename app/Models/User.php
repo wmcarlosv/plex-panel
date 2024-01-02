@@ -46,6 +46,10 @@ class User extends \TCG\Voyager\Models\User
         'email_verified_at' => 'datetime',
     ];
 
+    public function customers(){
+        return $this->hasMany('App\Models\Customer')->where('status','active');
+    }
+
     public function scopeUser($query){
         if(Auth::user()->role_id == 3){
             $query->where('parent_user_id',Auth::user()->id);
@@ -115,5 +119,10 @@ class User extends \TCG\Voyager\Models\User
 
     public function assigned_servers(){
         return $this->belongsToMany('App\Models\Server','user_servers','user_id','server_id');
+    }
+
+    public static function getCustomersByReseller(){
+        $data = User::with('customers','customers.server')->whereRelation('customers','customers.status','active')->get();
+        return $data;
     }
 }

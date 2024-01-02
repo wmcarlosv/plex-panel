@@ -35,6 +35,9 @@
                                 <li>
                                     <a href="#customersbyserver" data-toggle="tab">Clientes X Servidor</a>
                                 </li>
+                                <li>
+                                    <a href="#customersbyresellers" data-toggle="tab">Clientes X Vendedor</a>
+                                </li>
                             @endif
 
                         </ul>
@@ -175,6 +178,37 @@
                                         </div>
                                     </div>                                
                                 </div>
+
+                                <div id="customersbyresellers" class="tab-pane">
+                                    <div class="panel pane-default">
+                                        <div class="panel-body">
+                                            <h3>Clientes x Vendedor</h3>
+                                            <hr />
+                                            <table class="table table-hover display nowrap" id="table-customersbyresellers" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Vendedor</th>
+                                                        <th>Cantidad de Clientes</th>
+                                                        <th>-</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach(\App\Models\User::getCustomersByReseller() as $user)
+                                                        @if($user->customers->count() > 0)
+                                                            <tr>
+                                                                <td>{{$user->name_and_role}}</td>
+                                                                <td>{{$user->customers->count()}}</td>
+                                                                <td>
+                                                                    <button  type="button" class="btn btn-success view-customers-by-reseller" data-customers="{{json_encode($user->customers)}}" data-reseller="{{$user->name_and_role}}">Ver Listado de Cuentas</button>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>                                
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -209,6 +243,32 @@
             </div>
         </div>
     </div>
+
+    <div class="modal modal-success" id="view-customers-by-reseller" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Listado de Cuentas "<span id="reseller_name">Reseller</span>"</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <th>Servidor</th>
+                            <th>Cliente</th>
+                            <th>Fecha Fin</th>
+                        </thead>
+                        <tbody id="load-view-customers-by-reseller">
+                            
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('javascript') 
@@ -217,6 +277,20 @@
         $(document).ready(function(){
 
             $('#myTabs a:first').tab('show');
+
+            $("body").on('click','button.view-customers-by-reseller', function(){
+                let reseller = $(this).attr("data-reseller");
+                let customers = JSON.parse($(this).attr("data-customers"));
+                $("#reseller_name").text(reseller);
+
+                $("#load-view-customers-by-reseller").empty();
+
+                $.each(customers, function(e,v){
+                    $("#load-view-customers-by-reseller").append("<tr><td>"+(v.server.local_name ? v.server.local_name: v.server.name)+"</td><td>"+v.email+" "+(v.name ? v.name:'')+"</td><td>"+v.date_to+"</td></tr>");
+                });
+
+                $("#view-customers-by-reseller").modal("show");
+            });
 
             $("body").on('click','button.view-customers-button', function(){
                 let customers = JSON.parse($(this).attr("data-customers"));
@@ -254,6 +328,13 @@
                 "responsive":true,
                 "order":[
                     [2,"desc"]
+                ]
+            });
+
+            $("#table-customersbyresellers").DataTable({
+                "responsive":true,
+                "order":[
+                    [1,"desc"]
                 ]
             });
 
