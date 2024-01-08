@@ -1190,7 +1190,7 @@ class CustomerController extends VoyagerBaseController
             $user = $this->plex->loginInPlex($data->email, $data->password);
             if(!is_array($user)){
                 return $redirect->with([
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'message'=>'la cuenta que intenta extender es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                     'alert-type'=>"error"
                 ]);
             }
@@ -1199,13 +1199,13 @@ class CustomerController extends VoyagerBaseController
             if(is_array($user)){
                 if($user['response']['status'] != "Valid user"){
                     return $redirect->with([
-                        'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                        'message'=>'la cuenta que intenta extender es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                         'alert-type'=>"error"
                     ]);
                 }
             }else{
                 return $redirect->with([
-                    'message'=>'la cuenta que intenta inhabilitar o habilitar es invalida, por favor verifique que el correo o la clave sean los correctos!!',
+                    'message'=>'la cuenta que intenta extender es invalida, por favor verifique que el correo o la clave sean los correctos!!',
                     'alert-type'=>"error"
                 ]);
             }

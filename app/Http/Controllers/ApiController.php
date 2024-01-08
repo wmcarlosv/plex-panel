@@ -245,10 +245,16 @@ class ApiController extends Controller
 
         if($customer->status == "active"){
             $this->plex->setServerCredentials($server->url, $server->token);
-            $this->plex->provider->removeFriend($customer->invited_id);
-            $customer->plex_user_name = null;
-            $customer->plex_user_token = null;
-            $customer->invited_id = null;
+
+            if(setting('admin.only_remove_libraries')){
+                $this->plex->managerLibraries($customer->id, "delete");
+            }else{
+                $this->plex->provider->removeFriend($customer->invited_id);
+                $customer->plex_user_name = null;
+                $customer->plex_user_token = null;
+                $customer->invited_id = null;
+            }
+            
             $customer->status = "inactive";
             $customer->save();
 
@@ -270,9 +276,17 @@ class ApiController extends Controller
             }else{
 
                 if($customer->password != "#5inCl4ve#"){
-                    $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                    if(setting('admin.only_remove_libraries')){
+                        $this->plex->managerLibraries($customer->id);
+                    }else{
+                       $this->plex->createPlexAccountNotCredit($customer->email, $customer->password, $customer);
+                    }
                 }else{
-                    $this->plex->createPlexAccountNoPasswordNoCredit($customer->email, $customer);
+                    if(setting('admin.only_remove_libraries')){
+                         $this->plex->managerLibraries($customer->id);
+                    }else{
+                        $this->plex->createPlexAccountNoPasswordNoCredit($customer->email, $customer);
+                    }
                 }
                 
                 $the_data = DB::table('customers')->select('invited_id')->where('id',$customer->id)->get();
@@ -752,6 +766,28 @@ class ApiController extends Controller
                 'alert-type'=>'error'
             ]);
         }
+    }
+
+    public function remove_libraries($customer_id){
+
+        $this->plex->managerLibraries($customer_id, "delete");
+
+        $redirect = redirect()->back();
+        return $redirect->with([
+            'message'    => __('Librerias Removidas con Exito!!'),
+            'alert-type' => 'success',
+        ]);
+    }
+
+    public function add_libraries($customer_id){
+
+        $this->plex->managerLibraries($customer_id);
+
+        $redirect = redirect()->back();
+        return $redirect->with([
+            'message'    => __('Librerias Agregadas con Exito!!'),
+            'alert-type' => 'success',
+        ]);
     }
 
 }

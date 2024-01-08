@@ -132,7 +132,7 @@ class AdminSettingSeeder extends Seeder
         }
 
 
-    $setting = $this->findSetting('admin.account_expiration_days');
+        $setting = $this->findSetting('admin.account_expiration_days');
 
         if (!$setting->exists) {
             $setting->fill([
@@ -145,19 +145,57 @@ class AdminSettingSeeder extends Seeder
             ])->save();
         }
 
-    $setting = $this->findSetting('admin.active_proxies');
+        $setting = $this->findSetting('admin.active_proxies');
 
-    if (!$setting->exists) {
-        $setting->fill([
-            'display_name' => 'Activar Uso de Proxy',
-            'value'        => false,
-            'details'      => '',
-            'type'         => 'checkbox',
-            'order'        => 1,
-            'group'        => 'Admin',
-        ])->save();
-    }
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Activar Uso de Proxy',
+                'value'        => false,
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
 
+        $setting = $this->findSetting('admin.only_remove_libraries');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Solo remover librerias al momento de quitar el Servicio',
+                'value'        => false,
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
+        $setting = $this->findSetting('admin.days_of_grace');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Dias de Gracia',
+                'value'        => 0,
+                'details'      => '',
+                'type'         => 'text',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
+
+        $setting = $this->findSetting('admin.register_without_password_always');
+
+        if (!$setting->exists) {
+            $setting->fill([
+                'display_name' => 'Registrar Siempre Sin Clave',
+                'value'        => false,
+                'details'      => '',
+                'type'         => 'checkbox',
+                'order'        => 1,
+                'group'        => 'Admin',
+            ])->save();
+        }
     }
 
     protected function findSetting($key)

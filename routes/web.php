@@ -48,5 +48,8 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post("change-user",[ApiController::class, 'change_user'])->name('change_user');
     Route::post("import-from-plex",[ApiController::class, 'import_from_plex'])->name('import_from_plex');
     Route::post("activate-device", [ApiController::class, 'activate_device'])->name('activate_device');
+
+    Route::get("remove-libraries/{customer_id}",[ApiController::class, 'remove_libraries'])->name('remove_libraries');
+    Route::get("add-libraries/{customer_id}",[ApiController::class, 'add_libraries'])->name('add_libraries');
     Voyager::routes();
 });

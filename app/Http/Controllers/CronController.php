@@ -33,7 +33,13 @@ class CronController extends Controller
                     $plex->setServerCredentials($server->url, $server->token);
                     if(isset($data->invited_id) and !empty($data->invited_id)){
                         if(strtotime($data->date_to) < strtotime(date('Y-m-d'))){
-                           $plex->provider->removeFriend($data->invited_id);
+
+                            if(setting('admin.only_remove_libraries')){
+                                $this->plex->managerLibraries($data->id, "delete");
+                            }else{
+                                $plex->provider->removeFriend($data->invited_id);
+                            }
+                           
                            DB::table('customers')->where('id',$data->id)->update(['status'=>'inactive']);
                            $total++; 
                         }

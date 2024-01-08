@@ -390,6 +390,8 @@ class ServerController extends VoyagerBaseController
         $accounts = $this->plex->getRealAccountServerData($owner);
 
         $request->merge(['accounts_count'=>count($accounts)]);
+        
+        
 
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
@@ -405,6 +407,11 @@ class ServerController extends VoyagerBaseController
 
         $data = $query->findOrFail($id);
         $data->tmpName = $this->plex->name;
+
+        if(setting('admin.only_remove_libraries')){
+            $data->library_section_for_remove = $request->library_section_for_remove;
+        }
+
         if(!empty($request->limit_accounts)){
             $tope = intval($request->limit_accounts) - intval($data->customers->count());
             if($tope<=0){

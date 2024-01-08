@@ -999,4 +999,19 @@ class Plex {
         $movement->server = $data->server->name." - ".$data->server->local_name;
         $movement->save();
     }
+
+    public function managerLibraries($customer_id, $type="add"){
+        $customer = Customer::findorfail($customer_id);
+        
+        $librarySectionIds = [];
+
+        if($type == "delete"){
+           $librarySectionIds = [
+            (string) !empty($customer->server->library_section_for_remove) ? $customer->server->library_section_for_remove : ""
+           ];
+        } 
+        
+        $this->setServerCredentials($customer->server->url, $customer->server->token);
+        $this->provider->updateFriendLibraries($customer->invited_id, $librarySectionIds);
+    }
 }

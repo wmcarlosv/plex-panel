@@ -106,6 +106,18 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                @if(setting('admin.only_remove_libraries'))
+                                    <div class="form-group col-md-12">
+                                        <label for="">Lbreria para mostrar en caso de Quitar el Servicio:</label>
+                                        <select name="library_section_for_remove" class="form-control">
+                                            <option value="">Seleccione</option>
+                                            @foreach($libraries as $library)
+                                            <option value="{{$library['Section']['id']}}" @if($library["Section"]["id"] == $dataTypeContent->library_section_for_remove) selected='selected' @endif>{{$library['Section']['title']}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                             @endif
 
                         </div><!-- panel-body -->

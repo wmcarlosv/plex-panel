@@ -362,11 +362,20 @@
                                                 @endif
 
                                                 @if($data->status == "active")
-                                                    <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
+                                                    @if(!setting('admin.only_remove_libraries'))
+                                                        <li><a href="#" class="repair-account" data-row='{{json_encode($data)}}'>Reparar Cuenta</a></li>
+                                                    @endif
                                                 @endif
                                                 @if($data->password !="#5inCl4ve#")
                                                     <li><a href="#" class="change-password-user-plex" data-row='{{json_encode($data)}}'>Cambiar Clave en Plex</a></li>
                                                     <li><a href="#" class="activate-device" data-row='{{json_encode($data)}}'>Activar Cuenta en Dispositivo</a></li>
+                                                @endif
+
+                                                @if(Auth::user()->role_id == 4 || Auth::user()->role_id == 1)
+                                                    @if(setting('admin.only_remove_libraries'))
+                                                        <li><a href="{{ route('remove_libraries', $data->id) }}" class="remove-or-add-libraries" data-row='{{json_encode($data)}}'>Quitar Librerias</a></li>
+                                                        <li><a href="{{ route('add_libraries', $data->id) }}" class="remove-or-add-libraries" data-row='{{json_encode($data)}}'>Agregar Librerias</a></li>
+                                                    @endif
                                                 @endif
                                               </ul>
                                             </div>
@@ -776,6 +785,37 @@
 
             });
 
+            $("body").on("click","a.remove-or-add-libraries", function(){
+
+                Swal.fire({
+                  title: 'Estas Seguro de realizar esta Accion?',
+                  icon: 'info',
+                  showCancelButton: true,
+                  confirmButtonText:'Aceptar',
+                  confirmButtonColor: "#2ecc71",
+                  cancelButtonText:'Cancelar',
+                  cancelButtonColor: "#fa2a00"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+
+                        Swal.fire({
+                          title: 'Advertencia',
+                          text: "Estamos Realizando el Cambio!!",
+                          icon: 'warning',
+                          showConfirmButton:false,
+                          allowOutsideClick: false,
+                          confirmButtonText: 'Yes, delete it!'
+                        });
+
+                        location.href=$(this).attr("href");
+
+                    }
+                });
+
+                return false;
+
+            });
+
             $("#convert-iphone-form").submit(function(){
                 $("#btn-convert-iphone").attr("disabled", true).text("Cargando...");
                 $("#convert-iphone-cancel").attr("disabled", true);
@@ -896,7 +936,7 @@
                     Swal.fire({
                       title: 'Estos son los datos que debes darle al cliente!!',
                       icon: 'info',
-                      html:'<textarea id="field_copy" class="form-control" style="height: 200px; width: 403px;" readonly>Correo: {{$data->email}}\nEnlace Activacion: https://plex.tv/pms/home/users/accept.html?invite_token={{$data->plex_user_id}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
+                      html:'<textarea id="field_copy" class="form-control" style="height: 200px; width: 403px;" readonly>Correo: {{$data->email}}\nEnlace Activacion: https://plex.tv/servers/shared_servers/accept?invite_token={{$data->plex_user_id}}\nUsuario: {{$data->plex_user_name}}\nPantallas: {{$data->screens}}\nPin: {{$data->pin}}\nFecha de Vencimiento: {{date("d-m-Y",strtotime($data->date_to))}}</textarea>',
                       confirmButtonColor: '#5cb85c',
                       confirmButtonText: 'Copiar y Salir',
                       allowOutsideClick:false
